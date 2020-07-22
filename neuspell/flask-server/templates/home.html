@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en" background-color="darkgray">
+	<head>
+		<title>Home</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+	</head>
+	<body>
+
+		<p style="margin-bottom:1cm;"></p>
+		<header>
+			<div class="container">
+				<div class="container col-lg-6 text-center">
+					<h2>NeuSpell: A Neural Spelling Correction Toolkit</h2>
+				</div>
+			</div>
+		</header>
+
+	    <p style="margin-bottom:1cm;"></p>
+	    <div class="container col-lg-6 text-right">
+	        <div style="padding-bottom: 0.5cm">
+	            <div class="card text-center bg-light">
+	                <div class="card-body" style="padding-bottom: 0.2cm">
+						<form action="{{ url_for('loaded')}}" method="POST">
+							<label for="checkers">Choose a spell checker</label>
+		    				<select name="checkers" id="checkers">
+								<option value="elmosc-rnn">SC-LSTM +ELMO(input)</option>
+								<option value="bert">BERT</option>
+								<option value="sc-rnn">SC-LSTM</option>
+								<option value="cnn-rnn">CHAR-CNN-LSTM</option>
+								<option value="nested-rnn">CHAR-LSTM-LSTM</option>
+								<option value="scrnn-elmo">SC-LSTM +ELMO(output)</option>
+								<option value="bertsc-rnn">SC-LSTM +BERT(input)</option>
+								<option value="scrnn-bert">SC-LSTM +BERT(output)</option>
+								<option value="aspell">ASPELL</option>
+								<option value="jamspell">JAMSPELL</option>
+		    				</select>
+ 		    				<!-- <br>
+		    				<label for="topk">Choose n for top-n predictions</label>
+							<select name="topk" id="topk">
+								<option value="1">1</option>
+								<option value="3">3</option>
+							</select>
+							<br> -->
+							<br>
+			    			<input type="submit" class="btn-info" value="submit">
+			  			</form>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+
+
+	</body>
+</html>

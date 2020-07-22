@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Spell-Checking</title>
+	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+	</head>
+	<body>
+
+		<p style="margin-bottom:0.2cm;"></p>
+		<header>
+			<div class="container">
+				<div class="container col-lg-6 text-center">
+					<h2>NeuSpell: A Neural Spelling Correction Toolkit</h2>
+				</div>
+			</div>
+		</header>
+
+	    <p style="margin-bottom:1cm;"></p>
+	    <div class="container col-lg-6 text-right">
+	        <div style="padding-bottom: 0.5cm">
+	        	<!-- <div class="card text-center bg-light"> -->
+	                <div class="card-body" style="padding-bottom: 0.2cm">
+						<form action="{{ url_for('home')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="Go To Homepage"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>
+	               <!-- </div> -->
+	        </div>
+	    </div>
+	    <p style="margin-bottom:0.5cm;"></p>
+	    <div class="container col-lg-6">
+	        <div style="padding-bottom: 0.5cm">
+	            <div class="card text-center bg-light">
+	                <div class="card-body" style="padding-bottom:0.2cm; ">
+	                	<form action="{{ url_for('predict')}}" method="POST" onsubmit='copyContent()'>
+	                		<!-- need to be div because we wanna color partially -->
+	                		<!-- newly added snippet start -->
+	                		<textarea name="hidden-message" id="hidden-message" style="display:none;"></textarea>
+							<script>
+							function copyContent () {
+							    document.getElementById("hidden-message").value   =  
+							        document.getElementById("message-txt").innerText  ;
+							}
+							</script>
+							<!-- newly added snippet end -->
+	                		<div class="card-title form-control" type="text" id="message-txt" name="message" placeholder="Enter some text for spell checking..." rows="3" cols="50" contenteditable="true" style="text-align:left;"></div>
+	                    	<input class="card-text btn btn-outline-primary" style="position: absolute; left: 36%;" id="btn" type="submit" value="correct it"></button>
+                    		<div class="spinner" id="spinner" style="display: none">
+                      			<div class="double-bounce1"></div>
+                      			<div class="double-bounce2"></div>
+                    		</div>
+                    	</form>
+						<form action="{{ url_for('reset')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" style="position: relative; left: 7%;" id="btn" type="submit" value="reset" name="message"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+
+
+
+	    <p style="margin-bottom:0.75cm;"></p>
+	    <div class="container col-lg-6 text-right">
+	        <div style="padding-bottom: 0.5cm">
+	                <div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="they fought a deadly waer" name="hidden-message"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>
+	                <div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="this is not the write thing to do" name="hidden-message"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>
+	                <div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="i don't no!" name="hidden-message"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div> 
+	                <div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="Well,becuz badd spelln is ard to undrstnd wen ou rid it." name="hidden-message"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>
+	                <div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="Sahara dasart has a hot and dry climate" name="hidden-message"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>
+	            	<div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="Ice cream is my favorite dasart" name="hidden-message"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>
+	                <div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="of Spain, and casting the enormous some of $60,000." name="hidden-message"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>
+	                <div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="This job is going to take sum time." name="hidden-message"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>
+	                <div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="the thief got cot robing the benk" name="hidden-message"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>	
+	                <div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="My shoelaces can knot be tide into a not" name="hidden-message"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>	               
+	                <div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="I oh this passoin to my high scholl frand Jason" name="hidden-message"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>
+	                <div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="According to your brochour , the show would start at 19.30 p.m. but it started at 20.15 p.m. I wanted to sleep and it was very anoying ." name="hidden-message" style="width: 100%; white-space: normal !important; word-wrap: break-word !important; text-align: left"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>
+	                <div class="card-body text-left" style="padding-bottom:0.2cm; float:left; margin:5px;">
+						<form action="{{ url_for('predict')}}" method="POST">
+	                    	<input class="card-text btn btn-outline-primary" id="btn" type="submit" value="Aoccdrnig to a rscheearch at Cmabrigde Uinervtisy, it deosn’t mttaer in waht oredr the ltteers in a wrod are, the olny iprmoetnt tihng is taht the frist and lsat ltteer be at the rghit pclae. The rset can be a toatl mses and you can sitll raed it wouthit porbelm. Tihs is bcuseae the huamn mnid deos not raed ervey lteter by istlef, but the wrod as a wlohe" name="hidden-message" style="width: 100%; white-space: normal !important; word-wrap: break-word !important; text-align: left"></button>
+	                    	<div class="spinner" id="spinner" style="display: none">
+	                      		<div class="double-bounce1"></div>
+	                      		<div class="double-bounce2"></div>
+	                    	</div>
+	                    </form>
+	                </div>               	                                
+	        </div>
+	    </div>
+
+	    
+	</body>
+</html>
