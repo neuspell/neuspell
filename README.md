@@ -23,8 +23,8 @@ NeuSpell is an open-source toolkit for context sensitive spelling correction in 
 This pipeline corresponds to the ```SC-LSTM plus ELMO (at input)``` model.
 
 ##### Command line usage
-![alt text](https://github.com/neuspell/neuspell/blob/master/images/cmd.png?raw=true)
 You can also find this quick-start code snippet in the ```test_neuspell.py``` file
+![alt text](https://github.com/neuspell/neuspell/blob/master/images/cmd.png?raw=true)
 
 ### Evaluations
 | Spell<br>Checker    | Word<br>Correction <br>Rate | Time per<br>sentence <br>(in milliseconds) |
@@ -79,3 +79,28 @@ Train files are dubbed with names ```.random```, ```.word```, ```.prob```, ```pr
 - Improving grammatical error correction systems
 - Improving Intent/Domain classifiers in conversational  AI
 - Spell Checking in Collaboration and Productivity tools
+
+### Requirements
+The toolkit was developed in python 3.7. 
+
+Required packages can be installed as:
+```
+pip install -r requirements.txt
+```
+The code requires spacy models which can be downloaded as:
+```
+python -m spacy download en_core_web_sm
+```
+Requirements for ```Aspell``` checker:
+```
+wget https://files.pythonhosted.org/packages/53/30/d995126fe8c4800f7a9b31aa0e7e5b2896f5f84db4b7513df746b2a286da/aspell-python-py3-1.15.tar.bz2
+tar -C . -xvf aspell-python-py3-1.15.tar.bz2
+cd aspell-python-py3-1.15
+python setup.py install
+```
+Requirements for ```Jamspell``` checker:
+```
+sudo apt-get install -y swig3.0
+wget -P ./ https://github.com/bakwc/JamSpell-models/raw/master/en.tar.gz
+tar xf ./en.tar.gz --directory ./
+```

@@ -15,7 +15,7 @@ from neuspell import BertsclstmChecker, SclstmbertChecker
 
 traintest_path = "./data/traintest"
 
-TestCheker = ElmosclstmChecker
+TestCheker = SclstmChecker
 
 checker = TestCheker(pretrained=False)
 checker = TestCheker(pretrained=True)

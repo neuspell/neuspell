@@ -28,8 +28,8 @@ class CorrectorSubwordBert(object):
         assert not (self.model is None or self.vocab is None), print("model & vocab must be loaded first")
         return
 
-    def from_pretrained(self, ckpt_path, vocab = "", weights = ""):
-        self.ckpt_path = ckpt_path        
+    def from_pretrained(self, ckpt_path, vocab="", weights=""):
+        self.ckpt_path = ckpt_path
         self.vocab_path = vocab if vocab else os.path.join(ckpt_path,"vocab.pkl")
         print(f"loading vocab from path:{self.vocab_path}")
         self.vocab = load_vocab_dict(self.vocab_path)
@@ -37,7 +37,7 @@ class CorrectorSubwordBert(object):
         self.model = load_model(self.vocab)
         self.weights_path = weights if weights else self.ckpt_path
         print(f"loading pretrained weights from path:{self.weights_path}")
-        self.model = load_pretrained(self.model,self.weights_path)
+        self.model = load_pretrained(self.model, self.weights_path, device=self.device)
         return
 
     def set_device(self, device='cpu'):

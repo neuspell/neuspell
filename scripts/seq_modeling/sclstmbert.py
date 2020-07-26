@@ -63,11 +63,15 @@ def load_model(vocab):
 
     return model
 
-def load_pretrained(model, CHECKPOINT_PATH, optimizer=None):
+def load_pretrained(model, CHECKPOINT_PATH, optimizer=None, device='cuda'):
 
+    if torch.cuda.is_available() and device != "cpu":
+        map_location = lambda storage, loc: storage.cuda()
+    else:
+        map_location = 'cpu'
     print(f"Loading model params from checkpoint dir: {CHECKPOINT_PATH}")
-    checkpoint_data = torch.load(os.path.join(CHECKPOINT_PATH,"model.pth.tar"))
-    print(f"previously model saved at : {checkpoint_data['epoch_id']}")
+    checkpoint_data = torch.load(os.path.join(CHECKPOINT_PATH, "model.pth.tar"), map_location=map_location)
+    # print(f"previously model saved at : {checkpoint_data['epoch_id']}")
 
     model.load_state_dict(checkpoint_data['model_state_dict'])
     if optimizer is not None:

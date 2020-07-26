@@ -25,4 +25,4 @@ def custom_tokenizer(inp: str):
 spacy_tokenizer = custom_tokenizer
 
 """ constants """
-DEFAULT_DATA_PATH = "../data/"
+DEFAULT_DATA_PATH = "./data/"
