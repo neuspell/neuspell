@@ -121,6 +121,9 @@ class CorrectorAspell(object):
 
         return
 
+    def model_size(self):
+        return None
+
 
 if __name__=="__main__":
 

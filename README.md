@@ -87,7 +87,7 @@ Required packages can be installed as:
 ```
 pip install -r requirements.txt
 ```
-The code requires spacy models which can be downloaded as:
+The code requires ```spacy models``` which can be downloaded as:
 ```
 python -m spacy download en_core_web_sm
 ```

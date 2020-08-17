@@ -3,10 +3,10 @@ from typing import List
 import torch
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
-from scripts.seq_modeling.subwordbert import load_model, load_vocab_dict, load_pretrained, model_predictions, model_inference
-from scripts.seq_modeling.helpers import load_data
-from commons import DEFAULT_DATA_PATH
+from scripts.seq_modeling.subwordbert import load_model, load_pretrained, model_predictions, model_inference
+from scripts.seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
 from scripts.seq_modeling.helpers import bert_tokenize_for_valid_examples
+from commons import DEFAULT_DATA_PATH
 
 
 """ corrector module """
@@ -104,3 +104,7 @@ class CorrectorSubwordBert(object):
                                 BATCH_SIZE=batch_size, 
                                 vocab_=self.vocab)
         return
+
+    def model_size(self):
+        self.__model_status()
+        return get_model_nparams(self.model)

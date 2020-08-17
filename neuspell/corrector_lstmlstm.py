@@ -3,8 +3,8 @@ from typing import List
 import torch
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
-from scripts.seq_modeling.lstmlstm import load_model, load_vocab_dict, load_pretrained, model_predictions, model_inference
-from scripts.seq_modeling.helpers import load_data
+from scripts.seq_modeling.lstmlstm import load_model, load_pretrained, model_predictions, model_inference
+from scripts.seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
 from commons import spacy_tokenizer, DEFAULT_DATA_PATH
 
 
@@ -104,3 +104,7 @@ class CorrectorLstmLstm(object):
                                 BATCH_SIZE=batch_size, 
                                 vocab_=self.vocab)
         return
+
+    def model_size(self):
+        self.__model_status()
+        return get_model_nparams(self.model)

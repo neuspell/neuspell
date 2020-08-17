@@ -93,3 +93,7 @@ class CorrectorJamspell(object):
             print("###############################################")
 
         return
+
+    def model_size(self):
+        return None
+

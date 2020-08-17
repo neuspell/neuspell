@@ -5,8 +5,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/.")
 
 # 10 spell checkers
 
-from corrector_aspell import CorrectorAspell as AspellChecker
-from corrector_jamspell import CorrectorJamspell as JamspellChecker
+# from corrector_aspell import CorrectorAspell as AspellChecker
+# from corrector_jamspell import CorrectorJamspell as JamspellChecker
 
 from corrector_cnnlstm import CorrectorCnnLstm as CnnlstmChecker
 from corrector_sclstm import CorrectorSCLstm as SclstmChecker
