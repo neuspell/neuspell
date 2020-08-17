@@ -7,6 +7,10 @@ from scripts.seq_modeling.sclstm import load_model, load_pretrained, model_predi
 from scripts.seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
 from commons import spacy_tokenizer, DEFAULT_DATA_PATH
 
+from corrector_elmosclstm import CorrectorElmoSCLstm as ElmosclstmChecker
+from corrector_sclstmelmo import CorrectorSCLstmElmo as SclstmelmoChecker
+from corrector_bertsclstm import CorrectorBertSCLstm as BertsclstmChecker
+from corrector_sclstmbert import CorrectorSCLstmBert as SclstmbertChecker
 
 """ corrector module """
 class CorrectorSCLstm(object):
@@ -108,3 +112,24 @@ class CorrectorSCLstm(object):
     def model_size(self):
         self.__model_status()
         return get_model_nparams(self.model)
+
+    def add_(self, contextual_model, at="input"):
+        """
+        :param contextual_model: choose one of "elmo" or "bert"
+        :param at: choose one of "input" or "output"
+        :return: a new checker model with contextual model added
+        """
+        assert contextual_model in ["elmo", "bert"]
+        assert at in ["input", "output"]
+        
+        new_checker_name = None
+        if contextual_model == "elmo":
+            new_checker_name = ElmosclstmChecker if at == "input" else SclstmelmoChecker
+        elif contextual_model == "bert":
+            new_checker_name = BertsclstmChecker if at == "input" else SclstmbertChecker
+
+        new_checker = new_checker_name(tokenize=self.tokenize,
+                                       pretrained=True,
+                                       device=self.device)
+        print(f"new model loaded: {new_checker_name}")
+        return new_checker
