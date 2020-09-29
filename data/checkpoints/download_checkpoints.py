@@ -55,7 +55,7 @@ def create_paths(path_: str):
 if __name__ == "__main__":
 
     # cnn-lstm-probwordnoise
-    create_paths("./cnn-lstm-probnoise")
+    create_paths("./cnn-lstm-probwordnoise")
     download_file_from_google_drive('1wEKynHMlBnw2N65jRw8Xox4fsl8BJpmv', './cnn-lstm-probwordnoise/model.pth.tar')
     download_file_from_google_drive('13FS6DCsWwrFKEVZl04ELTQulTVzQ0WvP', './cnn-lstm-probwordnoise/vocab.pkl')
 
