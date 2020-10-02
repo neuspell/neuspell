@@ -24,8 +24,32 @@ This pipeline corresponds to the ```SC-LSTM plus ELMO (at input)``` model.
 
 ##### Command line usage
 You can also find this quick-start code snippet in the ```test_neuspell.py``` file
-![alt text](https://github.com/neuspell/neuspell/blob/master/images/cmd.png?raw=true)
+``` python
+""" load spell checkers """
+from neuspell import BertsclstmChecker, SclstmChecker
+checker = SclstmChecker()
+checker = checker.add_("elmo", at="input")
+checker.from_pretrained("./data/checkpoints/elmoscrnn-probwordnoise")
 
+""" spell correction """
+checker.correct(["I luk foward to receving your reply"])
+# → ["I look forward to receiving your reply"]
+checker.correct_from_file(src="noisy_texts.txt")
+# → "Found 450 mistakes in 322 lines, total_lines=350"
+
+""" evaluation of models """
+checker.evaluate(clean_file="bea60k.txt", corrupt_file="bea60k.noise.txt")
+# → data size: 63044
+# → total inference time for this data is: 998.13 secs
+# → total token count: 1032061
+# → confusion table: corr2corr:940937, corr2incorr:21060,
+#                    incorr2corr:55889, incorr2incorr:14175
+# → accuracy is 96.58%
+# → word correction rate is 79.76%
+
+""" fine-tuning on domain specific dataset """
+checker.finetune(clean_file="clean.txt", corrupt_file="corrupt.txt")
+```
 ### Evaluations
 | Spell<br>Checker    | Word<br>Correction <br>Rate | Time per<br>sentence <br>(in milliseconds) |
 |----------|----------------------|--------------------------------------|
