@@ -2,7 +2,7 @@
 <p>NeuSpell: A Neural Spelling Correction Toolkit
 </h3>
 
-### Introduction
+# Introduction
 NeuSpell is an open-source toolkit for context sensitive spelling correction in English. This toolkit comprises of 10 spell checkers, with evaluations on naturally occurring mis-spellings from multiple (publicly available) sources. To make neural models for spell checking context dependent, (i) we train neural models using spelling errors in context, synthetically constructed by reverse engineering isolated mis-spellings; and  (ii) use richer representations of the context.This toolkit enables NLP practitioners to use our proposed and existing spelling correction systems, both via a simple unified command line,  as well as a web interface. Among many potential applications, we demonstrate the utility of our spell-checkers in combating adversarial misspellings.
 
 ##### Demo available at <http://neuspell.github.io/>
@@ -50,7 +50,7 @@ checker.evaluate(clean_file="bea60k.txt", corrupt_file="bea60k.noise.txt")
 """ fine-tuning on domain specific dataset """
 checker.finetune(clean_file="clean.txt", corrupt_file="corrupt.txt")
 ```
-### Evaluations
+# Evaluations
 | Spell<br>Checker    | Word<br>Correction <br>Rate | Time per<br>sentence <br>(in milliseconds) |
 |----------|----------------------|--------------------------------------|
 | ```Aspell``` | 48.7 | 7.3* |
@@ -68,7 +68,7 @@ Performance of different correctors in the NeuSpell  toolkit  on  the  ```BEA-60
 ∗ indicates  evaluation  on  a CPU (for others we use a GeForce RTX 2080 Ti GPU).
 
 
-### Using trained models
+# Pretrained models
 
 ##### Checkpoints
 Run the following to download checkpoints of all neural models
@@ -79,9 +79,9 @@ python download_checkpoints.py
 See ```data/checkpoints/README.md``` for more details. You can alternatively choose to download only selected models' checkpoints.
 
 
-### Re-training/Fine-tuning
+# Datasets
 
-##### Datasets
+##### Download datasets
 Run the following to download datasets
 ```
 cd data/traintest
@@ -95,16 +95,18 @@ The toolkit offers 4 kinds of noising strategies to generate synthetic parallel 
 - ```Word Replacement```
 - ```Probabilistic Replacement```
 - A combination of ```Word Replacement``` and ```Probabilistic Replacement```
-Train files are dubbed with names ```.random```, ```.word```, ```.prob```, ```probword``` respectively. For each strategy, we noise ∼20% of the tokens in the clean corpus. We use 1.6 Million sentences from the [```One billion word benchmark```](https://arxiv.org/abs/1312.3005) dataset as our clean corpus.
 
-### Applications for practitioners
-- Defenses against adversarial attacks in NLP
+Train files are dubbed with names ```.random```, ```.word```, ```.prob```, ```.probword``` respectively. For each strategy, we noise ∼20% of the tokens in the clean corpus. We use 1.6 Million sentences from the [```One billion word benchmark```](https://arxiv.org/abs/1312.3005) dataset as our clean corpus.
+
+# Potential applications for practitioners
+- Defenses against adversarial attacks in NLP 
+    - example implementation available in folder ```./applications/Adversarial-Misspellings```
 - Improving OCR text correction systems
 - Improving grammatical error correction systems
 - Improving Intent/Domain classifiers in conversational  AI
 - Spell Checking in Collaboration and Productivity tools
 
-### Requirements
+# Requirements
 The toolkit was developed in python 3.7. 
 
 Required packages can be installed as:
