@@ -130,3 +130,15 @@ sudo apt-get install -y swig3.0
 wget -P ./ https://github.com/bakwc/JamSpell-models/raw/master/en.tar.gz
 tar xf ./en.tar.gz --directory ./
 ```
+
+# Citation
+```
+@misc{jayanthi2020neuspell,
+      title={NeuSpell: A Neural Spelling Correction Toolkit}, 
+      author={Sai Muralidhar Jayanthi and Danish Pruthi and Graham Neubig},
+      year={2020},
+      eprint={2010.11085},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
+```
