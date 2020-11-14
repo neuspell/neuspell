@@ -1,12 +1,28 @@
-<h2 align="center">
+<h1 align="center">
 <p>NeuSpell: A Neural Spelling Correction Toolkit
-</h3>
+</h1>
+
+# Contents
+- [Introduction](#Introduction)
+- [Performances](#Performances)
+- [Pretrained models](#Pretrained-models)
+- [Datasets](#Datasets)
+- [Applications](#Potential-applications-for-practitioners)
+- [Requirements](#Requirements)
+
+# Updates
+- 14 November, 2020: Our ```BERT``` pretrained model is now available as part of huggingface models as ```murali1996/bert-base-cased-spell-correction```. We provide an example code snippet at [./scripts/huggingface](scripts/huggingface/hgface-snippet-for-neuspell.py) for curious practitioners.
+- 14 September, 2020: This work is accepted at EMNLP 2020 (system demonstrations)
 
 # Introduction
 NeuSpell is an open-source toolkit for context sensitive spelling correction in English. This toolkit comprises of 10 spell checkers, with evaluations on naturally occurring mis-spellings from multiple (publicly available) sources. To make neural models for spell checking context dependent, (i) we train neural models using spelling errors in context, synthetically constructed by reverse engineering isolated mis-spellings; and  (ii) use richer representations of the context.This toolkit enables NLP practitioners to use our proposed and existing spelling correction systems, both via a simple unified command line,  as well as a web interface. Among many potential applications, we demonstrate the utility of our spell-checkers in combating adversarial misspellings.
 
 ##### Demo available at <http://neuspell.github.io/>
-![alt text](https://github.com/neuspell/neuspell/blob/master/images/ui.png?raw=true)
+<p align="center">
+    <br>
+    <img src="https://github.com/neuspell/neuspell/blob/master/images/ui.png?raw=true" width="400"/>
+    <br>
+<p>
 
 ##### List of neural models in the toolkit:
 
@@ -19,8 +35,13 @@ NeuSpell is an open-source toolkit for context sensitive spelling correction in 
 - [```SC-LSTM plus BERT (at input)```](https://huggingface.co/transformers/bertology.html)
 - [```SC-LSTM plus BERT (at output)```](https://huggingface.co/transformers/bertology.html)
 
-![alt text](https://github.com/neuspell/neuspell/blob/master/images/pipeline.jpeg?raw=true)
-This pipeline corresponds to the ```SC-LSTM plus ELMO (at input)``` model.
+<p align="center">
+    <br>
+    <img src="https://github.com/neuspell/neuspell/blob/master/images/pipeline.jpeg?raw=true" width="400"/>
+    <br>
+    This pipeline corresponds to the `SC-LSTM plus ELMO (at input)` model.
+<p>
+
 
 ##### Command line usage
 You can also find this quick-start code snippet in the ```test_neuspell.py``` file
@@ -50,7 +71,8 @@ checker.evaluate(clean_file="bea60k.txt", corrupt_file="bea60k.noise.txt")
 """ fine-tuning on domain specific dataset """
 checker.finetune(clean_file="clean.txt", corrupt_file="corrupt.txt")
 ```
-# Evaluations
+
+# Performances
 | Spell<br>Checker    | Word<br>Correction <br>Rate | Time per<br>sentence <br>(in milliseconds) |
 |----------|----------------------|--------------------------------------|
 | ```Aspell``` | 48.7 | 7.3* |
@@ -67,7 +89,6 @@ checker.finetune(clean_file="clean.txt", corrupt_file="corrupt.txt")
 Performance of different correctors in the NeuSpell  toolkit  on  the  ```BEA-60K```  dataset  with  real-world  spelling  mistakes. 
 ∗ indicates  evaluation  on  a CPU (for others we use a GeForce RTX 2080 Ti GPU).
 
-
 # Pretrained models
 
 ##### Checkpoints
@@ -77,7 +98,6 @@ cd data/checkpoints
 python download_checkpoints.py 
 ```
 See ```data/checkpoints/README.md``` for more details. You can alternatively choose to download only selected models' checkpoints.
-
 
 # Datasets
 
@@ -130,6 +150,7 @@ sudo apt-get install -y swig3.0
 wget -P ./ https://github.com/bakwc/JamSpell-models/raw/master/en.tar.gz
 tar xf ./en.tar.gz --directory ./
 ```
+
 
 # Citation
 ```
