@@ -1,4 +1,4 @@
-
+import os
 
 """ spacy tokenization """
 
@@ -25,4 +25,9 @@ def custom_tokenizer(inp: str):
 spacy_tokenizer = custom_tokenizer
 
 """ constants """
-DEFAULT_DATA_PATH = "./data/"
+DEFAULT_DATA_PATH = "/neuspell/data/"
+assert os.path.isabs(DEFAULT_DATA_PATH)
+if not os.path.isdir(DEFAULT_DATA_PATH):
+    print("******")
+    print(f"data folder is set to {DEFAULT_DATA_PATH}. If incorrect, please replace it with correct absoulte path.")
+    print("******")
