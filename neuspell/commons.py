@@ -25,7 +25,7 @@ def custom_tokenizer(inp: str):
 spacy_tokenizer = custom_tokenizer
 
 """ constants """
-DEFAULT_DATA_PATH = "/neuspell/data/"
+DEFAULT_DATA_PATH = "/neuspell/data"
 assert os.path.isabs(DEFAULT_DATA_PATH)
 if not os.path.isdir(DEFAULT_DATA_PATH):
     print("******")
