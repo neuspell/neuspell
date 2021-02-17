@@ -163,12 +163,19 @@ tar xf ./en.tar.gz --directory ./
 
 # Citation
 ```
-@misc{jayanthi2020neuspell,
-      title={NeuSpell: A Neural Spelling Correction Toolkit}, 
-      author={Sai Muralidhar Jayanthi and Danish Pruthi and Graham Neubig},
-      year={2020},
-      eprint={2010.11085},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
+@inproceedings{jayanthi-etal-2020-neuspell,
+    title = "{N}eu{S}pell: A Neural Spelling Correction Toolkit",
+    author = "Jayanthi, Sai Muralidhar  and
+      Pruthi, Danish  and
+      Neubig, Graham",
+    booktitle = "Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing: System Demonstrations",
+    month = oct,
+    year = "2020",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/2020.emnlp-demos.21",
+    doi = "10.18653/v1/2020.emnlp-demos.21",
+    pages = "158--164",
+    abstract = "We introduce NeuSpell, an open-source toolkit for spelling correction in English. Our toolkit comprises ten different models, and benchmarks them on naturally occurring misspellings from multiple sources. We find that many systems do not adequately leverage the context around the misspelt token. To remedy this, (i) we train neural models using spelling errors in context, synthetically constructed by reverse engineering isolated misspellings; and (ii) use richer representations of the context. By training on our synthetic examples, correction rates improve by 9{\%} (absolute) compared to the case when models are trained on randomly sampled character perturbations. Using richer contextual representations boosts the correction rate by another 3{\%}. Our toolkit enables practitioners to use our proposed and existing spelling correction systems, both via a simple unified command line, as well as a web interface. Among many potential applications, we demonstrate the utility of our spell-checkers in combating adversarial misspellings. The toolkit can be accessed at neuspell.github.io.",
 }
 ```
