@@ -128,6 +128,8 @@ checkpoints/
 large_files/
 data/collections/
 data/traintest/
+data/gec2spellcorrection/
+data/checkpoints
 logs/
 
 # Do not ignore these
