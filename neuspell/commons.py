@@ -8,12 +8,14 @@ import spacy
 """ constants """
 
 DEFAULT_DATA_PATH = os.path.join(os.path.split(__file__)[0], "../data")
-print(f"data folder is set to {DEFAULT_DATA_PATH} in neuspell/commons.py script")
+print(f"data folder is set to `{DEFAULT_DATA_PATH}` in `neuspell/commons.py` script")
 # assert os.path.isabs(DEFAULT_DATA_PATH)
 # if not os.path.isdir(DEFAULT_DATA_PATH):
 #     print("******")
 #     print(f"data folder is set to {DEFAULT_DATA_PATH}. If incorrect, please replace it with correct path.")
 #     print("******")
+if not os.path.exists(DEFAULT_DATA_PATH):
+    os.makedirs(DEFAULT_DATA_PATH)
 
 """ base class """
 
