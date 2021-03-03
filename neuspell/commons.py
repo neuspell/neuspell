@@ -7,7 +7,7 @@ import spacy
 
 """ constants """
 
-DEFAULT_DATA_PATH = "./data/"
+DEFAULT_DATA_PATH = "./data"
 # assert os.path.isabs(DEFAULT_DATA_PATH)
 if not os.path.isdir(DEFAULT_DATA_PATH):
     print("******")
