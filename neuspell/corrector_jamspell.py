@@ -1,18 +1,18 @@
-from tqdm import tqdm
-from time import time
-import os
 import sys
-import jamspell
+from time import time
 from typing import List
 
-import sys
+import jamspell
+from tqdm import tqdm
+
 sys.path.append("/..")
 from scripts.seq_modeling.helpers import load_data
 from commons import spacy_tokenizer
 from scripts.evals import get_metrics
 
-
 """ corrector module """
+
+
 class CorrectorJamspell(object):
     def __init__(self, tokenize=True, pretrained=False, device="cpu"):
         self.tokenize = tokenize
@@ -25,8 +25,8 @@ class CorrectorJamspell(object):
 
         self.model = jamspell.TSpellCorrector()
         self.model.LoadLangModel('en.bin')
-    
-    def from_pretrained(self, ckpt_path, vocab = "", weights = ""):
+
+    def from_pretrained(self, ckpt_path, vocab="", weights=""):
         return
 
     def set_device(self, device='cpu'):
@@ -59,12 +59,12 @@ class CorrectorJamspell(object):
         """
         src = f"{DEFAULT_DATA_PATH}/traintest/corrupt.txt"
         """
-        x = [line.strip() for line in open(src,'r')]
+        x = [line.strip() for line in open(src, 'r')]
         y = self.correct_strings(x)
         print(f"saving results at: {dest}")
-        opfile = open(dest,'w')
+        opfile = open(dest, 'w')
         for line in y:
-            opfile.write(line+"\n")
+            opfile.write(line + "\n")
         opfile.close()
         return
 
@@ -73,27 +73,27 @@ class CorrectorJamspell(object):
         clean_file = f"{DEFAULT_DATA_PATH}/traintest/clean.txt"
         corrupt_file = f"{DEFAULT_DATA_PATH}/traintest/corrupt.txt"
         """
-        for x,y,z in zip([""],[clean_file],[corrupt_file]):
-            print(x,y,z)
-            test_data = load_data(x,y,z)
+        for x, y, z in zip([""], [clean_file], [corrupt_file]):
+            print(x, y, z)
+            test_data = load_data(x, y, z)
             clean_data = [x[0] for x in test_data]
             corrupt_data = [x[1] for x in test_data]
             inference_st_time = time()
             predictions_data = self.correct_strings(corrupt_data)
-            assert len(clean_data)==len(corrupt_data)==len(predictions_data)
+            assert len(clean_data) == len(corrupt_data) == len(predictions_data)
             corr2corr, corr2incorr, incorr2corr, incorr2incorr = \
-                get_metrics(clean_data,corrupt_data,predictions_data)
+                get_metrics(clean_data, corrupt_data, predictions_data)
 
-            print("total inference time for this data is: {:4f} secs".format(time()-inference_st_time))
+            print("total inference time for this data is: {:4f} secs".format(time() - inference_st_time))
             print("###############################################")
-            print("total token count: {}".format(corr2corr+corr2incorr+incorr2corr+incorr2incorr))
-            print(f"corr2corr:{corr2corr}, corr2incorr:{corr2incorr}, incorr2corr:{incorr2corr}, incorr2incorr:{incorr2incorr}")
-            print(f"accuracy is {(corr2corr+incorr2corr)/(corr2corr+corr2incorr+incorr2corr+incorr2incorr)}")
-            print(f"word correction rate is {(incorr2corr)/(incorr2corr+incorr2incorr)}")
+            print("total token count: {}".format(corr2corr + corr2incorr + incorr2corr + incorr2incorr))
+            print(
+                f"corr2corr:{corr2corr}, corr2incorr:{corr2incorr}, incorr2corr:{incorr2corr}, incorr2incorr:{incorr2incorr}")
+            print(f"accuracy is {(corr2corr + incorr2corr) / (corr2corr + corr2incorr + incorr2corr + incorr2incorr)}")
+            print(f"word correction rate is {(incorr2corr) / (incorr2corr + incorr2incorr)}")
             print("###############################################")
 
         return
 
     def model_size(self):
         return None
-

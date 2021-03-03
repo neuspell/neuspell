@@ -1,21 +1,23 @@
-import os, sys
+import os
 from typing import List
+
 import torch
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
-from scripts.seq_modeling.sclstm import load_model, load_pretrained, model_predictions, model_inference
-from scripts.seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
-from commons import spacy_tokenizer, DEFAULT_DATA_PATH
-
-from corrector_elmosclstm import CorrectorElmoSCLstm as ElmosclstmChecker
-from corrector_sclstmelmo import CorrectorSCLstmElmo as SclstmelmoChecker
-from corrector_bertsclstm import CorrectorBertSCLstm as BertsclstmChecker
-from corrector_sclstmbert import CorrectorSCLstmBert as SclstmbertChecker
+from .commons import spacy_tokenizer, DEFAULT_DATA_PATH, Corrector
+from .corrector_bertsclstm import CorrectorBertSCLstm as BertsclstmChecker
+from .corrector_elmosclstm import CorrectorElmoSCLstm as ElmosclstmChecker
+from .corrector_sclstmbert import CorrectorSCLstmBert as SclstmbertChecker
+from .corrector_sclstmelmo import CorrectorSCLstmElmo as SclstmelmoChecker
+from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
+from .seq_modeling.sclstm import load_model, load_pretrained, model_predictions, model_inference
 
 """ corrector module """
-class CorrectorSCLstm(object):
-    
+
+
+class CorrectorSCLstm(Corrector):
+
     def __init__(self, tokenize=True, pretrained=False, device="cpu"):
+        super(CorrectorSCLstm, self).__init__()
         self.tokenize = tokenize
         self.pretrained = pretrained
         self.device = device
@@ -32,8 +34,8 @@ class CorrectorSCLstm(object):
         return
 
     def from_pretrained(self, ckpt_path, vocab="", weights=""):
-        self.ckpt_path = ckpt_path        
-        self.vocab_path = vocab if vocab else os.path.join(ckpt_path,"vocab.pkl")
+        self.ckpt_path = ckpt_path
+        self.vocab_path = vocab if vocab else os.path.join(ckpt_path, "vocab.pkl")
         print(f"loading vocab from path:{self.vocab_path}")
         self.vocab = load_vocab_dict(self.vocab_path)
         print(f"initializing model")
@@ -69,25 +71,25 @@ class CorrectorSCLstm(object):
         self.__model_status()
         if self.tokenize:
             mystrings = [spacy_tokenizer(my_str) for my_str in mystrings]
-        data = [(line,line) for line in mystrings]
-        batch_size = 4 if self.device=="cpu" else 16
-        return_strings = model_predictions(self.model, data, self.vocab, DEVICE=self.device, BATCH_SIZE=batch_size)
+        data = [(line, line) for line in mystrings]
+        batch_size = 4 if self.device == "cpu" else 16
+        return_strings = model_predictions(self.model, data, self.vocab, device=self.device, batch_size=batch_size)
         if return_all:
             return mystrings, return_strings
         else:
             return return_strings
-            
+
     def correct_from_file(self, src, dest="./clean_version.txt"):
         """
         src = f"{DEFAULT_DATA_PATH}/traintest/corrupt.txt"
         """
         self.__model_status()
-        x = [line.strip() for line in open(src,'r')]
+        x = [line.strip() for line in open(src, 'r')]
         y = self.correct_strings(x)
         print(f"saving results at: {dest}")
-        opfile = open(dest,'w')
+        opfile = open(dest, 'w')
         for line in y:
-            opfile.write(line+"\n")
+            opfile.write(line + "\n")
         opfile.close()
         return
 
@@ -97,15 +99,15 @@ class CorrectorSCLstm(object):
         corrupt_file = f"{DEFAULT_DATA_PATH}/traintest/corrupt.txt"
         """
         self.__model_status()
-        batch_size = 4 if self.device=="cpu" else 16
-        for x,y,z in zip([""],[clean_file],[corrupt_file]):
-            print(x,y,z)
-            test_data = load_data(x,y,z)
+        batch_size = 4 if self.device == "cpu" else 16
+        for x, y, z in zip([""], [clean_file], [corrupt_file]):
+            print(x, y, z)
+            test_data = load_data(x, y, z)
             _ = model_inference(self.model,
                                 test_data,
                                 topk=1,
-                                DEVICE=self.device,
-                                BATCH_SIZE=batch_size, 
+                                device=self.device,
+                                batch_size=batch_size,
                                 vocab_=self.vocab)
         return
 
@@ -121,7 +123,7 @@ class CorrectorSCLstm(object):
         """
         assert contextual_model in ["elmo", "bert"]
         assert at in ["input", "output"]
-        
+
         new_checker_name = None
         if contextual_model == "elmo":
             new_checker_name = ElmosclstmChecker if at == "input" else SclstmelmoChecker

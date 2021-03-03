@@ -1,17 +1,19 @@
-import os, sys
+import os
 from typing import List
+
 import torch
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
-from scripts.seq_modeling.lstmlstm import load_model, load_pretrained, model_predictions, model_inference
-from scripts.seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
-from commons import spacy_tokenizer, DEFAULT_DATA_PATH
-
+from .commons import spacy_tokenizer, DEFAULT_DATA_PATH, Corrector
+from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
+from .seq_modeling.lstmlstm import load_model, load_pretrained, model_predictions, model_inference
 
 """ corrector module """
-class CorrectorLstmLstm(object):
-    
+
+
+class CorrectorLstmLstm(Corrector):
+
     def __init__(self, tokenize=True, pretrained=False, device="cpu"):
+        super(CorrectorLstmLstm, self).__init__()
         self.tokenize = tokenize
         self.pretrained = pretrained
         self.device = device
@@ -29,7 +31,7 @@ class CorrectorLstmLstm(object):
 
     def from_pretrained(self, ckpt_path, vocab="", weights=""):
         self.ckpt_path = ckpt_path
-        self.vocab_path = vocab if vocab else os.path.join(ckpt_path,"vocab.pkl")
+        self.vocab_path = vocab if vocab else os.path.join(ckpt_path, "vocab.pkl")
         print(f"loading vocab from path:{self.vocab_path}")
         self.vocab = load_vocab_dict(self.vocab_path)
         print(f"initializing model")
@@ -41,7 +43,7 @@ class CorrectorLstmLstm(object):
 
     def set_device(self, device='cpu'):
         prev_device = self.device
-        device = "cuda" if (device=="gpu" and torch.cuda.is_available()) else "cpu"
+        device = "cuda" if (device == "gpu" and torch.cuda.is_available()) else "cpu"
         if not (prev_device == device):
             if self.model is not None:
                 # please load again, facing issues with just .to(new_device) and new_device
@@ -65,25 +67,25 @@ class CorrectorLstmLstm(object):
         self.__model_status()
         if self.tokenize:
             mystrings = [spacy_tokenizer(my_str) for my_str in mystrings]
-        data = [(line,line) for line in mystrings]
-        batch_size = 4 if self.device=="cpu" else 16
-        return_strings = model_predictions(self.model, data, self.vocab, DEVICE=self.device, BATCH_SIZE=batch_size)
+        data = [(line, line) for line in mystrings]
+        batch_size = 4 if self.device == "cpu" else 16
+        return_strings = model_predictions(self.model, data, self.vocab, device=self.device, batch_size=batch_size)
         if return_all:
             return mystrings, return_strings
         else:
             return return_strings
-            
+
     def correct_from_file(self, src, dest="./clean_version.txt"):
         """
         src = f"{DEFAULT_DATA_PATH}/traintest/corrupt.txt"
         """
         self.__model_status()
-        x = [line.strip() for line in open(src,'r')]
+        x = [line.strip() for line in open(src, 'r')]
         y = self.correct_strings(x)
         print(f"saving results at: {dest}")
-        opfile = open(dest,'w')
+        opfile = open(dest, 'w')
         for line in y:
-            opfile.write(line+"\n")
+            opfile.write(line + "\n")
         opfile.close()
         return
 
@@ -93,15 +95,15 @@ class CorrectorLstmLstm(object):
         corrupt_file = f"{DEFAULT_DATA_PATH}/traintest/corrupt.txt"
         """
         self.__model_status()
-        batch_size = 4 if self.device=="cpu" else 16
-        for x,y,z in zip([""],[clean_file],[corrupt_file]):
-            print(x,y,z)
-            test_data = load_data(x,y,z)
+        batch_size = 4 if self.device == "cpu" else 16
+        for x, y, z in zip([""], [clean_file], [corrupt_file]):
+            print(x, y, z)
+            test_data = load_data(x, y, z)
             _ = model_inference(self.model,
                                 test_data,
                                 topk=1,
-                                DEVICE=self.device,
-                                BATCH_SIZE=batch_size, 
+                                device=self.device,
+                                batch_size=batch_size,
                                 vocab_=self.vocab)
         return
 

@@ -9,16 +9,15 @@ for cpu-only testing:
 """
 
 # from neuspell import AspellChecker, JamspellChecker
-from neuspell import CnnlstmChecker, SclstmChecker, NestedlstmChecker, BertChecker
-from neuspell import ElmosclstmChecker, SclstmelmoChecker
-from neuspell import BertsclstmChecker, SclstmbertChecker
+from neuspell import CnnlstmChecker, BertsclstmChecker, ElmosclstmChecker, NestedlstmChecker
+from neuspell import SclstmbertChecker, SclstmelmoChecker, BertChecker, SclstmChecker
 
 traintest_path = "./data/traintest"
-
-######################################################
-######################################################
-
 Checker = SclstmChecker
+
+######################################################
+######################################################
+
 
 """ load a checker from a checkpoint; defaults to load on cpu device """
 checker = Checker(pretrained=True)
@@ -42,21 +41,23 @@ checker.evaluate(f"{traintest_path}/sample_clean.txt", f"{traintest_path}/sample
 ######################################################
 
 """ select a checker and load it from a checkpoint; defaults to load on cpu device """
-Checker = SclstmChecker
-checker = Checker()
-checker.from_pretrained("./data/checkpoints/scrnn-probwordnoise")
-print("model size: ", checker.model_size())
-print("It shows me strait a weigh as soon as a mistache is maid .", "\n\t\t→",
-      checker.correct("It shows me strait a weigh as soon as a mistace is maid ."))
+if Checker == SclstmChecker:
+    checker.from_pretrained("./data/checkpoints/scrnn-probwordnoise")
+    print("model size: ", checker.model_size())
+    print("It shows me strait a weigh as soon as a mistache is maid .", "\n\t\t→",
+          checker.correct("It shows me strait a weigh as soon as a mistace is maid ."))
+
+######################################################
+######################################################
 
 """ add elmo/bert at input/output; currently available only for SclstmChecker """
-Checker = SclstmChecker
-checker = Checker()
-checker = checker.add_("elmo", at="input")
-# checker.from_pretrained("./data/checkpoints/elmoscrnn-probwordnoise")
-print("model size: ", checker.model_size())
-print("It shows me strait a weigh as soon as a mistache is maid .", "\n\t\t→",
-      checker.correct("It shows me strait a weigh as soon as a mistace is maid ."))
+if Checker == SclstmChecker:
+    checker = Checker()
+    checker = checker.add_("elmo", at="input")
+    # checker.from_pretrained("./data/checkpoints/elmoscrnn-probwordnoise")
+    print("model size: ", checker.model_size())
+    print("It shows me strait a weigh as soon as a mistache is maid .", "\n\t\t→",
+          checker.correct("It shows me strait a weigh as soon as a mistace is maid ."))
 
 ######################################################
 ######################################################

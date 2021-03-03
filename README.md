@@ -12,7 +12,9 @@
 - [Requirements](#Requirements)
 
 # Updates
-- 14 November, 2020: Our ```BERT``` pretrained model is now available as part of huggingface models as ```murali1996/bert-base-cased-spell-correction```. We provide an example code snippet at [./scripts/huggingface](scripts/huggingface/hgface-snippet-for-neuspell.py) for curious practitioners.
+- 03 March, 2021: 
+  - Code-base reformatted. Addressed some bug fixes.
+- 14 November, 2020: Our ```BERT``` pretrained model is now available as part of huggingface models as ```murali1996/bert-base-cased-spell-correction```. We provide an example code snippet at [./scripts/huggingface](./huggingface/huggingface-snippet-for-neuspell.py) for curious practitioners.
 - 14 September, 2020: This work is accepted at EMNLP 2020 (system demonstrations)
 
 # Introduction
@@ -45,13 +47,14 @@ NeuSpell is an open-source toolkit for context sensitive spelling correction in 
 
 
 ##### Command line usage
-You can also find this quick-start code snippet in the ```test_neuspell.py``` file
+Here is a quick-start code snippet. (See [```test_neuspell.py```](test_neuspell.py) for more usage details)
 ``` python
+""" select spell checkers """
+from neuspell import BertChecker
+checker = BertChecker()
+
 """ load spell checkers """
-from neuspell import BertsclstmChecker, SclstmChecker
-checker = SclstmChecker()
-checker = checker.add_("elmo", at="input")
-checker.from_pretrained("./data/checkpoints/elmoscrnn-probwordnoise")
+checker.from_pretrained("./data/checkpoints/subwordbert-probwordnoise")
 
 """ spell correction """
 checker.correct(["I luk foward to receving your reply"])
@@ -71,6 +74,13 @@ checker.evaluate(clean_file="bea60k.txt", corrupt_file="bea60k.noise.txt")
 
 """ fine-tuning on domain specific dataset """
 checker.finetune(clean_file="clean.txt", corrupt_file="corrupt.txt")
+```
+Alternatively, once can also select and load a spell checker differently as follows:
+``` python
+from neuspell import SclstmChecker
+checker = SclstmChecker()
+checker = checker.add_("elmo", at="input")  # elmo or bert, input or output
+checker.from_pretrained("./data/checkpoints/elmoscrnn-probwordnoise")
 ```
 
 # Performances
