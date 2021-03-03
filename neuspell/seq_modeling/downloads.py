@@ -89,10 +89,17 @@ def download_pretrained_model(ckpt_path: str):
         raise Exception(
             f"Tried to load an unknown model - {tag}. Available choices are {[*URL_MAPPINGS_BIG_FILES.keys()]}")
     details = URL_MAPPINGS_BIG_FILES[tag]
+    create_paths(ckpt_path)
     model_url = details["model.pth.tar"]
     vocab_url = details["vocab.pkl"]
-    print("Pretrained model downloading start ...")
+    print("Pretrained model downloading start (may take few seconds to couple of minutes based on download speed) ...")
     download_file_from_google_drive(model_url, os.path.join(ckpt_path, "model.pth.tar"))
     download_file_from_google_drive(vocab_url, os.path.join(ckpt_path, "vocab.pkl"))
     print("Pretrained model download success")
     return
+
+
+"""
+from neuspell import SclstmChecker
+checker = SclstmChecker(pretrained=True)
+"""
