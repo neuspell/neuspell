@@ -1,7 +1,9 @@
-from transformers import AutoConfig, AutoTokenizer, AutoModelForTokenClassification
-from torch.nn.utils.rnn import pad_sequence
-import torch
 import pickle
+
+import torch
+from torch.nn.utils.rnn import pad_sequence
+from transformers import AutoConfig, AutoTokenizer, AutoModelForTokenClassification
+
 
 def load_vocab_dict(path_: str):
     """
@@ -10,6 +12,7 @@ def load_vocab_dict(path_: str):
     with open(path_, 'rb') as fp:
         vocab = pickle.load(fp)
     return vocab
+
 
 def _tokenize_untokenize(input_text: str, bert_tokenizer):
     subtokens = bert_tokenizer.tokenize(input_text)
@@ -21,14 +24,14 @@ def _tokenize_untokenize(input_text: str, bert_tokenizer):
             output.append(subt)
     return " ".join(output)
 
-def _custom_bert_tokenize_sentence(input_text, bert_tokenizer, max_len):
 
+def _custom_bert_tokenize_sentence(input_text, bert_tokenizer, max_len):
     tokens = []
     split_sizes = []
     text = []
     for token in _tokenize_untokenize(input_text, bert_tokenizer).split(" "):
         word_tokens = bert_tokenizer.tokenize(token)
-        if len(tokens) + len(word_tokens) > max_len-2:  # 512-2 = 510
+        if len(tokens) + len(word_tokens) > max_len - 2:  # 512-2 = 510
             break
         if len(word_tokens) == 0:
             continue
@@ -38,8 +41,8 @@ def _custom_bert_tokenize_sentence(input_text, bert_tokenizer, max_len):
 
     return " ".join(text), tokens, split_sizes
 
-def _custom_bert_tokenize(batch_sentences, bert_tokenizer, padding_idx=None, max_len=512):
 
+def _custom_bert_tokenize(batch_sentences, bert_tokenizer, padding_idx=None, max_len=512):
     if padding_idx is None:
         padding_idx = bert_tokenizer.pad_token_id
 
@@ -56,6 +59,7 @@ def _custom_bert_tokenize(batch_sentences, bert_tokenizer, padding_idx=None, max
                        "input_ids": batch_input_ids
                        }
     return batch_sentences, batch_bert_dict, batch_splits
+
 
 def _custom_get_merged_encodings(bert_seq_encodings, seq_splits, mode='avg', keep_terminals=False, device="cpu"):
     bert_seq_encodings = bert_seq_encodings[:sum(seq_splits) + 2, :]  # 2 for [CLS] and [SEP]
@@ -81,7 +85,6 @@ def _custom_get_merged_encodings(bert_seq_encodings, seq_splits, mode='avg', kee
 
 
 if __name__ == "__main__":
-    
     path = "murali1996/bert-base-cased-spell-correction"
     config = AutoConfig.from_pretrained(path)
     tokenizer = AutoTokenizer.from_pretrained(path)
@@ -90,7 +93,6 @@ if __name__ == "__main__":
 
     bert_model.eval()
     with torch.no_grad():
-
         misspelled_sentences = ["Well,becuz badd spelln is ard to undrstnd wen ou rid it.",
                                 "they fought a deadly waer",
                                 "Hurahh!! we mad it...."]

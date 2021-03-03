@@ -1,5 +1,4 @@
-# Download data from here and keep in this folder
+# Folder containg dataset files
 
-https://drive.google.com/drive/folders/1ejKSkiHNOlupxXVDMg67rPdqwowsTq1i?usp=sharing
-
-Please follow download_datafiles.py
+- Download data from [here](https://drive.google.com/drive/folders/1ejKSkiHNOlupxXVDMg67rPdqwowsTq1i?usp=sharing) and keep in this folder
+- Alternatively, run [download_datafiles.py](./download_datafiles.py) as ```python download_datafiles.py``` to download all the datasets

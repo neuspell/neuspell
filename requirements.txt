@@ -12,7 +12,7 @@ sentencepiece==0.1.85
 six==1.14.0
 sklearn==0.0
 snowballstemmer==2.0.0
-spacy==2.2.4
+spacy==2.1.0
 torch==1.4.0
 tqdm==4.43.0
 transformers==2.6.0
