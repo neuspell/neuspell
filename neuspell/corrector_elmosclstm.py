@@ -4,6 +4,7 @@ from typing import List
 import torch
 
 from .commons import spacy_tokenizer, DEFAULT_DATA_PATH, Corrector
+from .seq_modeling.downloads import download_pretrained_model
 from .seq_modeling.elmosclstm import load_model, load_pretrained, model_predictions, model_inference
 from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
 
@@ -32,6 +33,8 @@ class CorrectorElmoSCLstm(Corrector):
     def from_pretrained(self, ckpt_path, vocab="", weights=""):
         self.ckpt_path = ckpt_path
         self.vocab_path = vocab if vocab else os.path.join(ckpt_path, "vocab.pkl")
+        if not os.path.isfile(self.vocab_path):  # leads to "FileNotFoundError"
+            download_pretrained_model(self.ckpt_path)
         print(f"loading vocab from path:{self.vocab_path}")
         self.vocab = load_vocab_dict(self.vocab_path)
         print(f"initializing model")
