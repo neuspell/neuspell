@@ -5,7 +5,7 @@ with open("README.md", mode="r", encoding="utf-8") as readme_file:
 
 setup(
     name="neuspell",
-    version="0.8.6",
+    version="0.8.7",
     author="Sai Muralidhar Jayanthi, Danish Pruthi, and Graham Neubig",
     author_email="jsaimurali001@gmail.com",
     description="NeuSpell: A Neural Spelling Correction Toolkit",
@@ -18,17 +18,16 @@ setup(
         "Natural Language :: English",
         "Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "License :: OSI Approved :: MIT License",
     ],
-    python_requires=">=3.6",
+    python_requires=">3.5",
     install_requires=[
-        'allennlp==0.9.0',
-        'jsonlines==1.2.0',
-        'sentencepiece==0.1.85',
-        'snowballstemmer==2.0.0',
-        'spacy==2.1.0',
+        'numpy',
+        'jsonlines',
+        'sentencepiece',
+        'spacy',
+        'allennlp',
         'torch==1.4.0',
         'transformers==2.6.0'
     ],
