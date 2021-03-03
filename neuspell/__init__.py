@@ -1,4 +1,4 @@
-__version__ = "0.7.0"
+__version__ = "0.8.6"
 __author__ = 'Sai Muralidhar Jayanthi, Danish Pruthi, and Graham Neubig'
 __email__ = "jsaimurali001@gmail.com"
 
