@@ -14,9 +14,10 @@ setup(
     license="MIT",
     url="https://github.com/neuspell/neuspell",
     packages=find_packages(),
+    py_modules=['noise', 'data'],
     classifiers=[
         "Natural Language :: English",
-        "Intended Audience :: Science/Research/Developers",
+        "Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
