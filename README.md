@@ -115,8 +115,8 @@ See ```data/checkpoints/README.md``` for more details. You can alternatively cho
 In order to setup a demo, follow these steps:
 - Install [requirements](#Requirements)
 - Download [checkpoints](#Pretrained-models)
-- Set the correct data path (eg. ```/home/<user_name>/neuspell/data```) in [commons.py](neuspell/commons.py)
-- Start a flask server at [neuspell/flask-server](neuspell/flask-server)
+- Set the correct data path (eg. ```/home/<user_name>/neuspell/data```) in [commons.py](./neuspell/commons.py)
+- Start a flask server at [neuspell/flask-server](./flask-server)
 
 # Datasets
 

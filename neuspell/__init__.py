@@ -1,4 +1,8 @@
-# 10 spell checkers
+__version__ = "0.7.0"
+__author__ = 'Sai Muralidhar Jayanthi, Danish Pruthi, and Graham Neubig'
+__email__ = "jsaimurali001@gmail.com"
+
+"""10 spell checkers"""
 
 # from .corrector_aspell import CorrectorAspell as AspellChecker
 # from .corrector_jamspell import CorrectorJamspell as JamspellChecker
