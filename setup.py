@@ -25,9 +25,6 @@ setup(
     python_requires=">=3.6",
     install_requires=[
         'allennlp==0.9.0',
-        'dyNET==2.1',
-        'Flask==1.1.1',
-        'Flask-Cors==3.0.8',
         'jsonlines==1.2.0',
         'sentencepiece==0.1.85',
         'snowballstemmer==2.0.0',
