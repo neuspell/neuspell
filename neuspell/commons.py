@@ -54,13 +54,7 @@ class Corrector(ABC):
     def model_size(self):
         raise NotImplementedError
 
-    def finetune(self, clean_file="clean.txt", corrupt_file="corrupt.txt", new_vocab=None):
-
-        if new_vocab is None:
-            new_vocab = []
-        if new_vocab:
-            raise NotImplementedError("Do not currently support modifying output vocabulary of the models")
-
+    def finetune(self, *args, **kwargs):
         raise NotImplementedError
 
     def add_(self, contextual_model, at="input"):

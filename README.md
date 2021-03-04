@@ -41,7 +41,9 @@ checker = BertChecker()
 checker.from_pretrained("./data/checkpoints/subwordbert-probwordnoise")
 
 """ spell correction """
-checker.correct(["I luk foward to receving your reply"])
+checker.correct("I luk foward to receving your reply")
+# → "I look forward to receiving your reply"
+checker.correct_strings(["I luk foward to receving your reply", ])
 # → ["I look forward to receiving your reply"]
 checker.correct_from_file(src="noisy_texts.txt")
 # → "Found 450 mistakes in 322 lines, total_lines=350"
@@ -58,6 +60,8 @@ checker.evaluate(clean_file="bea60k.txt", corrupt_file="bea60k.noise.txt")
 
 """ fine-tuning on domain specific dataset """
 checker.finetune(clean_file="clean.txt", corrupt_file="corrupt.txt")
+# Once the model is fine-tuned, you can use the saved model checkpoint path
+#   to load and infer by calling `checker.from_pretrained(...)` as above
 ```
 
 Alternatively, once can also select and load a spell checker differently as follows:
@@ -67,6 +71,7 @@ from neuspell import SclstmChecker
 checker = SclstmChecker()
 checker = checker.add_("elmo", at="input")  # elmo or bert, input or output
 checker.from_pretrained("./data/checkpoints/elmoscrnn-probwordnoise")
+checker.finetune(clean_file="./data/traintest/test.bea322", corrupt_file="./data/traintest/test.bea322.noise")
 ```
 
 # Introduction
@@ -141,10 +146,10 @@ checkpoints.
 
 In order to setup a demo, follow these steps:
 
-- Install [requirements](#Requirements)
+- Do [Installation](#Installation)
 - Download [checkpoints](#Pretrained-models)
-- Set the correct data path (eg. ```/home/<user_name>/neuspell/data```) in [commons.py](./neuspell/commons.py)
-- Start a flask server at [neuspell/flask-server](./flask-server)
+- Start a flask server at [neuspell/flask-server](./flask-server) by running `CUDA_VISIBLE_DEVICES=0 python app.py`
+  (on GPU) or `python app.py` (on CPU)
 
 # Datasets
 
