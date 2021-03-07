@@ -159,7 +159,7 @@ Run the following to download datasets
 
 ```
 cd data/traintest
-python download_dataset.py 
+python download_datafiles.py 
 ```
 
 See ```data/traintest/README.md``` for more details.
