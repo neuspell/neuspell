@@ -6,7 +6,7 @@ import torch
 from .commons import spacy_tokenizer, ARXIV_CHECKPOINTS, Corrector
 from .seq_modeling.downloads import download_pretrained_model
 from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
-from .util import is_module_available
+from .seq_modeling.util import is_module_available
 
 if is_module_available("allennlp"):
     from .seq_modeling.sclstmelmo import load_model, load_pretrained, model_predictions, model_inference

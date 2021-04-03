@@ -3,12 +3,14 @@ from abc import ABC, abstractmethod
 from string import punctuation
 from typing import List
 
-from .util import is_module_available, get_module_or_attr
+from .seq_modeling.util import is_module_available, get_module_or_attr
 
 DEFAULT_DATA_PATH = os.path.join(os.path.split(__file__)[0], "../data")
 print(f"data folder is set to `{DEFAULT_DATA_PATH}` script")
 if not os.path.exists(DEFAULT_DATA_PATH):
     os.makedirs(DEFAULT_DATA_PATH)
+
+ALLENNLP_ELMO_PRETRAINED_FOLDER = os.path.join(DEFAULT_DATA_PATH, "allennlp_elmo_pretrained")
 
 ARXIV_CHECKPOINTS = {
     "bertscrnn-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/bertscrnn-probwordnoise",

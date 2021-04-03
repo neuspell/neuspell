@@ -36,7 +36,7 @@ setup(
     install_requires=requirements,
     extras_require={
         "spacy": ["spacy"],
-        "elmo": ["allennlp"],
+        "elmo": ["allennlp==1.5.0"],
     },
     keywords="transformer networks neuspell neural spelling correction embedding PyTorch NLP deep learning"
 )

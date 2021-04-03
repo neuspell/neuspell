@@ -9,7 +9,7 @@ from .commons import spacy_tokenizer, ARXIV_CHECKPOINTS, Corrector
 from .seq_modeling.downloads import download_pretrained_model
 from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams, sclstm_tokenize, save_vocab_dict
 from .seq_modeling.helpers import train_validation_split, batch_iter, labelize, progressBar, batch_accuracy_func
-from .util import is_module_available, get_module_or_attr
+from .seq_modeling.util import is_module_available, get_module_or_attr
 
 if is_module_available("allennlp"):
     from .seq_modeling.elmosclstm import load_model, load_pretrained, model_predictions, model_inference
@@ -207,7 +207,7 @@ class CorrectorElmoSCLstm(Corrector):
                 batch_idxs = [batch_idxs_.to(DEVICE) for batch_idxs_ in batch_idxs]
                 batch_lengths = batch_lengths.to(DEVICE)
                 batch_labels = batch_labels.to(DEVICE)
-                elmo_batch_to_ids = get_module_or_attr("allennlp", "modules.elmo.batch_to_ids")
+                elmo_batch_to_ids = get_module_or_attr("allennlp.modules.elmo", "batch_to_ids")
                 batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_sentences]).to(DEVICE)
                 # forward
                 model.train()
@@ -260,7 +260,7 @@ class CorrectorElmoSCLstm(Corrector):
                     batch_idxs = [batch_idxs_.to(DEVICE) for batch_idxs_ in batch_idxs]
                     batch_lengths = batch_lengths.to(DEVICE)
                     batch_labels = batch_labels.to(DEVICE)
-                    elmo_batch_to_ids = get_module_or_attr("allennlp", "modules.elmo.batch_to_ids")
+                    elmo_batch_to_ids = get_module_or_attr("allennlp.modules.elmo", "batch_to_ids")
                     batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_sentences]).to(DEVICE)
                     # forward
                     model.eval()

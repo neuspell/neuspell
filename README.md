@@ -31,6 +31,12 @@ To install extra requirements,
 ```bash
 pip install -r extras-requirements.txt
 ```
+or individually as (NOTE: For _zsh_, use ".[elmo]" and ".[spacy]")
+```bash
+pip install -e .[elmo]
+pip install -e .[spacy]
+```
+
 Additionally, ```spacy models``` can be downloaded as:
 ```bash
 python -m spacy download en_core_web_sm

@@ -10,7 +10,7 @@ from .corrector_lstmlstm import CorrectorLstmLstm as NestedlstmChecker
 from .corrector_sclstm import CorrectorSCLstm as SclstmChecker
 from .corrector_sclstmbert import CorrectorSCLstmBert as SclstmbertChecker
 from .corrector_subwordbert import CorrectorSubwordBert as BertChecker
-from .util import is_module_available
+from .seq_modeling.util import is_module_available
 
 if is_module_available("allennlp"):
     from .corrector_elmosclstm import CorrectorElmoSCLstm as ElmosclstmChecker

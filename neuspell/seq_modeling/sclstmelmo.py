@@ -1,10 +1,9 @@
 import time
 
-from allennlp.modules.elmo import batch_to_ids as elmo_batch_to_ids
-
 from .evals import get_metrics
 from .helpers import *
 from .models import ElmoSCLSTM
+from .util import is_module_available, get_module_or_attr
 
 """
 NEW: reranking snippets
@@ -114,6 +113,7 @@ def model_predictions(model, data, vocab, device, batch_size=16, backoff="pass-t
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
         batch_lengths = batch_lengths.to(device)
         batch_labels = batch_labels.to(device)
+        elmo_batch_to_ids = get_module_or_attr("allennlp.modules.elmo", "batch_to_ids")
         batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_corrupt_sentences]).to(device)
         # forward
         with torch.no_grad():
@@ -172,6 +172,7 @@ def model_inference(model, data, topk, device, batch_size=16, beam_search=False,
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
         batch_lengths = batch_lengths.to(device)
         batch_labels = batch_labels.to(device)
+        elmo_batch_to_ids = get_module_or_attr("allennlp.modules.elmo", "batch_to_ids")
         batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_corrupt_sentences]).to(device)
         # forward
         try:

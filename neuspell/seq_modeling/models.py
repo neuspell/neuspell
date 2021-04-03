@@ -1,13 +1,4 @@
-# pip install allennlp
-# pip install torch
-
-
-# from tqdm import tqdm, tqdm_notebook
-# import os, sys
-# import numpy as np
-# import re
-# import time
-# from typing import List
+import os
 
 import torch
 import torch.nn.functional as F
@@ -15,6 +6,36 @@ import transformers
 from torch import nn
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from torch.nn.utils.rnn import pad_sequence
+
+from .util import is_module_available, get_module_or_attr
+from ..commons import ALLENNLP_ELMO_PRETRAINED_FOLDER
+
+
+def get_pretrained_elmo(elmo_options_file=None, elmo_weights_file=None):
+    if not is_module_available("allennlp"):
+        raise ImportError(
+            "install `allennlp` by running `pip install -r extras-requirements.txt`. See `README.md` for more info.")
+
+    Elmo = get_module_or_attr("allennlp.modules.elmo", "Elmo")
+
+    local_options_file, local_weights_file = None, None
+    if os.path.exists(ALLENNLP_ELMO_PRETRAINED_FOLDER):
+        local_options_file = os.path.join(ALLENNLP_ELMO_PRETRAINED_FOLDER,
+                                          "elmo_2x4096_512_2048cnn_2xhighway_options.json")
+        local_weights_file = os.path.join(ALLENNLP_ELMO_PRETRAINED_FOLDER,
+                                          "elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5")
+
+    options_file = "https://allennlp.s3.amazonaws.com/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json"
+    weights_file = "https://allennlp.s3.amazonaws.com/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5"
+
+    elmo_options_file = elmo_options_file or local_options_file or options_file  # or os.environ.get('ELMO_OPTIONS_FILE_PATH', None)
+    elmo_weights_file = elmo_weights_file or local_weights_file or weights_file  # or os.environ.get('ELMO_WEIGHTS_FILE_PATH', None)
+    # neuspell.seq_modeling.models.get_pretrained_elmo()
+    return Elmo(elmo_options_file, elmo_weights_file, 1)  # 1 for setting device="cuda:0" else 0
+
+
+def get_pretrained_bert(pretrained_name_or_path="bert-base-cased"):
+    return transformers.BertModel.from_pretrained(pretrained_name_or_path)
 
 
 #################################################
@@ -370,10 +391,7 @@ class ElmoSCLSTM(nn.Module):
 
         self.early_concat = early_concat  # if True, (elmo+sc)->lstm->linear, else ((sc->lstm)+elmo)->linear
 
-        from allennlp.modules.elmo import Elmo
-        options_file = "https://allennlp.s3.amazonaws.com/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json"
-        weight_file = "https://allennlp.s3.amazonaws.com/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5"
-        self.elmo = Elmo(options_file, weight_file, 1)  # 1 for setting device="cuda:0" else 0
+        self.elmo = get_pretrained_elmo()
         self.elmomodule_outdim = 1024
 
         # lstm module
@@ -503,10 +521,7 @@ class SubwordElmo(nn.Module):
     def __init__(self, screp_dim, padding_idx, output_dim):
         super(SubwordElmo, self).__init__()
 
-        from allennlp.modules.elmo import Elmo
-        options_file = "https://allennlp.s3.amazonaws.com/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json"
-        weight_file = "https://allennlp.s3.amazonaws.com/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5"
-        self.elmo = Elmo(options_file, weight_file, 1)  # 1 for setting device="cuda:0" else 0
+        self.elmo = get_pretrained_elmo()
         self.elmomodule_outdim = 1024
 
         # output module
@@ -589,9 +604,7 @@ References:
 - See http://jalammar.github.io/illustrated-transformer/ for the architecture understanding
 - See https://discuss.pytorch.org/t/embed-dim-must-be-divisible-by-num-heads/54394/2
     - AssertionError: embed_dim must be divisible by num_heads
-'''
 
-'''
 Modifications compared to ElmoSCLSTM:
 - bidirectional=True is replaced with nhead=2
 - hidden_size is used as dim_feedforward in transformer encoder
@@ -604,10 +617,7 @@ class ElmoSCTransformer(nn.Module):
     def __init__(self, screp_dim, padding_idx, output_dim):
         super(ElmoSCTransformer, self).__init__()
 
-        from allennlp.modules.elmo import Elmo
-        options_file = "https://allennlp.s3.amazonaws.com/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json"
-        weight_file = "https://allennlp.s3.amazonaws.com/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5"
-        self.elmo = Elmo(options_file, weight_file, 1)  # 1 for setting device="cuda:0" else 0
+        self.elmo = get_pretrained_elmo()
 
         # lstm module
         # expected  input dim: [BS,max_nwords,*] and batch_lengths as [BS] for pack_padded_sequence
@@ -690,15 +700,18 @@ class ElmoSCTransformer(nn.Module):
 # BertSCLSTM
 #################################################
 
-# import transformers
-# import torch
+"""
+import transformers
+import torch
+"""
+
 
 class BertSCLSTM(nn.Module):
     def __init__(self, screp_dim, padding_idx, output_dim, early_concat=True):
         super(BertSCLSTM, self).__init__()
 
         self.bert_dropout = torch.nn.Dropout(0.2)
-        self.bert_model = transformers.BertModel.from_pretrained("bert-base-cased")
+        self.bert_model = get_pretrained_bert()
         self.bertmodule_outdim = self.bert_model.config.hidden_size
         self.early_concat = early_concat  # if True, (bert+sc)->lstm->linear, else ((sc->lstm)+bert)->linear
         # Uncomment to freeze BERT layers
@@ -767,11 +780,7 @@ class BertSCLSTM(nn.Module):
 
         # bert
         # BS X max_nsubwords x self.bertmodule_outdim
-        bert_encodings, cls_encoding = self.bert_model(
-            input_ids=batch_bert_dict["input_ids"],
-            attention_mask=batch_bert_dict["attention_mask"],
-            token_type_ids=batch_bert_dict["token_type_ids"],
-        )
+        bert_encodings, cls_encoding = self.bert_model(**batch_bert_dict, return_dict=False)
         bert_encodings = self.bert_dropout(bert_encodings)
         # BS X max_nwords x self.bertmodule_outdim
         bert_merged_encodings = pad_sequence(
@@ -854,7 +863,7 @@ class SubwordBert(nn.Module):
         super(SubwordBert, self).__init__()
 
         self.bert_dropout = torch.nn.Dropout(0.2)
-        self.bert_model = transformers.BertModel.from_pretrained("bert-base-cased")
+        self.bert_model = get_pretrained_bert()
         self.bertmodule_outdim = self.bert_model.config.hidden_size
         # Uncomment to freeze BERT layers
         # for param in self.bert_model.parameters():
@@ -900,11 +909,7 @@ class SubwordBert(nn.Module):
 
         # bert
         # BS X max_nsubwords x self.bertmodule_outdim
-        bert_encodings, cls_encoding = self.bert_model(
-            input_ids=batch_bert_dict["input_ids"],
-            attention_mask=batch_bert_dict["attention_mask"],
-            token_type_ids=batch_bert_dict["token_type_ids"],
-        )
+        bert_encodings, cls_encoding = self.bert_model(**batch_bert_dict, return_dict=False)
         bert_encodings = self.bert_dropout(bert_encodings)
         # BS X max_nwords x self.bertmodule_outdim
         bert_merged_encodings = pad_sequence(

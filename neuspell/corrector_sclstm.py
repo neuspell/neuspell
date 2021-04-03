@@ -2,19 +2,19 @@ import os
 from typing import List
 
 import torch
-from .util import is_module_available
+
 from .commons import spacy_tokenizer, ARXIV_CHECKPOINTS, Corrector
 from .corrector_bertsclstm import CorrectorBertSCLstm as BertsclstmChecker
-
 from .corrector_sclstmbert import CorrectorSCLstmBert as SclstmbertChecker
+
+from .seq_modeling.util import is_module_available
+from .seq_modeling.downloads import download_pretrained_model
+from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
+from .seq_modeling.sclstm import load_model, load_pretrained, model_predictions, model_inference
 
 if is_module_available("allennlp"):
     from .corrector_sclstmelmo import CorrectorSCLstmElmo as SclstmelmoChecker
     from .corrector_elmosclstm import CorrectorElmoSCLstm as ElmosclstmChecker
-
-from .seq_modeling.downloads import download_pretrained_model
-from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
-from .seq_modeling.sclstm import load_model, load_pretrained, model_predictions, model_inference
 
 """ corrector module """
 
