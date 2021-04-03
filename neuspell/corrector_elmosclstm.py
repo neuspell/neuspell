@@ -4,13 +4,15 @@ from typing import List
 
 import numpy as np
 import torch
-from allennlp.modules.elmo import batch_to_ids as elmo_batch_to_ids
 
-from .commons import spacy_tokenizer, DEFAULT_DATA_PATH, Corrector
+from .commons import spacy_tokenizer, ARXIV_CHECKPOINTS, Corrector
 from .seq_modeling.downloads import download_pretrained_model
-from .seq_modeling.elmosclstm import load_model, load_pretrained, model_predictions, model_inference
 from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams, sclstm_tokenize, save_vocab_dict
 from .seq_modeling.helpers import train_validation_split, batch_iter, labelize, progressBar, batch_accuracy_func
+from .util import is_module_available, get_module_or_attr
+
+if is_module_available("allennlp"):
+    from .seq_modeling.elmosclstm import load_model, load_pretrained, model_predictions, model_inference
 
 """ corrector module """
 
@@ -19,11 +21,16 @@ class CorrectorElmoSCLstm(Corrector):
 
     def __init__(self, tokenize=True, pretrained=False, device="cpu"):
         super(CorrectorElmoSCLstm, self).__init__()
+
+        if not is_module_available("allennlp"):
+            raise ImportError(
+                "install `allennlp` by running `pip install -r extras-requirements.txt`. See `README.md` for more info.")
+
         self.tokenize = tokenize
         self.pretrained = pretrained
         self.device = device
 
-        self.ckpt_path = f"{DEFAULT_DATA_PATH}/checkpoints/elmoscrnn-probwordnoise"
+        self.ckpt_path = None
         self.vocab_path, self.weights_path = "", ""
         self.model, self.vocab = None, None
 
@@ -34,9 +41,9 @@ class CorrectorElmoSCLstm(Corrector):
         assert not (self.model is None or self.vocab is None), print("model & vocab must be loaded first")
         return
 
-    def from_pretrained(self, ckpt_path, vocab="", weights=""):
-        self.ckpt_path = ckpt_path
-        self.vocab_path = vocab if vocab else os.path.join(ckpt_path, "vocab.pkl")
+    def from_pretrained(self, ckpt_path=None, vocab="", weights=""):
+        self.ckpt_path = ckpt_path or ARXIV_CHECKPOINTS["elmoscrnn-probwordnoise"]
+        self.vocab_path = vocab if vocab else os.path.join(self.ckpt_path, "vocab.pkl")
         if not os.path.isfile(self.vocab_path):  # leads to "FileNotFoundError"
             download_pretrained_model(self.ckpt_path)
         print(f"loading vocab from path:{self.vocab_path}")
@@ -200,6 +207,7 @@ class CorrectorElmoSCLstm(Corrector):
                 batch_idxs = [batch_idxs_.to(DEVICE) for batch_idxs_ in batch_idxs]
                 batch_lengths = batch_lengths.to(DEVICE)
                 batch_labels = batch_labels.to(DEVICE)
+                elmo_batch_to_ids = get_module_or_attr("allennlp", "modules.elmo.batch_to_ids")
                 batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_sentences]).to(DEVICE)
                 # forward
                 model.train()
@@ -252,6 +260,7 @@ class CorrectorElmoSCLstm(Corrector):
                     batch_idxs = [batch_idxs_.to(DEVICE) for batch_idxs_ in batch_idxs]
                     batch_lengths = batch_lengths.to(DEVICE)
                     batch_labels = batch_labels.to(DEVICE)
+                    elmo_batch_to_ids = get_module_or_attr("allennlp", "modules.elmo.batch_to_ids")
                     batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_sentences]).to(DEVICE)
                     # forward
                     model.eval()
