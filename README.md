@@ -4,16 +4,17 @@
 
 # Contents
 
-- [Installation](#Installation)
+- [Installation & Quick Start](#Installation)
 - [Introduction](#Introduction)
 - [Pretrained models](#Pretrained-models)
 - [Demo Setup](#Demo-Setup)
 - [Datasets](#Datasets)
 - [Applications](#Potential-applications-for-practitioners)
-- [Requirements](#Requirements)
+- [Additional Requirements](#Additional-requirements)
 
 # Updates
 
+- April 2021: `neuspell` is now available through pip. To install, simply do `pip install neuspell`.
 - March, 2021: Code-base reformatted. Addressed some bug fixes.
 - November, 2020: Neuspell's ```BERT``` pretrained model is now available as part of huggingface models
   as ```murali1996/bert-base-cased-spell-correction```. We provide an example code snippet
@@ -24,21 +25,37 @@
 
 ```bash
 git clone https://github.com/neuspell/neuspell; cd neuspell
-pip install .
+pip install -e .
 ```
 
-Download other requirements as per need - ref. [Requirements](#Requirements)
+To install extra requirements,
+```bash
+pip install -r extras-requirements.txt
+```
+or individually as (NOTE: For _zsh_, use ".[elmo]" and ".[spacy]")
+```bash
+pip install -e .[elmo]
+pip install -e .[spacy]
+```
 
-Here is a quick-start code snippet (Command line usage). (See [```test_neuspell.py```](test_neuspell.py) for more usage
-details)
+Additionally, ```spacy models``` can be downloaded as:
+```bash
+python -m spacy download en_core_web_sm
+```
+Follow [Additional Requirements](#Additional-requirements) for installing non-neural spell checkers- ```Aspell``` and ```Jamspell```.
 
-``` python
+Then, download pretrained models following [Pretrained models](#Pretrained-models)
+
+Here is a quick-start code snippet (command line usage). (See [```test.py```](test.py) for more usage
+patterns)
+
+```python
 """ select spell checkers """
 from neuspell import BertChecker
-checker = BertChecker()
 
 """ load spell checkers """
-checker.from_pretrained("./data/checkpoints/subwordbert-probwordnoise")
+checker = BertChecker()
+checker.from_pretrained()
 
 """ spell correction """
 checker.correct("I luk foward to receving your reply")
@@ -59,18 +76,18 @@ checker.evaluate(clean_file="bea60k.txt", corrupt_file="bea60k.noise.txt")
 # → word correction rate is 79.76%
 
 """ fine-tuning on domain specific dataset """
-checker.finetune(clean_file="clean.txt", corrupt_file="corrupt.txt")
+checker.finetune(clean_file="sample_clean.txt", corrupt_file="sample_corrupt.txt")
 # Once the model is fine-tuned, you can use the saved model checkpoint path
 #   to load and infer by calling `checker.from_pretrained(...)` as above
 ```
 
 Alternatively, once can also select and load a spell checker differently as follows:
 
-``` python
+```python
 from neuspell import SclstmChecker
 checker = SclstmChecker()
 checker = checker.add_("elmo", at="input")  # elmo or bert, input or output
-checker.from_pretrained("./data/checkpoints/elmoscrnn-probwordnoise")
+checker.from_pretrained()
 checker.finetune(clean_file="./data/traintest/test.bea322", corrupt_file="./data/traintest/test.bea322.noise")
 ```
 
@@ -187,21 +204,7 @@ the [```One billion word benchmark```](https://arxiv.org/abs/1312.3005) dataset 
 - Improving Intent/Domain classifiers in conversational AI
 - Spell Checking in Collaboration and Productivity tools
 
-# Requirements
-
-The toolkit was developed in python 3.7.
-
-Required packages can be installed as:
-
-```
-pip install -r requirements.txt
-```
-
-The code requires ```spacy models``` which can be downloaded as:
-
-```
-python -m spacy download en_core_web_sm
-```
+# Additional requirement
 
 Requirements for ```Aspell``` checker:
 

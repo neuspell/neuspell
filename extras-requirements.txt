@@ -1,0 +1,2 @@
+-e .[spacy]
+-e .[elmo]

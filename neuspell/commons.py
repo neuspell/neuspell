@@ -3,21 +3,25 @@ from abc import ABC, abstractmethod
 from string import punctuation
 from typing import List
 
-import spacy
-
-""" constants """
+from .seq_modeling.util import is_module_available, get_module_or_attr
 
 DEFAULT_DATA_PATH = os.path.join(os.path.split(__file__)[0], "../data")
-print(f"data folder is set to `{DEFAULT_DATA_PATH}` in `neuspell/commons.py` script")
-# assert os.path.isabs(DEFAULT_DATA_PATH)
-# if not os.path.isdir(DEFAULT_DATA_PATH):
-#     print("******")
-#     print(f"data folder is set to {DEFAULT_DATA_PATH}. If incorrect, please replace it with correct path.")
-#     print("******")
+print(f"data folder is set to `{DEFAULT_DATA_PATH}` script")
 if not os.path.exists(DEFAULT_DATA_PATH):
     os.makedirs(DEFAULT_DATA_PATH)
 
-""" base class """
+ALLENNLP_ELMO_PRETRAINED_FOLDER = os.path.join(DEFAULT_DATA_PATH, "allennlp_elmo_pretrained")
+
+ARXIV_CHECKPOINTS = {
+    "bertscrnn-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/bertscrnn-probwordnoise",
+    "cnn-lstm-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/cnn-lstm-probwordnoise",
+    "elmoscrnn-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/elmoscrnn-probwordnoise",
+    "lstm-lstm-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/lstm-lstm-probwordnoise",
+    "scrnn-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/scrnn-probwordnoise",
+    "scrnnbert-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/scrnnbert-probwordnoise",
+    "scrnnelmo-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/scrnnelmo-probwordnoise",
+    "subwordbert-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/subwordbert-probwordnoise",
+}
 
 
 class Corrector(ABC):
@@ -58,23 +62,23 @@ class Corrector(ABC):
         raise NotImplementedError
 
     def add_(self, contextual_model, at="input"):
-
         raise Exception("this functionality is only available with `SclstmChecker`")
-
-
-""" spacy tokenizer """
 
 
 def _is_punct(inp):
     return all([i in punctuation for i in inp])
 
 
-def spacy_tokenizer_tokens(inp):
-    return [token.text for token in _spacy_nlp(inp)]
+if is_module_available("spacy"):
+    spacy = get_module_or_attr("spacy")
+    my_nlp = spacy.load("en_core_web_sm", disable=["tagger", "parser", "ner"])
+    get_tokens = lambda inp: [token.text for token in my_nlp(inp)]
+else:
+    get_tokens = lambda inp: inp.split()
 
 
 def custom_tokenizer(inp: str):
-    tokens = spacy_tokenizer_tokens(inp)
+    tokens = get_tokens(inp)
     new_tokens = []
     str_ = ""
     for token in tokens:
@@ -89,5 +93,4 @@ def custom_tokenizer(inp: str):
     return " ".join(new_tokens)
 
 
-_spacy_nlp = spacy.load("en_core_web_sm", disable=["tagger", "parser", "ner"])
 spacy_tokenizer = custom_tokenizer

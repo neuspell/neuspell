@@ -3,10 +3,13 @@ from typing import List
 
 import torch
 
-from .commons import spacy_tokenizer, DEFAULT_DATA_PATH, Corrector
+from .commons import spacy_tokenizer, ARXIV_CHECKPOINTS, Corrector
 from .seq_modeling.downloads import download_pretrained_model
 from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
-from .seq_modeling.sclstmelmo import load_model, load_pretrained, model_predictions, model_inference
+from .seq_modeling.util import is_module_available
+
+if is_module_available("allennlp"):
+    from .seq_modeling.sclstmelmo import load_model, load_pretrained, model_predictions, model_inference
 
 """ corrector module """
 
@@ -15,11 +18,16 @@ class CorrectorSCLstmElmo(Corrector):
 
     def __init__(self, tokenize=True, pretrained=False, device="cpu"):
         super(CorrectorSCLstmElmo, self).__init__()
+
+        if not is_module_available("allennlp"):
+            raise ImportError(
+                "install `allennlp` by running `pip install -r extras-requirements.txt`. See `README.md` for more info.")
+
         self.tokenize = tokenize
         self.pretrained = pretrained
         self.device = device
 
-        self.ckpt_path = f"{DEFAULT_DATA_PATH}/checkpoints/scrnnelmo-probwordnoise"
+        self.ckpt_path = None
         self.vocab_path, self.weights_path = "", ""
         self.model, self.vocab = None, None
 
@@ -30,9 +38,9 @@ class CorrectorSCLstmElmo(Corrector):
         assert not (self.model is None or self.vocab is None), print("model & vocab must be loaded first")
         return
 
-    def from_pretrained(self, ckpt_path, vocab="", weights=""):
-        self.ckpt_path = ckpt_path
-        self.vocab_path = vocab if vocab else os.path.join(ckpt_path, "vocab.pkl")
+    def from_pretrained(self, ckpt_path=None, vocab="", weights=""):
+        self.ckpt_path = ckpt_path or ARXIV_CHECKPOINTS["scrnnelmo-probwordnoise"]
+        self.vocab_path = vocab if vocab else os.path.join(self.ckpt_path, "vocab.pkl")
         if not os.path.isfile(self.vocab_path):  # leads to "FileNotFoundError"
             download_pretrained_model(self.ckpt_path)
         print(f"loading vocab from path:{self.vocab_path}")

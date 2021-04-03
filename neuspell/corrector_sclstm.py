@@ -3,14 +3,18 @@ from typing import List
 
 import torch
 
-from .commons import spacy_tokenizer, DEFAULT_DATA_PATH, Corrector
+from .commons import spacy_tokenizer, ARXIV_CHECKPOINTS, Corrector
 from .corrector_bertsclstm import CorrectorBertSCLstm as BertsclstmChecker
-from .corrector_elmosclstm import CorrectorElmoSCLstm as ElmosclstmChecker
 from .corrector_sclstmbert import CorrectorSCLstmBert as SclstmbertChecker
-from .corrector_sclstmelmo import CorrectorSCLstmElmo as SclstmelmoChecker
+
+from .seq_modeling.util import is_module_available
 from .seq_modeling.downloads import download_pretrained_model
 from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
 from .seq_modeling.sclstm import load_model, load_pretrained, model_predictions, model_inference
+
+if is_module_available("allennlp"):
+    from .corrector_sclstmelmo import CorrectorSCLstmElmo as SclstmelmoChecker
+    from .corrector_elmosclstm import CorrectorElmoSCLstm as ElmosclstmChecker
 
 """ corrector module """
 
@@ -23,7 +27,7 @@ class CorrectorSCLstm(Corrector):
         self.pretrained = pretrained
         self.device = device
 
-        self.ckpt_path = f"{DEFAULT_DATA_PATH}/checkpoints/scrnn-probwordnoise"
+        self.ckpt_path = None
         self.vocab_path, self.weights_path = "", ""
         self.model, self.vocab = None, None
 
@@ -34,9 +38,9 @@ class CorrectorSCLstm(Corrector):
         assert not (self.model is None or self.vocab is None), print("model & vocab must be loaded first")
         return
 
-    def from_pretrained(self, ckpt_path, vocab="", weights=""):
-        self.ckpt_path = ckpt_path
-        self.vocab_path = vocab if vocab else os.path.join(ckpt_path, "vocab.pkl")
+    def from_pretrained(self, ckpt_path=None, vocab="", weights=""):
+        self.ckpt_path = ckpt_path or ARXIV_CHECKPOINTS["scrnn-probwordnoise"]
+        self.vocab_path = vocab if vocab else os.path.join(self.ckpt_path, "vocab.pkl")
         if not os.path.isfile(self.vocab_path):  # leads to "FileNotFoundError"
             download_pretrained_model(self.ckpt_path)
         print(f"loading vocab from path:{self.vocab_path}")
@@ -126,6 +130,10 @@ class CorrectorSCLstm(Corrector):
         """
         assert contextual_model in ["elmo", "bert"]
         assert at in ["input", "output"]
+
+        if contextual_model == "elmo" and not is_module_available("allennlp"):
+            raise ImportError(
+                "install `allennlp` by running `pip install -r extras-requirements.txt`. See `README.md` for more info.")
 
         new_checker_name = None
         if contextual_model == "elmo":

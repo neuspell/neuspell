@@ -6,7 +6,7 @@ import numpy as np
 import torch
 from pytorch_pretrained_bert import BertAdam
 
-from .commons import DEFAULT_DATA_PATH, Corrector
+from .commons import ARXIV_CHECKPOINTS, Corrector
 from .seq_modeling.downloads import download_pretrained_model
 from .seq_modeling.helpers import bert_tokenize_for_valid_examples
 from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams, save_vocab_dict
@@ -24,7 +24,7 @@ class CorrectorSubwordBert(Corrector):
         self.pretrained = pretrained
         self.device = device
 
-        self.ckpt_path = f"{DEFAULT_DATA_PATH}/checkpoints/subwordbert-probwordnoise"
+        self.ckpt_path = None
         self.vocab_path, self.weights_path = "", ""
         self.model, self.vocab = None, None
 
@@ -35,9 +35,9 @@ class CorrectorSubwordBert(Corrector):
         assert not (self.model is None or self.vocab is None), print("model & vocab must be loaded first")
         return
 
-    def from_pretrained(self, ckpt_path, vocab="", weights=""):
-        self.ckpt_path = ckpt_path
-        self.vocab_path = vocab if vocab else os.path.join(ckpt_path, "vocab.pkl")
+    def from_pretrained(self, ckpt_path=None, vocab="", weights=""):
+        self.ckpt_path = ckpt_path or ARXIV_CHECKPOINTS["subwordbert-probwordnoise"]
+        self.vocab_path = vocab if vocab else os.path.join(self.ckpt_path, "vocab.pkl")
         if not os.path.isfile(self.vocab_path):  # leads to "FileNotFoundError"
             download_pretrained_model(self.ckpt_path)
         print(f"loading vocab from path:{self.vocab_path}")

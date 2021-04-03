@@ -3,7 +3,7 @@ from typing import List
 
 import torch
 
-from .commons import spacy_tokenizer, DEFAULT_DATA_PATH, Corrector
+from .commons import spacy_tokenizer, ARXIV_CHECKPOINTS, Corrector
 from .seq_modeling.downloads import download_pretrained_model
 from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams
 from .seq_modeling.lstmlstm import load_model, load_pretrained, model_predictions, model_inference
@@ -19,7 +19,7 @@ class CorrectorLstmLstm(Corrector):
         self.pretrained = pretrained
         self.device = device
 
-        self.ckpt_path = f"{DEFAULT_DATA_PATH}/checkpoints/lstm-lstm-probwordnoise"
+        self.ckpt_path = None
         self.vocab_path, self.weights_path = "", ""
         self.model, self.vocab = None, None
 
@@ -30,9 +30,9 @@ class CorrectorLstmLstm(Corrector):
         assert not (self.model is None or self.vocab is None), print("model & vocab must be loaded first")
         return
 
-    def from_pretrained(self, ckpt_path, vocab="", weights=""):
-        self.ckpt_path = ckpt_path
-        self.vocab_path = vocab if vocab else os.path.join(ckpt_path, "vocab.pkl")
+    def from_pretrained(self, ckpt_path=None, vocab="", weights=""):
+        self.ckpt_path = ckpt_path or ARXIV_CHECKPOINTS["lstm-lstm-probwordnoise"]
+        self.vocab_path = vocab if vocab else os.path.join(self.ckpt_path, "vocab.pkl")
         if not os.path.isfile(self.vocab_path):  # leads to "FileNotFoundError"
             download_pretrained_model(self.ckpt_path)
         print(f"loading vocab from path:{self.vocab_path}")
