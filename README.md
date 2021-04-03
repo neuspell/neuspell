@@ -18,7 +18,7 @@
 - March, 2021: Code-base reformatted. Addressed some bug fixes.
 - November, 2020: Neuspell's ```BERT``` pretrained model is now available as part of huggingface models
   as ```murali1996/bert-base-cased-spell-correction```. We provide an example code snippet
-  at [./scripts/huggingface](./huggingface/huggingface-snippet-for-neuspell.py) for curious practitioners.
+  at [./scripts/huggingface](./scripts/huggingface/huggingface-snippet-for-neuspell.py) for curious practitioners.
 - September, 2020: This work is accepted at EMNLP 2020 (system demonstrations)
 
 # Installation
@@ -165,7 +165,7 @@ In order to setup a demo, follow these steps:
 
 - Do [Installation](#Installation)
 - Download [checkpoints](#Pretrained-models)
-- Start a flask server at [neuspell/flask-server](./flask-server) by running `CUDA_VISIBLE_DEVICES=0 python app.py`
+- Start a flask server at [./scripts/flask-server](./scripts/flask-server) by running `CUDA_VISIBLE_DEVICES=0 python app.py`
   (on GPU) or `python app.py` (on CPU)
 
 # Datasets
@@ -198,7 +198,7 @@ the [```One billion word benchmark```](https://arxiv.org/abs/1312.3005) dataset 
 # Potential applications for practitioners
 
 - Defenses against adversarial attacks in NLP
-    - example implementation available in folder ```./applications/Adversarial-Misspellings```
+    - example implementation available in folder ```./applications/Adversarial-Misspellings-arxiv```
 - Improving OCR text correction systems
 - Improving grammatical error correction systems
 - Improving Intent/Domain classifiers in conversational AI
