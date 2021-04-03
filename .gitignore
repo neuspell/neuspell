@@ -134,6 +134,7 @@ data/checkpoints
 logs/
 data/
 wordunits/
+applications/
 
 # Do not ignore these
 #!README.md
