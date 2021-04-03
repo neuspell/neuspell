@@ -123,7 +123,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# This Repository Specific
+# Custom
+.DS_Store
 checkpoints/
 large_files/
 data/collections/
@@ -131,6 +132,9 @@ data/traintest/
 data/gec2spellcorrection/
 data/checkpoints
 logs/
+data/
+wordunits/
+applications/
 
 # Do not ignore these
 #!README.md
