@@ -14,6 +14,7 @@
 
 # Updates
 
+- April 2021: `neuspell` is now available through pip. To install, simply do `pip install neuspell`.
 - March, 2021: Code-base reformatted. Addressed some bug fixes.
 - November, 2020: Neuspell's ```BERT``` pretrained model is now available as part of huggingface models
   as ```murali1996/bert-base-cased-spell-correction```. We provide an example code snippet

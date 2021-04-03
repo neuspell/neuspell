@@ -6,7 +6,7 @@ with open("README.md", mode="r", encoding="utf-8") as readme_file:
 requirements = [
     'transformers',
     'tqdm',
-    'torch==1.6.0',
+    'torch>=1.6.0',
     'numpy',
     'jsonlines',
     'sentencepiece',
@@ -15,7 +15,7 @@ requirements = [
 
 setup(
     name="neuspell",
-    version="0.9.0",
+    version="1.0.0",
     author="Sai Muralidhar Jayanthi, Danish Pruthi, and Graham Neubig",
     author_email="jsaimurali001@gmail.com",
     description="NeuSpell: A Neural Spelling Correction Toolkit",
