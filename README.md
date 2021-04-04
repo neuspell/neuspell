@@ -10,18 +10,17 @@
     - [Pretrained models](#Pretrained-models)
     - [Datasets](#Datasets)
     - [Demo Setup](#Demo-Setup)
-- [Creating new models and downstream finetuning](#Creating-new-models-and-downstream-finetuning)
+- [Finetuning on custom data and creating new models](#Finetuning-on-custom-data-and-creating-new-models)
 - [Applications](#Potential-applications-for-practitioners)
 - [Additional Requirements](#Additional-requirements)
 
 # Updates
 
 - April 2021:
-    - `neuspell` is now available through pip. To install, simply do **pip install neuspell**. In v1.0, `allennlp`
-      library is not installed which is used for models containing ELMO. To utilize them, do a source install as
-      in [Installation & Quick Start](#Installation)
-    - You can now create and train different Transformers-based models such as DistilBERT or XLM-RoBERTa.
-      See [Creating new models and downstream finetuning](#Creating-new-models-and-downstream-finetuning).
+    - `neuspell` is now available through pip. See [Installation through pip](#Installation-through-pip)
+    - Added support for different transformer-based models such DistilBERT, XLM-RoBERTa, etc.
+      See [Finetuning on custom data and creating new models](#Finetuning-on-custom-data-and-creating-new-models)
+      section for more details.
 - March, 2021: Code-base reformatted. Addressed some bug fixes.
 - November, 2020: Neuspell's ```BERT``` pretrained model is now available as part of huggingface models
   as ```murali1996/bert-base-cased-spell-correction```. We provide an example code snippet
@@ -41,12 +40,14 @@ To install extra requirements,
 pip install -r extras-requirements.txt
 ```
 
-or individually as (NOTE: For _zsh_, use ".[elmo]" and ".[spacy]")
+or individually as:
 
 ```bash
 pip install -e .[elmo]
 pip install -e .[spacy]
 ```
+
+NOTE: For _zsh_, use ".[elmo]" and ".[spacy]" instead
 
 Additionally, ```spacy models``` can be downloaded as:
 
@@ -57,7 +58,7 @@ python -m spacy download en_core_web_sm
 Follow [Additional Requirements](#Additional-requirements) for installing non-neural spell checkers- ```Aspell```
 and ```Jamspell```.
 
-Then, download pretrained models following [Pretrained models](#Pretrained-models)
+Then, download pretrained models of `neuspell` following [Pretrained models](#Pretrained-models)
 
 Here is a quick-start code snippet (command line usage). (See [```test.py```](test.py) for more usage patterns)
 
@@ -94,9 +95,21 @@ Alternatively, once can also select and load a spell checker differently as foll
 from neuspell import SclstmChecker
 
 checker = SclstmChecker()
-checker = checker.add_("elmo", at="input")  # elmo or bert, input or output
+checker = checker.add_("elmo", at="input")  # "elmo" or "bert", "input" or "output"
 checker.from_pretrained()
 ```
+
+This feature of adding ELMO or BERT model is currently supported for selected models.
+See [List of neural models in the toolkit](#List-of-neural-models-in-the-toolkit) for details.
+
+# Installation through pip
+
+```bash
+pip install neuspell
+```
+
+In v1.0, `allennlp` library is not installed which is used for models containing ELMO. To utilize them, do a source
+install as in [Installation & Quick Start](#Installation)
 
 # Introduction
 
@@ -203,7 +216,7 @@ In order to setup a demo, follow these steps:
   running `CUDA_VISIBLE_DEVICES=0 python app.py`
   (on GPU) or `python app.py` (on CPU)
 
-# Creating new models and downstream finetuning
+# Finetuning on custom data and creating new models
 
 ### Finetuning on top of `neuspell` pretrained models
 
