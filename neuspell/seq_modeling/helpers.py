@@ -2,22 +2,27 @@ import os
 import pickle
 import sys
 from math import log
+from typing import List
 
 import numpy as np
 import torch
+import transformers
 from torch.nn.utils.rnn import pad_sequence
 from tqdm import tqdm
 
+BERT_MAX_SEQ_LEN = 512
+BERT_TOKENIZER = None
+
 
 def progressBar(value, endvalue, names, values, bar_length=30):
-    assert (len(names) == len(values));
+    assert (len(names) == len(values))
     percent = float(value) / endvalue
     arrow = '-' * int(round(percent * bar_length) - 1) + '>'
-    spaces = ' ' * (bar_length - len(arrow));
-    string = '';
+    spaces = ' ' * (bar_length - len(arrow))
+    string = ''
     for name, val in zip(names, values):
-        temp = '|| {0}: {1:.4f} '.format(name, val) if val != None else '|| {0}: {1} '.format(name, None)
-        string += temp;
+        temp = '|| {0}: {1:.4f} '.format(name, val) if val is not None else '|| {0}: {1} '.format(name, None)
+        string += temp
     sys.stdout.write("\rPercent: [{0}] {1}% {2}".format(arrow + spaces, int(round(percent * 100)), string))
     sys.stdout.flush()
     return
@@ -601,18 +606,8 @@ def save_vocab_dict(path_: str, vocab_: dict):
 # For BERT Custom Tokenization
 ################################################
 
-import numpy as np
-import transformers
 
-# import torch
-# from torch.nn.utils.rnn import pad_sequence
-BERT_TOKENIZER = transformers.BertTokenizer.from_pretrained('bert-base-cased')
-BERT_TOKENIZER.do_basic_tokenize = True
-BERT_TOKENIZER.tokenize_chinese_chars = False
-BERT_MAX_SEQ_LEN = 512
-
-
-def merge_subtokens(tokens: "list"):
+def merge_subtokens(tokens: List):
     merged_tokens = []
     for token in tokens:
         if token.startswith("##"):
@@ -643,9 +638,8 @@ def _custom_bert_tokenize_sentences(list_of_texts):
     return [*texts], [*tokens], [*split_sizes]
 
 
-_simple_bert_tokenize_sentences = \
-    lambda list_of_texts: [merge_subtokens(BERT_TOKENIZER.tokenize(text)[:BERT_MAX_SEQ_LEN - 2]) for text in
-                           list_of_texts]
+def _simple_bert_tokenize_sentences(list_of_texts):
+    return [merge_subtokens(BERT_TOKENIZER.tokenize(text)[:BERT_MAX_SEQ_LEN - 2]) for text in list_of_texts]
 
 
 def bert_tokenize(batch_sentences):
@@ -696,19 +690,33 @@ def bert_tokenize(batch_sentences):
     return batch_sentences, batch_bert_dict, batch_splits
 
 
-def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_sentences):
+def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_sentences, bert_pretrained_name_or_path=None):
     """
     inputs:
         batch_noisy_sentences: List[str]
             a list of textual sentences to tokenized
         batch_orginal_sentences: List[str]
             a list of texts to make sure lengths of input and output are same in the seq-modeling task
+        bert_pretrained_name_or_path:
+            a huggingface path for loading a custom bert model
     outputs (only of batch_noisy_sentences):
         batch_attention_masks, batch_input_ids, batch_token_type_ids
             2d tensors of shape (bs,max_len)
         batch_splits: List[List[Int]]
             specifies #sub-tokens for each word in each textual string after sub-word tokenization
     """
+    global BERT_TOKENIZER
+
+    if BERT_TOKENIZER is None:  # gets initialized during the first call to this method
+        if bert_pretrained_name_or_path:
+            BERT_TOKENIZER = transformers.BertTokenizer.from_pretrained(bert_pretrained_name_or_path)
+            BERT_TOKENIZER.do_basic_tokenize = True
+            BERT_TOKENIZER.tokenize_chinese_chars = False
+        else:
+            BERT_TOKENIZER = transformers.BertTokenizer.from_pretrained('bert-base-cased')
+            BERT_TOKENIZER.do_basic_tokenize = True
+            BERT_TOKENIZER.tokenize_chinese_chars = False
+
     _batch_orginal_sentences = _simple_bert_tokenize_sentences(batch_orginal_sentences)
     _batch_noisy_sentences, _batch_tokens, _batch_splits = _custom_bert_tokenize_sentences(batch_noisy_sentences)
 
@@ -719,7 +727,11 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
     batch_tokens = [line for idx, line in enumerate(_batch_tokens) if idx in valid_idxs]
     batch_splits = [line for idx, line in enumerate(_batch_splits) if idx in valid_idxs]
 
-    batch_bert_dict = {"attention_mask": [], "input_ids": [], "token_type_ids": []}
+    batch_bert_dict = {
+        "attention_mask": [],
+        "input_ids": [],
+        # "token_type_ids": []
+    }
     if len(valid_idxs) > 0:
         batch_encoded_dicts = [BERT_TOKENIZER.encode_plus(tokens) for tokens in batch_tokens]
         batch_attention_masks = pad_sequence(
@@ -728,12 +740,13 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
         batch_input_ids = pad_sequence(
             [torch.tensor(encoded_dict["input_ids"]) for encoded_dict in batch_encoded_dicts], batch_first=True,
             padding_value=0)
-        batch_token_type_ids = pad_sequence(
-            [torch.tensor(encoded_dict["token_type_ids"]) for encoded_dict in batch_encoded_dicts], batch_first=True,
-            padding_value=0)
+        # batch_token_type_ids = pad_sequence(
+        #     [torch.tensor(encoded_dict["token_type_ids"]) for encoded_dict in batch_encoded_dicts], batch_first=True,
+        #     padding_value=0)
         batch_bert_dict = {"attention_mask": batch_attention_masks,
                            "input_ids": batch_input_ids,
-                           "token_type_ids": batch_token_type_ids}
+                           # "token_type_ids": batch_token_type_ids
+                           }
 
     return batch_orginal_sentences, batch_noisy_sentences, batch_bert_dict, batch_splits
 

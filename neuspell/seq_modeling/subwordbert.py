@@ -1,20 +1,45 @@
 import time
 
+from .downloads import download_pretrained_model
 from .evals import get_metrics
 from .helpers import *
 from .models import SubwordBert
 
 
-def load_model(vocab):
-    model = SubwordBert(3 * len(vocab["chartoken2idx"]), vocab["token2idx"][vocab["pad_token"]],
-                        len(vocab["token_freq"]))
-    print(model)
-    print(get_model_nparams(model))
+def load_model(vocab, bert_pretrained_name_or_path, verbose=False):
+    model = SubwordBert(vocab["token2idx"][vocab["pad_token"]],
+                        len(vocab["token_freq"]),
+                        bert_pretrained_name_or_path=bert_pretrained_name_or_path)
+
+    if verbose:
+        print(model)
+    print(f"Number of parameters in the model: {get_model_nparams(model)}")
 
     return model
 
 
 def load_pretrained(model, checkpoint_path, optimizer=None, device='cuda'):
+    if optimizer:
+        raise Exception("If you want optimizer, call `load_pretrained_large(...)` instead of `load_pretrained(...)`")
+
+    if torch.cuda.is_available() and device != "cpu":
+        map_location = lambda storage, loc: storage.cuda()
+    else:
+        map_location = 'cpu'
+    print(f"Loading model params from checkpoint dir: {checkpoint_path}")
+
+    try:
+        checkpoint_data = torch.load(os.path.join(checkpoint_path, "pytorch_model.bin"), map_location=map_location)
+    except FileNotFoundError:
+        download_pretrained_model(checkpoint_path)
+        checkpoint_data = torch.load(os.path.join(checkpoint_path, "pytorch_model.bin"), map_location=map_location)
+
+    model.load_state_dict(checkpoint_data)
+
+    return model
+
+
+def load_pretrained_large(model, checkpoint_path, optimizer=None, device='cuda'):
     if torch.cuda.is_available() and device != "cpu":
         map_location = lambda storage, loc: storage.cuda()
     else:

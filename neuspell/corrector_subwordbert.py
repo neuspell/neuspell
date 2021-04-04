@@ -1,12 +1,12 @@
 import os
 import time
-from typing import List
+from typing import List, Dict, Union
 
 import numpy as np
 import torch
 from pytorch_pretrained_bert import BertAdam
 
-from .commons import ARXIV_CHECKPOINTS, Corrector
+from .commons import ARXIV_CHECKPOINTS, DEFAULT_TRAINTEST_DATA_PATH, Corrector
 from .seq_modeling.downloads import download_pretrained_model
 from .seq_modeling.helpers import bert_tokenize_for_valid_examples
 from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams, save_vocab_dict
@@ -27,6 +27,7 @@ class CorrectorSubwordBert(Corrector):
         self.ckpt_path = None
         self.vocab_path, self.weights_path = "", ""
         self.model, self.vocab = None, None
+        self.bert_pretrained_name_or_path = "bert-base-cased"
 
         if self.pretrained:
             self.from_pretrained(self.ckpt_path)
@@ -35,7 +36,19 @@ class CorrectorSubwordBert(Corrector):
         assert not (self.model is None or self.vocab is None), print("model & vocab must be loaded first")
         return
 
-    def from_pretrained(self, ckpt_path=None, vocab="", weights=""):
+    def from_huggingface(self, bert_pretrained_name_or_path, vocab: Union[Dict, str]):
+        self.bert_pretrained_name_or_path = bert_pretrained_name_or_path
+        if isinstance(vocab, str) and os.path.exists(vocab):
+            self.vocab_path = vocab
+            print(f"loading vocab from path:{self.vocab_path}")
+            self.vocab = load_vocab_dict(self.vocab_path)
+        elif isinstance(vocab, dict):
+            self.vocab = vocab
+        self.model = load_model(self.vocab, bert_pretrained_name_or_path=self.bert_pretrained_name_or_path)
+        self.model.to(self.device)
+        return
+
+    def from_pretrained(self, ckpt_path=None, vocab="", weights="", bert_pretrained_name_or_path=None):
         self.ckpt_path = ckpt_path or ARXIV_CHECKPOINTS["subwordbert-probwordnoise"]
         self.vocab_path = vocab if vocab else os.path.join(self.ckpt_path, "vocab.pkl")
         if not os.path.isfile(self.vocab_path):  # leads to "FileNotFoundError"
@@ -43,7 +56,9 @@ class CorrectorSubwordBert(Corrector):
         print(f"loading vocab from path:{self.vocab_path}")
         self.vocab = load_vocab_dict(self.vocab_path)
         print(f"initializing model")
-        self.model = load_model(self.vocab)
+        if bert_pretrained_name_or_path:
+            self.bert_pretrained_name_or_path = bert_pretrained_name_or_path
+        self.model = load_model(self.vocab, bert_pretrained_name_or_path=self.bert_pretrained_name_or_path)
         self.weights_path = weights if weights else self.ckpt_path
         print(f"loading pretrained weights from path:{self.weights_path}")
         self.model = load_pretrained(self.model, self.weights_path, device=self.device)
@@ -73,7 +88,7 @@ class CorrectorSubwordBert(Corrector):
 
     def correct_strings(self, mystrings: List[str], return_all=False) -> List[str]:
         self.__model_status()
-        mystrings = bert_tokenize_for_valid_examples(mystrings, mystrings)[0]
+        mystrings = bert_tokenize_for_valid_examples(mystrings, mystrings, self.bert_pretrained_name_or_path)[0]
         data = [(line, line) for line in mystrings]
         batch_size = 4 if self.device == "cpu" else 16
         return_strings = model_predictions(self.model, data, self.vocab, device=self.device, batch_size=batch_size)
@@ -96,14 +111,16 @@ class CorrectorSubwordBert(Corrector):
         opfile.close()
         return
 
-    def evaluate(self, clean_file, corrupt_file):
+    def evaluate(self, clean_file, corrupt_file, data_dir=""):
         """
         clean_file = f"{DEFAULT_DATA_PATH}/traintest/clean.txt"
         corrupt_file = f"{DEFAULT_DATA_PATH}/traintest/corrupt.txt"
         """
         self.__model_status()
+        data_dir = DEFAULT_TRAINTEST_DATA_PATH if data_dir == "default" else data_dir
+
         batch_size = 4 if self.device == "cpu" else 16
-        for x, y, z in zip([""], [clean_file], [corrupt_file]):
+        for x, y, z in zip([data_dir], [clean_file], [corrupt_file]):
             print(x, y, z)
             test_data = load_data(x, y, z)
             _ = model_inference(self.model,
@@ -118,13 +135,14 @@ class CorrectorSubwordBert(Corrector):
         self.__model_status()
         return get_model_nparams(self.model)
 
-    def finetune(self, clean_file, corrupt_file, validation_split=0.2, n_epochs=2, new_vocab_list=[]):
+    def finetune(self, clean_file, corrupt_file, data_dir="", validation_split=0.2, n_epochs=2, new_vocab_list=[]):
 
         if new_vocab_list:
             raise NotImplementedError("Do not currently support modifying output vocabulary of the models")
 
         # load data and split in train-validation
-        train_data = load_data("", clean_file, corrupt_file)
+        data_dir = DEFAULT_TRAINTEST_DATA_PATH if data_dir == "default" else data_dir
+        train_data = load_data(data_dir, clean_file, corrupt_file)
         train_data, valid_data = train_validation_split(train_data, 0.8, seed=11690)
         print("len of train and test data: ", len(train_data), len(valid_data))
 
@@ -140,7 +158,15 @@ class CorrectorSubwordBert(Corrector):
         GRADIENT_ACC = 4
         DEVICE = self.device
         START_EPOCH, N_EPOCHS = 0, n_epochs
-        CHECKPOINT_PATH = os.path.join(self.ckpt_path, "finetuned_model")
+        CHECKPOINT_PATH = os.path.join(data_dir, "new_models", os.path.split(self.bert_pretrained_name_or_path)[-1])
+        if os.path.exists(CHECKPOINT_PATH):
+            num = 1
+            while True:
+                NEW_CHECKPOINT_PATH = CHECKPOINT_PATH + f"-{num}"
+                if not os.path.exists(NEW_CHECKPOINT_PATH):
+                    break
+                num += 1
+            CHECKPOINT_PATH = NEW_CHECKPOINT_PATH
         VOCAB_PATH = os.path.join(CHECKPOINT_PATH, "vocab.pkl")
         if not os.path.exists(CHECKPOINT_PATH):
             os.makedirs(CHECKPOINT_PATH)
@@ -158,6 +184,8 @@ class CorrectorSubwordBert(Corrector):
             {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
         ]
         t_total = int(len(train_data) / TRAIN_BATCH_SIZE / GRADIENT_ACC * N_EPOCHS)
+        if t_total == 0:
+            t_total = 1
         optimizer = BertAdam(optimizer_grouped_parameters, lr=5e-5, warmup=0.1, t_total=t_total)
 
         # model to device
@@ -165,14 +193,15 @@ class CorrectorSubwordBert(Corrector):
 
         # load parameters if not training from scratch
         if START_EPOCH > 1:
-            progress_write_file = open(os.path.join(CHECKPOINT_PATH, f"progress_retrain_from_epoch{START_EPOCH}.txt"),
-                                       'w')
+            progress_write_file = (
+                open(os.path.join(CHECKPOINT_PATH, f"progress_retrain_from_epoch{START_EPOCH}.txt"), 'w')
+            )
             model, optimizer, max_dev_acc, argmax_dev_acc = load_pretrained(model, CHECKPOINT_PATH, optimizer=optimizer)
             progress_write_file.write(f"Training model params after loading from path: {CHECKPOINT_PATH}\n")
         else:
             progress_write_file = open(os.path.join(CHECKPOINT_PATH, "progress.txt"), 'w')
-            print(f"Training model params from scratch")
-            progress_write_file.write(f"Training model params from scratch\n")
+            print(f"Training model params")
+            progress_write_file.write(f"Training model params\n")
         progress_write_file.flush()
 
         # train and eval
@@ -199,8 +228,8 @@ class CorrectorSubwordBert(Corrector):
             for batch_id, (batch_labels, batch_sentences) in enumerate(train_data_iter):
                 st_time = time.time()
                 # set batch data for bert
-                batch_labels_, batch_sentences_, batch_bert_inp, batch_bert_splits = bert_tokenize_for_valid_examples(
-                    batch_labels, batch_sentences)
+                batch_labels_, batch_sentences_, batch_bert_inp, batch_bert_splits = \
+                    bert_tokenize_for_valid_examples(batch_labels, batch_sentences, self.bert_pretrained_name_or_path)
                 if len(batch_labels_) == 0:
                     print("################")
                     print("Not training the following lines due to pre-processing mismatch: \n")
@@ -251,7 +280,8 @@ class CorrectorSubwordBert(Corrector):
                     nb = int(np.ceil(len(train_data) / TRAIN_BATCH_SIZE))
                     progress_write_file.write(f"{batch_id + 1}/{nb}\n")
                     progress_write_file.write(
-                        f"batch_time: {time.time() - st_time}, avg_batch_loss: {train_loss / (batch_id + 1)}, avg_batch_acc: {train_acc / train_acc_count}\n")
+                        f"batch_time: {time.time() - st_time}, avg_batch_loss: {train_loss / (batch_id + 1)}, "
+                        f"avg_batch_acc: {train_acc / train_acc_count}\n")
                     progress_write_file.flush()
             print(f"\nEpoch {epoch_id} train_loss: {train_loss / (batch_id + 1)}")
 
@@ -265,8 +295,8 @@ class CorrectorSubwordBert(Corrector):
             for batch_id, (batch_labels, batch_sentences) in enumerate(valid_data_iter):
                 st_time = time.time()
                 # set batch data for bert
-                batch_labels_, batch_sentences_, batch_bert_inp, batch_bert_splits = bert_tokenize_for_valid_examples(
-                    batch_labels, batch_sentences)
+                batch_labels_, batch_sentences_, batch_bert_inp, batch_bert_splits = \
+                    bert_tokenize_for_valid_examples(batch_labels, batch_sentences, self.bert_pretrained_name_or_path)
                 if len(batch_labels_) == 0:
                     print("################")
                     print("Not validating the following lines due to pre-processing mismatch: \n")
@@ -302,27 +332,29 @@ class CorrectorSubwordBert(Corrector):
                     nb = int(np.ceil(len(valid_data) / VALID_BATCH_SIZE))
                     progress_write_file.write(f"{batch_id}/{nb}\n")
                     progress_write_file.write(
-                        f"batch_time: {time.time() - st_time}, avg_batch_loss: {valid_loss / (batch_id + 1)}, avg_batch_acc: {valid_acc / (batch_id + 1)}\n")
+                        f"batch_time: {time.time() - st_time}, avg_batch_loss: {valid_loss / (batch_id + 1)}, "
+                        f"avg_batch_acc: {valid_acc / (batch_id + 1)}\n")
                     progress_write_file.flush()
             print(f"\nEpoch {epoch_id} valid_loss: {valid_loss / (batch_id + 1)}")
 
             # save model, optimizer and test_predictions if val_acc is improved
             if valid_acc >= max_dev_acc:
-                # to file
-                # name = "model-epoch{}.pth.tar".format(epoch_id)
-                name = "model.pth.tar".format(epoch_id)
-                torch.save({
-                    'epoch_id': epoch_id,
-                    'max_dev_acc': max_dev_acc,
-                    'argmax_dev_acc': argmax_dev_acc,
-                    'model_state_dict': model.state_dict(),
-                    'optimizer_state_dict': optimizer.state_dict()},
-                    os.path.join(CHECKPOINT_PATH, name))
+                print(f"validation accuracy improved from {max_dev_acc:.4f} to {valid_acc:.4f}")
+                # name = "model.pth.tar".format(epoch_id)
+                # torch.save({
+                #     'epoch_id': epoch_id,
+                #     'max_dev_acc': max_dev_acc,
+                #     'argmax_dev_acc': argmax_dev_acc,
+                #     'model_state_dict': model.state_dict(),
+                #     'optimizer_state_dict': optimizer.state_dict()},
+                #     os.path.join(CHECKPOINT_PATH, name))
+                name = "pytorch_model.bin"
+                torch.save(model.state_dict(), os.path.join(CHECKPOINT_PATH, name))
                 print("Model saved at {} in epoch {}".format(os.path.join(CHECKPOINT_PATH, name), epoch_id))
                 save_vocab_dict(VOCAB_PATH, vocab)
 
                 # re-assign
                 max_dev_acc, argmax_dev_acc = valid_acc, epoch_id
 
-        print(f"Model and logs saved at {os.path.join(CHECKPOINT_PATH, 'model.pth.tar')}")
+        print(f"Model and logs saved at {CHECKPOINT_PATH}")
         return
