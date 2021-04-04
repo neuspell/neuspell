@@ -81,7 +81,7 @@ def model_predictions(model, data, vocab, device, batch_size=16):
         batch_idxs, batch_lengths_, inverted_mask = sctrans_tokenize(batch_corrupt_sentences, vocab)
         assert (batch_lengths_ == batch_lengths).all() == True
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
-        batch_lengths = batch_lengths.to(device)
+        # batch_lengths = batch_lengths.to(device)
         batch_labels = batch_labels.to(device)
         inverted_mask = inverted_mask.to(device)
         elmo_batch_to_ids = get_module_or_attr("allennlp.modules.elmo", "batch_to_ids")
@@ -129,7 +129,7 @@ def model_inference(model, data, topk, device, batch_size=16, vocab_=None):
         batch_idxs, batch_lengths_, inverted_mask = sctrans_tokenize(batch_corrupt_sentences, vocab)
         assert (batch_lengths_ == batch_lengths).all() == True
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
-        batch_lengths = batch_lengths.to(device)
+        # batch_lengths = batch_lengths.to(device)
         batch_labels = batch_labels.to(device)
         inverted_mask = inverted_mask.to(device)
         elmo_batch_to_ids = get_module_or_attr("allennlp.modules.elmo", "batch_to_ids")

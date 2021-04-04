@@ -241,7 +241,7 @@ class CorrectorSubwordBert(Corrector):
                 batch_bert_inp = {k: v.to(DEVICE) for k, v in batch_bert_inp.items()}
                 # set batch data for others
                 batch_labels, batch_lengths = labelize(batch_labels, vocab)
-                batch_lengths = batch_lengths.to(DEVICE)
+                # batch_lengths = batch_lengths.to(device)
                 batch_labels = batch_labels.to(DEVICE)
                 # forward
                 model.train()
@@ -308,7 +308,7 @@ class CorrectorSubwordBert(Corrector):
                 batch_bert_inp = {k: v.to(DEVICE) for k, v in batch_bert_inp.items()}
                 # set batch data for others
                 batch_labels, batch_lengths = labelize(batch_labels, vocab)
-                batch_lengths = batch_lengths.to(DEVICE)
+                # batch_lengths = batch_lengths.to(device)
                 batch_labels = batch_labels.to(DEVICE)
                 # forward
                 model.eval()

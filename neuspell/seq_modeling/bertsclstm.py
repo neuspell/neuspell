@@ -93,7 +93,7 @@ def model_predictions(model, data, vocab, device, batch_size=16):
         assert (batch_lengths_ == batch_lengths).all() == True
         assert len(batch_bert_splits) == len(batch_idxs)
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
-        batch_lengths = batch_lengths.to(device)
+        # batch_lengths = batch_lengths.to(device)
         batch_labels_ids = batch_labels_ids.to(device)
         # forward
         with torch.no_grad():
@@ -149,7 +149,7 @@ def model_inference(model, data, topk, device, batch_size=16, vocab_=None):
         assert (batch_lengths_ == batch_lengths).all() == True
         assert len(batch_bert_splits) == len(batch_idxs)
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
-        batch_lengths = batch_lengths.to(device)
+        # batch_lengths = batch_lengths.to(device)
         batch_labels_ids = batch_labels_ids.to(device)
         # forward
         try:

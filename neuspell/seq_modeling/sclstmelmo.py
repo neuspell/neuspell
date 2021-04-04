@@ -134,7 +134,7 @@ def model_predictions(model, data, vocab, device, batch_size=16, backoff="pass-t
         batch_idxs, batch_lengths_ = sclstm_tokenize(batch_corrupt_sentences, vocab)
         assert (batch_lengths_ == batch_lengths).all() == True
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
-        batch_lengths = batch_lengths.to(device)
+        # batch_lengths = batch_lengths.to(device)
         batch_labels = batch_labels.to(device)
         elmo_batch_to_ids = get_module_or_attr("allennlp.modules.elmo", "batch_to_ids")
         batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_corrupt_sentences]).to(device)
@@ -193,7 +193,7 @@ def model_inference(model, data, topk, device, batch_size=16, beam_search=False,
         batch_idxs, batch_lengths_ = sclstm_tokenize(batch_corrupt_sentences, vocab)
         assert (batch_lengths_ == batch_lengths).all() == True
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
-        batch_lengths = batch_lengths.to(device)
+        # batch_lengths = batch_lengths.to(device)
         batch_labels = batch_labels.to(device)
         elmo_batch_to_ids = get_module_or_attr("allennlp.modules.elmo", "batch_to_ids")
         batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_corrupt_sentences]).to(device)
