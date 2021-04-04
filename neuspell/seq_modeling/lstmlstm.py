@@ -85,7 +85,7 @@ def model_predictions(model, data, vocab, device, batch_size=16):
                                                                        return_nchars=True)
         assert (batch_lengths_ == batch_lengths).all() == True
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
-        batch_char_lengths = [batch_char_lengths_.to(device) for batch_char_lengths_ in batch_char_lengths]
+        # batch_char_lengths = [batch_char_lengths_.to(device) for batch_char_lengths_ in batch_char_lengths]
         # batch_lengths = batch_lengths.to(device)
         batch_labels = batch_labels.to(device)
         # forward
@@ -130,7 +130,7 @@ def model_inference(model, data, topk, device, batch_size=16, vocab_=None):
                                                                        return_nchars=True)
         assert (batch_lengths_ == batch_lengths).all() == True
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
-        batch_char_lengths = [batch_char_lengths_.to(device) for batch_char_lengths_ in batch_char_lengths]
+        # batch_char_lengths = [batch_char_lengths_.to(device) for batch_char_lengths_ in batch_char_lengths]
         # batch_lengths = batch_lengths.to(device)
         batch_labels = batch_labels.to(device)
         # forward
