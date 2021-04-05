@@ -129,8 +129,8 @@ def download_pretrained_model_large(ckpt_path: str):
     model_url = details["model.pth.tar"]
     vocab_url = details["vocab.pkl"]
     print("Pretrained model downloading start (may take few seconds to couple of minutes based on download speed) ...")
-    download_file_from_google_drive(model_url, os.path.join(ckpt_path, "model.pth.tar"))
     download_file_from_google_drive(vocab_url, os.path.join(ckpt_path, "vocab.pkl"))
+    download_file_from_google_drive(model_url, os.path.join(ckpt_path, "model.pth.tar"))
     print("Pretrained model download success")
     return
 
@@ -145,7 +145,7 @@ def download_pretrained_model(ckpt_path: str):
     model_url = details["pytorch_model.bin"]
     vocab_url = details["vocab.pkl"]
     print("Pretrained model downloading start (may take few seconds to couple of minutes based on download speed) ...")
-    download_file_from_google_drive(model_url, os.path.join(ckpt_path, "pytorch_model.bin"))
     download_file_from_google_drive(vocab_url, os.path.join(ckpt_path, "vocab.pkl"))
+    download_file_from_google_drive(model_url, os.path.join(ckpt_path, "pytorch_model.bin"))
     print("Pretrained model download success")
     return
