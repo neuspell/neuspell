@@ -1,20 +1,44 @@
 import time
 
+from .downloads import download_pretrained_model
 from .evals import get_metrics
 from .helpers import *
 from .models import BertSCLSTM
 
 
-def load_model(vocab):
+def load_model(vocab, verbose=False):
     model = BertSCLSTM(3 * len(vocab["chartoken2idx"]), vocab["token2idx"][vocab["pad_token"]],
                        len(vocab["token_freq"]))
-    print(model)
-    print(get_model_nparams(model))
+
+    if verbose:
+        print(model)
+    print(f"Number of parameters in the model: {get_model_nparams(model)}")
 
     return model
 
 
 def load_pretrained(model, checkpoint_path, optimizer=None, device='cuda'):
+    if optimizer:
+        raise Exception("If you want optimizer, call `load_pretrained_large(...)` instead of `load_pretrained(...)`")
+
+    if torch.cuda.is_available() and device != "cpu":
+        map_location = lambda storage, loc: storage.cuda()
+    else:
+        map_location = 'cpu'
+    print(f"Loading model params from checkpoint dir: {checkpoint_path}")
+
+    try:
+        checkpoint_data = torch.load(os.path.join(checkpoint_path, "pytorch_model.bin"), map_location=map_location)
+    except FileNotFoundError:
+        download_pretrained_model(checkpoint_path)
+        checkpoint_data = torch.load(os.path.join(checkpoint_path, "pytorch_model.bin"), map_location=map_location)
+
+    model.load_state_dict(checkpoint_data)
+
+    return model
+
+
+def load_pretrained_large(model, checkpoint_path, optimizer=None, device='cuda'):
     if torch.cuda.is_available() and device != "cpu":
         map_location = lambda storage, loc: storage.cuda()
     else:
@@ -69,7 +93,7 @@ def model_predictions(model, data, vocab, device, batch_size=16):
         assert (batch_lengths_ == batch_lengths).all() == True
         assert len(batch_bert_splits) == len(batch_idxs)
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
-        batch_lengths = batch_lengths.to(device)
+        # batch_lengths = batch_lengths.to(device)
         batch_labels_ids = batch_labels_ids.to(device)
         # forward
         with torch.no_grad():
@@ -125,7 +149,7 @@ def model_inference(model, data, topk, device, batch_size=16, vocab_=None):
         assert (batch_lengths_ == batch_lengths).all() == True
         assert len(batch_bert_splits) == len(batch_idxs)
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
-        batch_lengths = batch_lengths.to(device)
+        # batch_lengths = batch_lengths.to(device)
         batch_labels_ids = batch_labels_ids.to(device)
         # forward
         try:

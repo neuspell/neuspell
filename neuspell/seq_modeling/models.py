@@ -10,6 +10,13 @@ from torch.nn.utils.rnn import pad_sequence
 from .util import is_module_available, get_module_or_attr
 from ..commons import ALLENNLP_ELMO_PRETRAINED_FOLDER
 
+DEFAULT_BERT_PRETRAINED_NAME_OR_PATH = "bert-base-cased"
+
+
+def get_pretrained_bert(pretrained_name_or_path=None):
+    pretrained_name_or_path = pretrained_name_or_path or DEFAULT_BERT_PRETRAINED_NAME_OR_PATH
+    return transformers.AutoModel.from_pretrained(pretrained_name_or_path)
+
 
 def get_pretrained_elmo(elmo_options_file=None, elmo_weights_file=None):
     if not is_module_available("allennlp"):
@@ -32,10 +39,6 @@ def get_pretrained_elmo(elmo_options_file=None, elmo_weights_file=None):
     elmo_weights_file = elmo_weights_file or local_weights_file or weights_file  # or os.environ.get('ELMO_WEIGHTS_FILE_PATH', None)
     # neuspell.seq_modeling.models.get_pretrained_elmo()
     return Elmo(elmo_options_file, elmo_weights_file, 1)  # 1 for setting device="cuda:0" else 0
-
-
-def get_pretrained_bert(pretrained_name_or_path="bert-base-cased"):
-    return transformers.BertModel.from_pretrained(pretrained_name_or_path)
 
 
 #################################################
@@ -707,16 +710,18 @@ import torch
 
 
 class BertSCLSTM(nn.Module):
-    def __init__(self, screp_dim, padding_idx, output_dim, early_concat=True):
+    def __init__(self, screp_dim, padding_idx, output_dim, early_concat=True,
+                 bert_pretrained_name_or_path=None, freeze_bert=False):
         super(BertSCLSTM, self).__init__()
 
         self.bert_dropout = torch.nn.Dropout(0.2)
-        self.bert_model = get_pretrained_bert()
+        self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)
         self.bertmodule_outdim = self.bert_model.config.hidden_size
         self.early_concat = early_concat  # if True, (bert+sc)->lstm->linear, else ((sc->lstm)+bert)->linear
-        # Uncomment to freeze BERT layers
-        # for param in self.bert_model.parameters():
-        #     param.requires_grad = False
+        if freeze_bert:
+            # Uncomment to freeze BERT layers
+            for param in self.bert_model.parameters():
+                param.requires_grad = False
 
         # lstm module
         # expected  input dim: [BS,max_nwords,*] and batch_lengths as [BS] for pack_padded_sequence
@@ -780,7 +785,7 @@ class BertSCLSTM(nn.Module):
 
         # bert
         # BS X max_nsubwords x self.bertmodule_outdim
-        bert_encodings, cls_encoding = self.bert_model(**batch_bert_dict, return_dict=False)
+        bert_encodings = self.bert_model(**batch_bert_dict, return_dict=False)[0]
         bert_encodings = self.bert_dropout(bert_encodings)
         # BS X max_nwords x self.bertmodule_outdim
         bert_merged_encodings = pad_sequence(
@@ -859,15 +864,16 @@ class BertSCLSTM(nn.Module):
 #################################################
 
 class SubwordBert(nn.Module):
-    def __init__(self, screp_dim, padding_idx, output_dim):
+    def __init__(self, padding_idx, output_dim, bert_pretrained_name_or_path=None, freeze_bert=False):
         super(SubwordBert, self).__init__()
 
         self.bert_dropout = torch.nn.Dropout(0.2)
-        self.bert_model = get_pretrained_bert()
+        self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)
         self.bertmodule_outdim = self.bert_model.config.hidden_size
-        # Uncomment to freeze BERT layers
-        # for param in self.bert_model.parameters():
-        #     param.requires_grad = False
+        if freeze_bert:
+            # Uncomment to freeze BERT layers
+            for param in self.bert_model.parameters():
+                param.requires_grad = False
 
         # output module
         assert output_dim > 0
@@ -909,7 +915,7 @@ class SubwordBert(nn.Module):
 
         # bert
         # BS X max_nsubwords x self.bertmodule_outdim
-        bert_encodings, cls_encoding = self.bert_model(**batch_bert_dict, return_dict=False)
+        bert_encodings = self.bert_model(**batch_bert_dict, return_dict=False)[0]
         bert_encodings = self.bert_dropout(bert_encodings)
         # BS X max_nwords x self.bertmodule_outdim
         bert_merged_encodings = pad_sequence(

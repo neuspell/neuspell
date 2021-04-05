@@ -10,6 +10,8 @@ print(f"data folder is set to `{DEFAULT_DATA_PATH}` script")
 if not os.path.exists(DEFAULT_DATA_PATH):
     os.makedirs(DEFAULT_DATA_PATH)
 
+DEFAULT_TRAINTEST_DATA_PATH = os.path.join(DEFAULT_DATA_PATH, "traintest")
+
 ALLENNLP_ELMO_PRETRAINED_FOLDER = os.path.join(DEFAULT_DATA_PATH, "allennlp_elmo_pretrained")
 
 ARXIV_CHECKPOINTS = {

@@ -1,9 +1,10 @@
 import time
 
+from .downloads import download_pretrained_model
 from .evals import get_metrics
 from .helpers import *
 from .models import ElmoSCLSTM
-from .util import is_module_available, get_module_or_attr
+from .util import get_module_or_attr
 
 """
 NEW: reranking snippets
@@ -61,14 +62,36 @@ def get_losses_from_txl_lm(this_sents: "list[str]", txlLMHeadModel, txlTokenizer
 def load_model(vocab, verbose=False):
     model = ElmoSCLSTM(3 * len(vocab["chartoken2idx"]), vocab["token2idx"][vocab["pad_token"]],
                        len(vocab["token_freq"]), early_concat=False)
+
     if verbose:
         print(model)
-    print(get_model_nparams(model))
+    print(f"Number of parameters in the model: {get_model_nparams(model)}")
 
     return model
 
 
 def load_pretrained(model, checkpoint_path, optimizer=None, device='cuda'):
+    if optimizer:
+        raise Exception("If you want optimizer, call `load_pretrained_large(...)` instead of `load_pretrained(...)`")
+
+    if torch.cuda.is_available() and device != "cpu":
+        map_location = lambda storage, loc: storage.cuda()
+    else:
+        map_location = 'cpu'
+    print(f"Loading model params from checkpoint dir: {checkpoint_path}")
+
+    try:
+        checkpoint_data = torch.load(os.path.join(checkpoint_path, "pytorch_model.bin"), map_location=map_location)
+    except FileNotFoundError:
+        download_pretrained_model(checkpoint_path)
+        checkpoint_data = torch.load(os.path.join(checkpoint_path, "pytorch_model.bin"), map_location=map_location)
+
+    model.load_state_dict(checkpoint_data)
+
+    return model
+
+
+def load_pretrained_large(model, checkpoint_path, optimizer=None, device='cuda'):
     if torch.cuda.is_available() and device != "cpu":
         map_location = lambda storage, loc: storage.cuda()
     else:
@@ -111,7 +134,7 @@ def model_predictions(model, data, vocab, device, batch_size=16, backoff="pass-t
         batch_idxs, batch_lengths_ = sclstm_tokenize(batch_corrupt_sentences, vocab)
         assert (batch_lengths_ == batch_lengths).all() == True
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
-        batch_lengths = batch_lengths.to(device)
+        # batch_lengths = batch_lengths.to(device)
         batch_labels = batch_labels.to(device)
         elmo_batch_to_ids = get_module_or_attr("allennlp.modules.elmo", "batch_to_ids")
         batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_corrupt_sentences]).to(device)
@@ -170,7 +193,7 @@ def model_inference(model, data, topk, device, batch_size=16, beam_search=False,
         batch_idxs, batch_lengths_ = sclstm_tokenize(batch_corrupt_sentences, vocab)
         assert (batch_lengths_ == batch_lengths).all() == True
         batch_idxs = [batch_idxs_.to(device) for batch_idxs_ in batch_idxs]
-        batch_lengths = batch_lengths.to(device)
+        # batch_lengths = batch_lengths.to(device)
         batch_labels = batch_labels.to(device)
         elmo_batch_to_ids = get_module_or_attr("allennlp.modules.elmo", "batch_to_ids")
         batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_corrupt_sentences]).to(device)
