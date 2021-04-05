@@ -63,10 +63,13 @@ Then, download pretrained models of `neuspell` following [Pretrained models](#Pr
 Here is a quick-start code snippet (command line usage). (See [```test.py```](test.py) for more usage patterns)
 
 ```python
-""" select spell checkers """
-from neuspell import BertChecker
+import neuspell
 
-""" load spell checkers """
+""" see available checkers """
+print(f"available checkers: {neuspell.__all__}")
+# → available checkers: ['BertsclstmChecker', 'CnnlstmChecker', 'NestedlstmChecker', 'SclstmChecker', 'SclstmbertChecker', 'BertChecker', 'SclstmelmoChecker', 'ElmosclstmChecker']
+
+""" select spell checkers & load """
 checker = BertChecker()
 checker.from_pretrained()
 
@@ -259,7 +262,7 @@ train_data, valid_data = train_validation_split(train_data, 0.8, seed=11690)
 vocab = get_tokens([i[0] for i in train_data], keep_simple=True, min_max_freq=(1, float("inf")), topk=100000)
 
 # # Step-2: Initialize a model
-checker = BertChecker()
+checker = BertChecker(device="cuda")
 checker.from_huggingface(bert_pretrained_name_or_path="distilbert-base-cased", vocab=vocab)
 
 # Step-3: Finetune the model on your dataset
@@ -332,3 +335,5 @@ tar xf ./en.tar.gz --directory ./
     abstract = "We introduce NeuSpell, an open-source toolkit for spelling correction in English. Our toolkit comprises ten different models, and benchmarks them on naturally occurring misspellings from multiple sources. We find that many systems do not adequately leverage the context around the misspelt token. To remedy this, (i) we train neural models using spelling errors in context, synthetically constructed by reverse engineering isolated misspellings; and (ii) use richer representations of the context. By training on our synthetic examples, correction rates improve by 9{\%} (absolute) compared to the case when models are trained on randomly sampled character perturbations. Using richer contextual representations boosts the correction rate by another 3{\%}. Our toolkit enables practitioners to use our proposed and existing spelling correction systems, both via a simple unified command line, as well as a web interface. Among many potential applications, we demonstrate the utility of our spell-checkers in combating adversarial misspellings. The toolkit can be accessed at neuspell.github.io.",
 }
 ```
+
+You can contact the authors at jsaimurali001 [at] gmail [dot] com
