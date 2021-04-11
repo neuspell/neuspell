@@ -67,19 +67,38 @@ class Corrector(ABC):
         raise Exception("this functionality is only available with `SclstmChecker`")
 
 
-def _is_punct(inp):
-    return all([i in punctuation for i in inp])
+_SPACY_TOKENIZER, _SPACY_TAGGER = None, None
 
 
-if is_module_available("spacy"):
-    spacy = get_module_or_attr("spacy")
-    my_nlp = spacy.load("en_core_web_sm", disable=["tagger", "parser", "ner"])
-    get_tokens = lambda inp: [token.text for token in my_nlp(inp)]
-else:
-    get_tokens = lambda inp: inp.split()
+def _load_spacy_tokenizer():
+    global _SPACY_TOKENIZER, _SPACY_TAGGER
+
+    if not _SPACY_TOKENIZER:
+        if is_module_available("spacy"):
+            if not is_module_available("en_core_web_sm"):
+                raise ImportError("run `python -m spacy download en_core_web_sm`")
+            print("creating spacy models ...")
+            spacy_nlp = get_module_or_attr("en_core_web_sm").load(disable=["tagger", "ner", "lemmatizer"])
+            _SPACY_TOKENIZER = lambda inp: [token.text for token in spacy_nlp(inp)]
+            # spacy_nlp = get_module_or_attr("en_core_web_sm").load(disable=["ner", "lemmatizer"])
+            # _SPACY_TAGGER = lambda inp: [token.tag for token in spacy_nlp(inp)]
+            print("spacy models initialized")
+        else:
+            raise ImportError("`pip install spacy` to use spacy retokenizer")
+    return _SPACY_TOKENIZER
 
 
-def custom_tokenizer(inp: str):
+def _custom_tokenizer(inp: str):
+    try:
+        _spacy_tokenizer = _load_spacy_tokenizer()
+        get_tokens = lambda inp: [token.text for token in _spacy_tokenizer(inp)]
+    except ImportError as e:
+        print(e)
+        get_tokens = lambda inp: inp.split()
+
+    def _is_punct(inp):
+        return all([i in punctuation for i in inp])
+
     tokens = get_tokens(inp)
     new_tokens = []
     str_ = ""
@@ -95,4 +114,4 @@ def custom_tokenizer(inp: str):
     return " ".join(new_tokens)
 
 
-spacy_tokenizer = custom_tokenizer
+spacy_tokenizer = _custom_tokenizer
