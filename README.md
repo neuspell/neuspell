@@ -7,8 +7,8 @@
 - [Installation & Quick Start](#Installation)
 - Toolkit
     - [Introduction](#Introduction)
-    - [Pretrained models](#Pretrained-models)
-    - [Datasets](#Datasets)
+    - [Download Checkpoints](#Download-Checkpoints)
+    - [Download Datasets](#Datasets)
     - [Demo Setup](#Demo-Setup)
 - [Finetuning on custom data and creating new models](#Finetuning-on-custom-data-and-creating-new-models)
 - [Applications](#Potential-applications-for-practitioners)
@@ -60,7 +60,8 @@ and ```Jamspell```.
 
 Then, download pretrained models of `neuspell` following [Pretrained models](#Pretrained-models)
 
-Here is a quick-start code snippet (command line usage). (See [```test.py```](test.py) for more usage patterns)
+Here is a quick-start code snippet (command line usage).
+See [test_neuspell_correctors.py](./tests/test_neuspell_correctors.py) for more usage patterns.
 
 ```python
 import neuspell
@@ -111,10 +112,12 @@ See [List of neural models in the toolkit](#List-of-neural-models-in-the-toolkit
 pip install neuspell
 ```
 
-In v1.0, `allennlp` library is not installed which is used for models containing ELMO. To utilize them, do a source
-install as in [Installation & Quick Start](#Installation)
+In v1.0, `allennlp` library is not automatically installed which is used for models containing ELMO. Hence, to utilize
+those checkers, do a source install as in [Installation & Quick Start](#Installation)
 
-# Introduction
+# Toolkit
+
+### Introduction
 
 NeuSpell is an open-source toolkit for context sensitive spelling correction in English. This toolkit comprises of 10
 spell checkers, with evaluations on naturally occurring mis-spellings from multiple (publicly available) sources. To
@@ -153,34 +156,50 @@ of our spell-checkers in combating adversarial misspellings.
 ##### Performances
 
 | Spell<br>Checker    | Word<br>Correction <br>Rate | Time per<br>sentence <br>(in milliseconds) |
-|----------|----------------------|--------------------------------------|
-| ```Aspell``` | 48.7 | 7.3* |
-|``` Jamspell``` | 68.9 | 2.6* |
-|```CNN-LSTM``` |75.8 |  4.2|
-|```SC-LSTM``` | 76.7| 2.8 |
-|```Nested-LSTM``` |77.3 | 6.4|
-|```BERT``` | 79.1| 7.1|
-|```SC-LSTM plus ELMO (at input)``` |<b> 79.8</b>|15.8 |
-|```SC-LSTM plus ELMO (at output)``` | 78.5| 16.3|
-|```SC-LSTM plus BERT (at input)``` | 77.0| 6.7|
-|```SC-LSTM plus BERT (at output)``` | 76.0| 7.2|
+|-------------------------------------|-----------------------|--------------------------------------|
+| ```Aspell```                        | 48.7                  | 7.3*                                 |
+| ``` Jamspell```                     | 68.9                  | 2.6*                                 |
+| ```CNN-LSTM```                      | 75.8                  | 4.2                                  |
+| ```SC-LSTM```                       | 76.7                  | 2.8                                  |
+| ```Nested-LSTM```                   | 77.3                  | 6.4                                  |
+| ```BERT```                          | 79.1                  | 7.1                                  |
+| ```SC-LSTM plus ELMO (at input)```  |  79.8                 | 15.8                                 |
+| ```SC-LSTM plus ELMO (at output)``` | 78.5                  | 16.3                                 |
+| ```SC-LSTM plus BERT (at input)```  | 77.0                  | 6.7                                  |
+| ```SC-LSTM plus BERT (at output)``` | 76.0                  | 7.2                                  |
 
 Performance of different correctors in the NeuSpell toolkit on the  ```BEA-60K```  dataset with real-world spelling
 mistakes. ∗ indicates evaluation on a CPU (for others we use a GeForce RTX 2080 Ti GPU).
 
-### Pretrained models
+### Download Checkpoints
 
-##### Download Checkpoints
+Download all models by running the following:
 
-Run the following to download checkpoints of all neural models
+```python
+import neuspell
 
+neuspell.seq_modeling.downloads.download_pretrained_model("_all_")
 ```
-cd data/checkpoints
-python download_checkpoints.py 
-```
 
-See ```data/checkpoints/README.md``` for more details. You can alternatively choose to download only selected models'
-checkpoints.
+Alternatively, to download selected checkpoints, select a checkpoint name from below and then run download.
+
+| Spell Checker                       | Class               | Checkpoint name             | Disk space (approx.) |
+|-------------------------------------|---------------------|-----------------------------|----------------------|
+| ```CNN-LSTM```                      | `CnnlstmChecker`    | 'cnn-lstm-probwordnoise'    | 450 MB               |
+| ```SC-LSTM```                       | `SclstmChecker`     | 'scrnn-probwordnoise'       | 450 MB               |
+| ```Nested-LSTM```                   | `NestedlstmChecker` | 'lstm-lstm-probwordnoise'   | 455 MB               |
+| ```BERT```                          | `BertChecker`       | 'subwordbert-probwordnoise' | 740 MB               |
+| ```SC-LSTM plus ELMO (at input)```  | `ElmosclstmChecker` | 'elmoscrnn-probwordnoise'   | 840 MB               |
+| ```SC-LSTM plus BERT (at input)```  | `BertsclstmChecker` | 'bertscrnn-probwordnoise'   | 900 MB               |
+| ```SC-LSTM plus BERT (at output)``` | `SclstmbertChecker` | 'scrnnbert-probwordnoise'   | 1.19 GB              |
+| ```SC-LSTM plus ELMO (at output)``` | `SclstmelmoChecker` | 'scrnnelmo-probwordnoise'   | 1.23 GB              |
+
+```python
+import neuspell
+
+print(neuspell.seq_modeling.downloads.CHECKPOINTS_NAMES)
+neuspell.seq_modeling.downloads.download_pretrained_model("subwordbert-probwordnoise")
+```
 
 ### Datasets
 

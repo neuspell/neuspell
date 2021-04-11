@@ -2,17 +2,19 @@
 USAGE
 -----
 for gpu (+- cpu) testing:
->>> CUDA_VISIBLE_DEVICES=0 python test.py
+>>> CUDA_VISIBLE_DEVICES=0 python test_neuspell_correctors.py
 for cpu-only testing:
->>> python test.py
+>>> python test_neuspell_correctors.py
 -----
 """
 
-from neuspell.seq_modeling.util import is_module_available
 import logging
 
-# from neuspell import AspellChecker, JamspellChecker
+import neuspell
 from neuspell import CnnlstmChecker, BertsclstmChecker, NestedlstmChecker, SclstmbertChecker, BertChecker, SclstmChecker
+from neuspell.seq_modeling.util import is_module_available
+
+# from neuspell import AspellChecker, JamspellChecker
 
 all_checkers = [
     CnnlstmChecker,
@@ -29,7 +31,7 @@ if is_module_available("allennlp"):
     all_checkers.extend([ElmosclstmChecker, SclstmelmoChecker])
 
 logging.getLogger().setLevel(logging.ERROR)
-TRAIN_TEST_DATA_PATH = "./data/traintest"
+TRAIN_TEST_DATA_PATH = neuspell.commons.DEFAULT_TRAINTEST_DATA_PATH
 
 ######################################################
 ######################################################
