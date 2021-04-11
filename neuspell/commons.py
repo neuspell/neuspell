@@ -91,7 +91,7 @@ def _load_spacy_tokenizer():
 def _custom_tokenizer(inp: str):
     try:
         _spacy_tokenizer = _load_spacy_tokenizer()
-        get_tokens = lambda inp: [token.text for token in _spacy_tokenizer(inp)]
+        get_tokens = lambda inp: _spacy_tokenizer(inp)
     except ImportError as e:
         print(e)
         get_tokens = lambda inp: inp.split()
