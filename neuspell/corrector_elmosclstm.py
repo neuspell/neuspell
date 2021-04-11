@@ -5,7 +5,7 @@ from typing import List
 import numpy as np
 import torch
 
-from .commons import spacy_tokenizer, ARXIV_CHECKPOINTS, Corrector
+from .commons import spacy_tokenizer, ARXIV_CHECKPOINTS, DEFAULT_TRAINTEST_DATA_PATH, Corrector
 from .seq_modeling.downloads import download_pretrained_model
 from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams, sclstm_tokenize, save_vocab_dict
 from .seq_modeling.helpers import train_validation_split, batch_iter, labelize, progressBar, batch_accuracy_func
@@ -127,13 +127,15 @@ class CorrectorElmoSCLstm(Corrector):
         self.__model_status()
         return get_model_nparams(self.model)
 
-    def finetune(self, clean_file, corrupt_file, validation_split=0.2, n_epochs=2, new_vocab_list=[]):
+    def finetune(self, clean_file, corrupt_file, data_dir="", validation_split=0.2, n_epochs=2,
+                 new_vocab_list: List = None):
 
         if new_vocab_list:
             raise NotImplementedError("Do not currently support modifying output vocabulary of the models")
 
         # load data and split in train-validation
-        train_data = load_data("", clean_file, corrupt_file)
+        data_dir = DEFAULT_TRAINTEST_DATA_PATH if data_dir == "default" else data_dir
+        train_data = load_data(data_dir, clean_file, corrupt_file)
         train_data, valid_data = train_validation_split(train_data, 0.8, seed=11690)
         print("len of train and test data: ", len(train_data), len(valid_data))
 
@@ -149,7 +151,16 @@ class CorrectorElmoSCLstm(Corrector):
         GRADIENT_ACC = 4
         DEVICE = self.device
         START_EPOCH, N_EPOCHS = 0, n_epochs
-        CHECKPOINT_PATH = os.path.join(self.ckpt_path, "finetuned_model")
+        CHECKPOINT_PATH = os.path.join(self.ckpt_path if self.ckpt_path else data_dir, "new_models",
+                                       os.path.split(self.bert_pretrained_name_or_path)[-1])
+        if os.path.exists(CHECKPOINT_PATH):
+            num = 1
+            while True:
+                NEW_CHECKPOINT_PATH = CHECKPOINT_PATH + f"-{num}"
+                if not os.path.exists(NEW_CHECKPOINT_PATH):
+                    break
+                num += 1
+            CHECKPOINT_PATH = NEW_CHECKPOINT_PATH
         VOCAB_PATH = os.path.join(CHECKPOINT_PATH, "vocab.pkl")
         if not os.path.exists(CHECKPOINT_PATH):
             os.makedirs(CHECKPOINT_PATH)
