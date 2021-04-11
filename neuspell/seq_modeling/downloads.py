@@ -118,6 +118,8 @@ URL_MAPPINGS_FOR_REGULAR_FILES = {
     }
 }
 
+CHECKPOINTS_NAMES = [*URL_MAPPINGS_FOR_REGULAR_FILES.keys()]
+
 
 def download_pretrained_model_large(ckpt_path: str):
     tag = os.path.split(ckpt_path)[-1]
@@ -135,17 +137,43 @@ def download_pretrained_model_large(ckpt_path: str):
     return
 
 
-def download_pretrained_model(ckpt_path: str):
+def _download_pretrained_model(ckpt_path: str):
     tag = os.path.split(ckpt_path)[-1]
     if tag not in URL_MAPPINGS_FOR_REGULAR_FILES:
         raise Exception(
             f"Tried to load an unknown model - {tag}. Available choices are {[*URL_MAPPINGS_FOR_REGULAR_FILES.keys()]}")
-    details = URL_MAPPINGS_FOR_REGULAR_FILES[tag]
     create_paths(ckpt_path)
-    model_url = details["pytorch_model.bin"]
-    vocab_url = details["vocab.pkl"]
-    print("Pretrained model downloading start (may take few seconds to couple of minutes based on download speed) ...")
-    download_file_from_google_drive(vocab_url, os.path.join(ckpt_path, "vocab.pkl"))
-    download_file_from_google_drive(model_url, os.path.join(ckpt_path, "pytorch_model.bin"))
-    print("Pretrained model download success")
+    details = URL_MAPPINGS_FOR_REGULAR_FILES[tag]
+
+    vocab_path = os.path.join(ckpt_path, "vocab.pkl")
+    if os.path.exists(vocab_path):
+        print(f"`vocab.pkl` already exists in {ckpt_path}. Continuing with other downloads ...")
+    else:
+        vocab_url = details["vocab.pkl"]
+        download_file_from_google_drive(vocab_url, vocab_path)
+
+    pytorch_model_path = os.path.join(ckpt_path, "pytorch_model.bin")
+    if os.path.exists(pytorch_model_path):
+        print(f"`pytorch_model.bin` already exists in {ckpt_path}. Continuing with other downloads ...")
+    else:
+        print("Pretrained model downloading start "
+              "(may take few seconds to couple of minutes based on download speed) ...")
+        model_url = details["pytorch_model.bin"]
+        download_file_from_google_drive(model_url, pytorch_model_path)
+        print("Pretrained model download success")
+    return
+
+
+def _download_all_pretrained_model():
+    from ..commons import ARXIV_CHECKPOINTS
+    for ckpt_path in ARXIV_CHECKPOINTS.values():
+        _download_pretrained_model(ckpt_path)
+    return
+
+
+def download_pretrained_model(ckpt_path: str):
+    if ckpt_path == "_all_":
+        _download_all_pretrained_model()
+    else:
+        _download_pretrained_model(ckpt_path)
     return
