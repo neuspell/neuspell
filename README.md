@@ -10,22 +10,33 @@
     - [Download Checkpoints](#Download-Checkpoints)
     - [Download Datasets](#Datasets)
     - [Demo Setup](#Demo-Setup)
+    - [Text Noising](#Synthetic-data-creation)
 - [Finetuning on custom data and creating new models](#Finetuning-on-custom-data-and-creating-new-models)
 - [Applications](#Potential-applications-for-practitioners)
 - [Additional Requirements](#Additional-requirements)
 
 # Updates
 
+### Latest
+
 - April 2021:
-    - `neuspell` is now available through pip. See [Installation through pip](#Installation-through-pip)
+    - APIs for creating synthetic data now available for English language.
+      See [Synthetic data creation](#Synthetic-data-creation).
+    - `neuspell` is now available through **pip**. See [Installation through pip](#Installation-through-pip)
     - Added support for different transformer-based models such DistilBERT, XLM-RoBERTa, etc.
       See [Finetuning on custom data and creating new models](#Finetuning-on-custom-data-and-creating-new-models)
       section for more details.
-- March, 2021: Code-base reformatted. Addressed some bug fixes.
-- November, 2020: Neuspell's ```BERT``` pretrained model is now available as part of huggingface models
-  as ```murali1996/bert-base-cased-spell-correction```. We provide an example code snippet
-  at [./scripts/huggingface](./scripts/huggingface/huggingface-snippet-for-neuspell.py) for curious practitioners.
-- September, 2020: This work is accepted at EMNLP 2020 (system demonstrations)
+
+### Previous
+
+- March, 2021:
+    - Code-base reformatted. Addressed some bug fixes.
+- November, 2020:
+    - Neuspell's ```BERT``` pretrained model is now available as part of huggingface models
+      as ```murali1996/bert-base-cased-spell-correction```. We provide an example code snippet
+      at [./scripts/huggingface](./scripts/huggingface/huggingface-snippet-for-neuspell.py) for curious practitioners.
+- September, 2020:
+    - This work is accepted at EMNLP 2020 (system demonstrations)
 
 # Installation
 
@@ -203,9 +214,8 @@ neuspell.seq_modeling.downloads.download_pretrained_model("subwordbert-probwordn
 
 ### Datasets
 
-##### Download datasets
-
-Run the following to download datasets
+We curate several synthetic and natural datasets for training/evaluating neuspell models. For full details, check
+our [paper](#Citation). Run the following to download all the datasets.
 
 ```
 cd data/traintest
@@ -214,18 +224,9 @@ python download_datafiles.py
 
 See ```data/traintest/README.md``` for more details.
 
-##### Synthetic Training Dataset Creation
-
-The toolkit offers 4 kinds of noising strategies to generate synthetic parallel training data to train neural models for
-spell correction.
-
-- ```RANDOM```
-- ```Word Replacement```
-- ```Probabilistic Replacement```
-- A combination of ```Word Replacement``` and ```Probabilistic Replacement```
-
-Train files are dubbed with names ```.random```, ```.word```, ```.prob```, ```.probword``` respectively. For each
-strategy, we noise ∼20% of the tokens in the clean corpus. We use 1.6 Million sentences from
+Train files are dubbed with names ```.random```, ```.word```, ```.prob```, ```.probword``` for different noising
+startegies used to create them. For each strategy (see [Synthetic data creation](#Synthetic-data-creation)), we noise
+∼20% of the tokens in the clean corpus. We use 1.6 Million sentences from
 the [```One billion word benchmark```](https://arxiv.org/abs/1312.3005) dataset as our clean corpus.
 
 ### Demo Setup
@@ -237,6 +238,48 @@ In order to setup a demo, follow these steps:
 - Start a flask server at [./scripts/flask-server](./scripts/flask-server) by
   running `CUDA_VISIBLE_DEVICES=0 python app.py`
   (on GPU) or `python app.py` (on CPU)
+
+### Synthetic data creation
+
+##### English
+
+This toolkit offers 3 kinds of noising strategies (identfied from existing literature) to generate synthetic parallel
+training data to train neural models for spell correction. The strategies include a simple lookup based noisy spelling
+replacement (`en-word-replacement-noise`), a character level noise induction such as swapping/deleting/adding/replacing
+characters (`en-char-replacement-noise`), and a confusion matrix based probabilistic character replacement driven by
+mistakes patterns in a large corpus of spelling mistakes (`en-probchar-replacement-noise`). For full details about these
+approaches, checkout our [paper](#Citation).
+
+Following are the corresponding class mappings to utilize the above noise curations. As some pre-built data files are
+used for some of the noisers, we also provide their approximate disk space.
+
+| Folder                          | Class name                                | Disk space (approx.) |
+|---------------------------------|-------------------------------------------|----------------------|
+| `en-word-replacement-noise`     | `WordReplacementNoiser`                   | 2 MB                 |
+| `en-char-replacement-noise`     | `CharacterReplacementNoiser`              | --                   |
+| `en-probchar-replacement-noise` | `ProbabilisticCharacterReplacementNoiser` | 80 MB                |
+
+Following is a snippet for using these noisers-
+
+```python
+from neuspell.noising import WordReplacementNoiser
+
+example_texts = [
+    "This is an example sentence to demonstrate noising in the neuspell repository.",
+    "Here is another such amazing example !!"
+]
+
+word_repl_noiser = WordReplacementNoiser(language="english")
+word_repl_noiser.load_resources()
+noise_texts = word_repl_noiser.noise(example_texts)
+print(noise_texts)
+```
+
+##### Other languages
+
+```
+Coming Soon ...
+```
 
 # Finetuning on custom data and creating new models
 
@@ -355,4 +398,5 @@ tar xf ./en.tar.gz --directory ./
 }
 ```
 
-You can contact the authors at jsaimurali001 [at] gmail [dot] com
+[Link](https://www.aclweb.org/anthology/2020.emnlp-demos.21/) for the publication. Any questions or suggestions, please
+contact the authors at jsaimurali001 [at] gmail [dot] com
