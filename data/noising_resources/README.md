@@ -7,8 +7,8 @@ A folder consisting of resources required for various noisers
 | Folder                          | Class name                                | Disk space (approx.) |
 |---------------------------------|-------------------------------------------|----------------------|
 | `en-word-replacement-noise`     | `WordReplacementNoiser`                   | 2 MB                 |
-| `en-char-replacement-noise`     | `CharacterReplacementNoiser`              |                      |
-| `en-probchar-replacement-noise` | `ProbabilisticCharacterReplacementNoiser` |                      |
+| `en-char-replacement-noise`     | `CharacterReplacementNoiser`              | --                   |
+| `en-probchar-replacement-noise` | `ProbabilisticCharacterReplacementNoiser` | 80 MB                |
 
 ### Usage
 

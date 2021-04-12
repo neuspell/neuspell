@@ -3,10 +3,12 @@ from abc import ABC, abstractmethod
 
 from tqdm.autonotebook import tqdm
 
-from ._util import _load_assorted_mistakes, _load_assorted_mistakes_mappings
 from ._util import is_module_available, get_module_or_attr
-from ._util import noisyfy_word_tokens
+from .crn_utils import get_line_representation
 from .downloads import download_file_from_google_drive
+from .pcrn_utils import load_stats, noisyfy_backoff_homophones
+from .wrn_utils import _load_assorted_mistakes, _load_assorted_mistakes_mappings
+from .wrn_utils import noisyfy_word_tokens
 from ..commons import DEFAULT_DATA_PATH, _load_spacy_tokenizer
 
 DEFAULT_NOISING_RESOURCES_PATH = os.path.join(DEFAULT_DATA_PATH, "noising_resources")
@@ -114,12 +116,6 @@ class WordReplacementNoiser(Noiser):
         return
 
     def _noise(self, texts, **kwargs):
-        """
-
-        :param texts: list of texts to be noised
-        :param kwargs:
-        :return:
-        """
         expected_prob = kwargs.get("expected_prob", 0.20)
         min_len = kwargs.get("min_len", 1)
 
@@ -137,27 +133,79 @@ class CharacterReplacementNoiser(Noiser):
 
     def __init__(self, language="english"):
         self.language = language.lower()
+        self.resource_folder = os.path.join(DEFAULT_NOISING_RESOURCES_PATH, "en-char-replacement-noise")
+
         if not self.language == "english":
             raise ValueError("CharacterReplacementNoiser currently support only English language! "
                              "Set `language=english` in arguments")
 
+        self.ready = False
+
     def load_resources(self):
-        raise NotImplementedError
+        print("no resources are required to be downloaded for this noiser")
+        self.ready = True
+        return
 
     def _noise(self, texts, **kwargs):
-        raise NotImplementedError
+        if not self.ready:
+            raise Exception(f"Must call .load_resources() before using noising methods.")
+
+        new_texts = get_line_representation(texts)
+        assert len(new_texts) == len(texts)
+
+        return new_texts
 
 
 class ProbabilisticCharacterReplacementNoiser(Noiser):
 
     def __init__(self, language="english"):
         self.language = language.lower()
+        self.resource_folder = os.path.join(DEFAULT_NOISING_RESOURCES_PATH, "en-probchar-replacement-noise")
+
         if not self.language == "english":
             raise ValueError("ProbabilisticCharacterReplacementNoiser currently support only English language! "
                              "Set `language=english` in arguments")
 
+        self.ready = False
+
     def load_resources(self):
-        raise NotImplementedError
+        if not os.path.exists(self.resource_folder):
+            os.makedirs(self.resource_folder)
+
+        homophones_txt_path = os.path.join(self.resource_folder, "homophones.txt")
+        if not os.path.exists(homophones_txt_path):
+            print(f"downloading resources in ProbabilisticCharacterReplacementNoiser to folder {self.resource_folder}")
+            download_file_from_google_drive("1Wy7sFMdFt0XSYbTdvFpXOiskTusNRJa2", homophones_txt_path)
+        else:
+            print(f"Utilizing resources existing in folder {self.resource_folder}")
+        homophones = {}
+        opfile = open(homophones_txt_path, 'r')
+        for line in opfile:
+            w1, w2 = line.strip().split('\t')
+            try:
+                homophones[w1].append(w2)
+            except KeyError:
+                homophones[w1] = [w2]
+        opfile.close()
+        self.homophones = homophones
+
+        stats_path = os.path.join(self.resource_folder, "moe_misspellings_train_ascii_stats_left_context.json")
+        if not os.path.exists(stats_path):
+            print(f"downloading resources in ProbabilisticCharacterReplacementNoiser to folder {self.resource_folder}")
+            download_file_from_google_drive("1FLcf_KrG5T5jgXzbjW4J_7RsoFh1_1hE", stats_path)
+        else:
+            print(f"Utilizing resources existing in folder {self.resource_folder}")
+        self.stats = load_stats(stats_path)
+
+        self.ready = True
+
+        return
 
     def _noise(self, texts, **kwargs):
-        raise NotImplementedError
+        if not self.ready:
+            raise Exception(f"Must call .load_resources() before using noising methods.")
+
+        new_texts = noisyfy_backoff_homophones(self.stats, texts, [0.025, 0.05, 0.2, 0.7], self.homophones, 0)
+        assert len(new_texts) == len(texts)
+
+        return new_texts
