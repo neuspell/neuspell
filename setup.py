@@ -37,6 +37,7 @@ setup(
     extras_require={
         "spacy": ["spacy"],
         "elmo": ["allennlp==1.5.0"],
+        "noising": ["unidecode"]
     },
     keywords="transformer networks neuspell neural spelling correction embedding PyTorch NLP deep learning"
 )

@@ -135,10 +135,12 @@ class CorrectorSubwordBert(Corrector):
         self.__model_status()
         return get_model_nparams(self.model)
 
-    def finetune(self, clean_file, corrupt_file, data_dir="", validation_split=0.2, n_epochs=2, new_vocab_list=[]):
+    def finetune(self, clean_file, corrupt_file, data_dir="", validation_split=0.2, n_epochs=2,
+                 new_vocab_list: List = None):
 
         if new_vocab_list:
-            raise NotImplementedError("Do not currently support modifying output vocabulary of the models")
+            raise NotImplementedError("Do not currently support modifying output vocabulary of the models "
+                                      "in the finetune step; however, new vocab is accepted at training time.")
 
         # load data and split in train-validation
         data_dir = DEFAULT_TRAINTEST_DATA_PATH if data_dir == "default" else data_dir
@@ -158,7 +160,8 @@ class CorrectorSubwordBert(Corrector):
         GRADIENT_ACC = 4
         DEVICE = self.device
         START_EPOCH, N_EPOCHS = 0, n_epochs
-        CHECKPOINT_PATH = os.path.join(data_dir, "new_models", os.path.split(self.bert_pretrained_name_or_path)[-1])
+        CHECKPOINT_PATH = os.path.join(self.ckpt_path if self.ckpt_path else data_dir, "new_models",
+                                       os.path.split(self.bert_pretrained_name_or_path)[-1])
         if os.path.exists(CHECKPOINT_PATH):
             num = 1
             while True:

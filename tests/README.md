@@ -1,0 +1,1 @@
+# Folder containing scripts for unit tests of various `neuspell` modules
