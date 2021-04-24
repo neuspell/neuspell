@@ -13,16 +13,10 @@ from scripts.evals import get_metrics
 """ corrector module """
 
 
-class CorrectorJamspell(object):
-    def __init__(self, tokenize=True, pretrained=False, device="cpu"):
+class JamspellChecker:
+
+    def __init__(self, tokenize=True):
         self.tokenize = tokenize
-        self.pretrained = None
-        self.device = None
-
-        self.ckpt_path = None
-        self.vocab_path, self.weights_path = "", ""
-        self.model, self.vocab = None, None
-
         self.model = jamspell.TSpellCorrector()
         self.model.LoadLangModel('en.bin')
 
@@ -32,16 +26,6 @@ class CorrectorJamspell(object):
     def set_device(self, device='cpu'):
         print(f"model set to work on cpu")
         return
-
-    def correct(self, x):
-        return self.correct_string(x)
-
-    def correct_string(self, mystring: str, return_all=False) -> str:
-        x = self.correct_strings([mystring], return_all=return_all)
-        if return_all:
-            return x[0][0], x[1][0]
-        else:
-            return x[0]
 
     def correct_strings(self, mystrings: List[str], return_all=False) -> List[str]:
         if self.tokenize:
@@ -54,19 +38,6 @@ class CorrectorJamspell(object):
             return mystrings, return_strings
         else:
             return return_strings
-
-    def correct_from_file(self, src, dest="./clean_version.txt"):
-        """
-        src = f"{DEFAULT_DATA_PATH}/traintest/corrupt.txt"
-        """
-        x = [line.strip() for line in open(src, 'r')]
-        y = self.correct_strings(x)
-        print(f"saving results at: {dest}")
-        opfile = open(dest, 'w')
-        for line in y:
-            opfile.write(line + "\n")
-        opfile.close()
-        return
 
     def evaluate(self, clean_file, corrupt_file):
         """

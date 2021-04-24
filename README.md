@@ -30,7 +30,7 @@
 ### Previous
 
 - March, 2021:
-    - Code-base reformatted. Addressed some bug fixes.
+    - Code-base reformatted. Addressed bug fixes and issues.
 - November, 2020:
     - Neuspell's ```BERT``` pretrained model is now available as part of huggingface models
       as ```murali1996/bert-base-cased-spell-correction```. We provide an example code snippet
@@ -76,9 +76,10 @@ See [test_neuspell_correctors.py](./tests/test_neuspell_correctors.py) for more 
 
 ```python
 import neuspell
+from neuspell import available_checkers, BertChecker
 
 """ see available checkers """
-print(f"available checkers: {neuspell.__all__}")
+print(f"available checkers: {neuspell.available_checkers()}")
 # → available checkers: ['BertsclstmChecker', 'CnnlstmChecker', 'NestedlstmChecker', 'SclstmChecker', 'SclstmbertChecker', 'BertChecker', 'SclstmelmoChecker', 'ElmosclstmChecker']
 
 """ select spell checkers & load """
