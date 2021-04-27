@@ -12,8 +12,8 @@ python model_aspell.py ../../data/traintest/wo_context/homophones ../../data/tra
 
 USAGE
 ---
-from corrector_aspell import CorrectorAspell
-correctorAspell = CorrectorAspell()
+from corrector_aspell import AspellChecker
+correctorAspell = AspellChecker()
 predictions_data = correctorAspell.correct_string("nicset atcing I have ever witsesed")
 """
 
@@ -23,43 +23,19 @@ from typing import List
 import aspell
 from tqdm import tqdm
 
-from .commons import spacy_tokenizer, Corrector
+from .commons import spacy_tokenizer
 from .seq_modeling.evals import get_metrics
 from .seq_modeling.helpers import load_data
 
 """ corrector module """
 
 
-class CorrectorAspell(Corrector):
-    def __init__(self, tokenize=True, pretrained=False, device="cpu"):
-        super(CorrectorAspell, self).__init__()
+class AspellChecker:
+    
+    def __init__(self, tokenize=True):
         self.tokenize = tokenize
-        self.pretrained = None
-        self.device = None
-
-        self.ckpt_path = None
-        self.vocab_path, self.weights_path = "", ""
-        self.model, self.vocab = None, None
-
         self.model = aspell.Speller()
         self.model.setConfigKey('sug-mode', "normal")  # ultra, fast, normal, slow, or bad-spellers
-
-    def from_pretrained(self, ckpt_path, vocab="", weights=""):
-        return
-
-    def set_device(self, device='cpu'):
-        print(f"model set to work on cpu")
-        return
-
-    def correct(self, x):
-        return self.correct_string(x)
-
-    def correct_string(self, mystring: str, return_all=False) -> str:
-        x = self.correct_strings([mystring], return_all=return_all)
-        if return_all:
-            return x[0][0], x[1][0]
-        else:
-            return x[0]
 
     def correct_strings(self, mystrings: List[str], return_all=False) -> List[str]:
         if self.tokenize:
@@ -80,19 +56,6 @@ class CorrectorAspell(Corrector):
             return mystrings, return_strings
         else:
             return return_strings
-
-    def correct_from_file(self, src, dest="./clean_version.txt"):
-        """
-        src = f"{DEFAULT_DATA_PATH}/traintest/corrupt.txt"
-        """
-        x = [line.strip() for line in open(src, 'r')]
-        y = self.correct_strings(x)
-        print(f"saving results at: {dest}")
-        opfile = open(dest, 'w')
-        for line in y:
-            opfile.write(line + "\n")
-        opfile.close()
-        return
 
     def evaluate(self, clean_file, corrupt_file):
         """
@@ -121,9 +84,6 @@ class CorrectorAspell(Corrector):
 
         return
 
-    def model_size(self):
-        return None
-
 # if __name__ == "__main__":
 #
 #     TEMP_FOLDER = "./aspell_temp"
@@ -147,7 +107,7 @@ class CorrectorAspell(Corrector):
 #
 #     assert len(clean_data) == len(corrupt_data)
 #
-#     correctorAspell = CorrectorAspell()
+#     correctorAspell = AspellChecker()
 #     predictions_data = correctorAspell.correct_strings(corrupt_data)
 #
 #     assert len(clean_data) == len(corrupt_data) == len(predictions_data)

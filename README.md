@@ -30,7 +30,7 @@
 ### Previous
 
 - March, 2021:
-    - Code-base reformatted. Addressed some bug fixes.
+    - Code-base reformatted. Addressed bug fixes and issues.
 - November, 2020:
     - Neuspell's ```BERT``` pretrained model is now available as part of huggingface models
       as ```murali1996/bert-base-cased-spell-correction```. We provide an example code snippet
@@ -66,19 +66,17 @@ Additionally, ```spacy models``` can be downloaded as:
 python -m spacy download en_core_web_sm
 ```
 
-Follow [Additional Requirements](#Additional-requirements) for installing non-neural spell checkers- ```Aspell```
-and ```Jamspell```.
+Then, download pretrained models of `neuspell` following [Download Checkpoints](#Download-Checkpoints)
 
-Then, download pretrained models of `neuspell` following [Pretrained models](#Pretrained-models)
-
-Here is a quick-start code snippet (command line usage).
+Here is a quick-start code snippet (command line usage) to use a checker model.
 See [test_neuspell_correctors.py](./tests/test_neuspell_correctors.py) for more usage patterns.
 
 ```python
 import neuspell
+from neuspell import available_checkers, BertChecker
 
 """ see available checkers """
-print(f"available checkers: {neuspell.__all__}")
+print(f"available checkers: {neuspell.available_checkers()}")
 # → available checkers: ['BertsclstmChecker', 'CnnlstmChecker', 'NestedlstmChecker', 'SclstmChecker', 'SclstmbertChecker', 'BertChecker', 'SclstmelmoChecker', 'ElmosclstmChecker']
 
 """ select spell checkers & load """
@@ -117,7 +115,10 @@ checker.from_pretrained()
 This feature of adding ELMO or BERT model is currently supported for selected models.
 See [List of neural models in the toolkit](#List-of-neural-models-in-the-toolkit) for details.
 
-# Installation through pip
+If interested, follow [Additional Requirements](#Additional-requirements) for installing non-neural spell
+checkers- ```Aspell``` and ```Jamspell```.
+
+### Installation through pip
 
 ```bash
 pip install neuspell
@@ -184,15 +185,8 @@ mistakes. ∗ indicates evaluation on a CPU (for others we use a GeForce RTX 208
 
 ### Download Checkpoints
 
-Download all models by running the following:
-
-```python
-import neuspell
-
-neuspell.seq_modeling.downloads.download_pretrained_model("_all_")
-```
-
-Alternatively, to download selected checkpoints, select a checkpoint name from below and then run download.
+To download selected checkpoints, select a **Checkpoint name** from below and then run download. Each checkpoint is
+associated with a neural spell checker as shown in the table.
 
 | Spell Checker                       | Class               | Checkpoint name             | Disk space (approx.) |
 |-------------------------------------|---------------------|-----------------------------|----------------------|
@@ -208,9 +202,18 @@ Alternatively, to download selected checkpoints, select a checkpoint name from b
 ```python
 import neuspell
 
-print(neuspell.seq_modeling.downloads.CHECKPOINTS_NAMES)
 neuspell.seq_modeling.downloads.download_pretrained_model("subwordbert-probwordnoise")
 ```
+
+Alternatively, download all Neuspell neural models by running the following (available in versions after v1.0):
+
+```python
+import neuspell
+
+neuspell.seq_modeling.downloads.download_pretrained_model("_all_")
+```
+
+Alternatively,
 
 ### Datasets
 
@@ -233,9 +236,10 @@ the [```One billion word benchmark```](https://arxiv.org/abs/1312.3005) dataset 
 
 In order to setup a demo, follow these steps:
 
-- Do [Installation](#Installation)
-- Download [checkpoints](#Pretrained-models)
-- Start a flask server at [./scripts/flask-server](./scripts/flask-server) by
+- Do [Installation](#Installation) and then install flask requirements as  ```pip install -e ".[flask]"```
+- Download [checkpoints](#Pretrained-models) (__Note__: If you wish to use only one of the neural checkers, you need to
+  manually disable others in the imports of [./scripts/flask-server/app.py](./scripts/flask-server/app.py))
+- Start a flask server in folder [./scripts/flask-server](./scripts/flask-server) by
   running `CUDA_VISIBLE_DEVICES=0 python app.py`
   (on GPU) or `python app.py` (on CPU)
 

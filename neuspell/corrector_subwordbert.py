@@ -6,88 +6,30 @@ import numpy as np
 import torch
 from pytorch_pretrained_bert import BertAdam
 
-from .commons import ARXIV_CHECKPOINTS, DEFAULT_TRAINTEST_DATA_PATH, Corrector
-from .seq_modeling.downloads import download_pretrained_model
+from .commons import DEFAULT_TRAINTEST_DATA_PATH
+from .corrector import Corrector
 from .seq_modeling.helpers import bert_tokenize_for_valid_examples
-from .seq_modeling.helpers import load_data, load_vocab_dict, get_model_nparams, save_vocab_dict
+from .seq_modeling.helpers import load_data, load_vocab_dict, save_vocab_dict
 from .seq_modeling.helpers import train_validation_split, batch_iter, labelize, progressBar, batch_accuracy_func
 from .seq_modeling.subwordbert import load_model, load_pretrained, model_predictions, model_inference
 
 """ corrector module """
 
 
-class CorrectorSubwordBert(Corrector):
+class BertChecker(Corrector):
 
-    def __init__(self, tokenize=True, pretrained=False, device="cpu"):
-        super(CorrectorSubwordBert, self).__init__()
-        self.tokenize = tokenize
-        self.pretrained = pretrained
-        self.device = device
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-        self.ckpt_path = None
-        self.vocab_path, self.weights_path = "", ""
-        self.model, self.vocab = None, None
         self.bert_pretrained_name_or_path = "bert-base-cased"
 
-        if self.pretrained:
-            self.from_pretrained(self.ckpt_path)
-
-    def __model_status(self):
-        assert not (self.model is None or self.vocab is None), print("model & vocab must be loaded first")
-        return
-
-    def from_huggingface(self, bert_pretrained_name_or_path, vocab: Union[Dict, str]):
-        self.bert_pretrained_name_or_path = bert_pretrained_name_or_path
-        if isinstance(vocab, str) and os.path.exists(vocab):
-            self.vocab_path = vocab
-            print(f"loading vocab from path:{self.vocab_path}")
-            self.vocab = load_vocab_dict(self.vocab_path)
-        elif isinstance(vocab, dict):
-            self.vocab = vocab
-        self.model = load_model(self.vocab, bert_pretrained_name_or_path=self.bert_pretrained_name_or_path)
-        self.model.to(self.device)
-        return
-
-    def from_pretrained(self, ckpt_path=None, vocab="", weights="", bert_pretrained_name_or_path=None):
-        self.ckpt_path = ckpt_path or ARXIV_CHECKPOINTS["subwordbert-probwordnoise"]
-        self.vocab_path = vocab if vocab else os.path.join(self.ckpt_path, "vocab.pkl")
-        if not os.path.isfile(self.vocab_path):  # leads to "FileNotFoundError"
-            download_pretrained_model(self.ckpt_path)
-        print(f"loading vocab from path:{self.vocab_path}")
-        self.vocab = load_vocab_dict(self.vocab_path)
+    def load_model(self, ckpt_path):
         print(f"initializing model")
-        if bert_pretrained_name_or_path:
-            self.bert_pretrained_name_or_path = bert_pretrained_name_or_path
-        self.model = load_model(self.vocab, bert_pretrained_name_or_path=self.bert_pretrained_name_or_path)
-        self.weights_path = weights if weights else self.ckpt_path
-        print(f"loading pretrained weights from path:{self.weights_path}")
-        self.model = load_pretrained(self.model, self.weights_path, device=self.device)
-        return
-
-    def set_device(self, device='cpu'):
-        prev_device = self.device
-        device = "cuda" if (device == "gpu" and torch.cuda.is_available()) else "cpu"
-        if not (prev_device == device):
-            if self.model is not None:
-                # please load again, facing issues with just .to(new_device) and new_device
-                #   not same the old device, https://tinyurl.com/y57pcjvd
-                self.from_pretrained(self.ckpt_path, vocab=self.vocab_path, weights=self.weights_path)
-            self.device = device
-        print(f"model set to work on {device}")
-        return
-
-    def correct(self, x):
-        return self.correct_string(x)
-
-    def correct_string(self, mystring: str, return_all=False) -> str:
-        x = self.correct_strings([mystring], return_all=return_all)
-        if return_all:
-            return x[0][0], x[1][0]
-        else:
-            return x[0]
+        initialized_model = load_model(self.vocab)
+        self.model = load_pretrained(initialized_model, self.ckpt_path, device=self.device)
 
     def correct_strings(self, mystrings: List[str], return_all=False) -> List[str]:
-        self.__model_status()
+        self.is_model_ready()
         mystrings = bert_tokenize_for_valid_examples(mystrings, mystrings, self.bert_pretrained_name_or_path)[0]
         data = [(line, line) for line in mystrings]
         batch_size = 4 if self.device == "cpu" else 16
@@ -97,26 +39,8 @@ class CorrectorSubwordBert(Corrector):
         else:
             return return_strings
 
-    def correct_from_file(self, src, dest="./clean_version.txt"):
-        """
-        src = f"{DEFAULT_DATA_PATH}/traintest/corrupt.txt"
-        """
-        self.__model_status()
-        x = [line.strip() for line in open(src, 'r')]
-        y = self.correct_strings(x)
-        print(f"saving results at: {dest}")
-        opfile = open(dest, 'w')
-        for line in y:
-            opfile.write(line + "\n")
-        opfile.close()
-        return
-
     def evaluate(self, clean_file, corrupt_file, data_dir=""):
-        """
-        clean_file = f"{DEFAULT_DATA_PATH}/traintest/clean.txt"
-        corrupt_file = f"{DEFAULT_DATA_PATH}/traintest/corrupt.txt"
-        """
-        self.__model_status()
+        self.is_model_ready()
         data_dir = DEFAULT_TRAINTEST_DATA_PATH if data_dir == "default" else data_dir
 
         batch_size = 4 if self.device == "cpu" else 16
@@ -131,11 +55,26 @@ class CorrectorSubwordBert(Corrector):
                                 vocab_=self.vocab)
         return
 
-    def model_size(self):
-        self.__model_status()
-        return get_model_nparams(self.model)
+    def from_huggingface(self, bert_pretrained_name_or_path, vocab: Union[Dict, str]):
+        self.bert_pretrained_name_or_path = bert_pretrained_name_or_path
+        if isinstance(vocab, str) and os.path.exists(vocab):
+            self.vocab_path = vocab
+            print(f"loading vocab from path:{self.vocab_path}")
+            self.vocab = load_vocab_dict(self.vocab_path)
+        elif isinstance(vocab, dict):
+            self.vocab = vocab
+        else:
+            raise ValueError(f"unknown vocab type or unable to find path: {type(vocab)}")
+        self.model = load_model(self.vocab, bert_pretrained_name_or_path=self.bert_pretrained_name_or_path)
+        self.model.to(self.device)
+        return
 
-    def finetune(self, clean_file, corrupt_file, data_dir="", validation_split=0.2, n_epochs=2,
+    def finetune(self,
+                 clean_file,
+                 corrupt_file,
+                 data_dir="",
+                 validation_split=0.2,
+                 n_epochs=2,
                  new_vocab_list: List = None):
 
         if new_vocab_list:
@@ -149,7 +88,7 @@ class CorrectorSubwordBert(Corrector):
         print("len of train and test data: ", len(train_data), len(valid_data))
 
         # load vocab and model
-        self.__model_status()
+        self.is_model_ready()
 
         # finetune
         #############################################
