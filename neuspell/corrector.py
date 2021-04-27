@@ -51,7 +51,8 @@ class Corrector(ABC):
 
         self._default_name = kwargs.get("name", None)
         self.tokenize = kwargs.get("tokenize", True)
-        self.device = kwargs.get("device", "cpu")
+        self.device = kwargs.get("device", "cuda" if torch.cuda.is_available() else "cpu")
+        self.device = "cuda" if self.device == "gpu" else self.device
 
         self.ckpt_path, self.vocab_path, self.weights_path = None, None, None
         self.model, self.vocab = None, None
@@ -178,9 +179,13 @@ class Corrector(ABC):
     def quantize_model(self, print_stats=False):
         self.is_model_ready()
 
-        quantized_model = torch.quantization.quantize_dynamic(
-            self.model, {torch.nn.Linear}, dtype=torch.qint8
-        )
+        try:
+            quantized_model = torch.quantization.quantize_dynamic(
+                self.model, {torch.nn.Linear}, dtype=torch.qint8
+            )
+        except RuntimeError as e:
+            msg = "Consider moving models to `cpu` by calling `.set_device(device='cpu')` before quantization. "
+            raise Exception(msg) from e
 
         if print_stats:
             print("Before quantization:")

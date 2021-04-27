@@ -2,6 +2,7 @@ __version__ = "1.0.0"
 __author__ = 'Sai Muralidhar Jayanthi, Danish Pruthi, and Graham Neubig'
 __email__ = "jsaimurali001@gmail.com"
 
+from . import seq_modeling
 from . import off_the_shelf
 from .corrector_bertsclstm import BertsclstmChecker
 from .corrector_cnnlstm import CnnlstmChecker
@@ -11,6 +12,8 @@ from .corrector_sclstmbert import SclstmbertChecker
 from .corrector_subwordbert import BertChecker
 from .off_the_shelf import *
 from .util import is_module_available
+
+__all__.extend(["seq_modeling"])
 
 if is_module_available("allennlp"):
     from .corrector_elmosclstm import ElmosclstmChecker
@@ -46,7 +49,6 @@ def available_checkers():
 
 __all__ = []
 __all__.extend(__all__checkers)
-__all__.extend(["CheckersFactory"])
 
 
 class CheckersFactory:
@@ -84,3 +86,6 @@ class CheckersFactory:
             msg = f"Found checker name: {name_or_path}. " \
                   f"Expected a checker name in {[*CheckersFactory.NAME_TO_CHECKER_MAPPINGS.keys()]}"
             raise Exception(msg) from e
+
+
+__all__.extend(["CheckersFactory"])

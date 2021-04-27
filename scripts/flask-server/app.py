@@ -9,20 +9,25 @@ from time import time
 
 from flask import Flask, render_template, request
 from flask_cors import CORS
-# from neuspell import AspellChecker, JamspellChecker
-from neuspell import CnnlstmChecker, BertsclstmChecker, NestedlstmChecker, SclstmbertChecker, BertChecker, SclstmChecker
+from neuspell import BertChecker
+from neuspell import BertsclstmChecker
+from neuspell import CnnlstmChecker
+from neuspell import NestedlstmChecker
+from neuspell import SclstmChecker
+from neuspell import SclstmbertChecker
 from neuspell.seq_modeling.util import is_module_available
+
+# from neuspell import AspellChecker, JamspellChecker
 
 if is_module_available("allennlp"):
     from neuspell import ElmosclstmChecker, SclstmelmoChecker
-
-if not is_module_available("allennlp"):
-    raise ImportError(
-        "install `allennlp` by running `pip install -r extras-requirements.txt`. See `README.md` for more info.")
+else:
+    msg = "Install `allennlp` by running `pip install -r extras-requirements.txt`. See `README.md` for more info. "
+    print("Warning: Not loading ELMO based models. " + msg)
 
 TOKENIZE = True
 PRELOADED_MODELS = {}
-CURR_MODEL_KEYWORD = "elmosc-rnn"
+CURR_MODEL_KEYWORD = "bert"
 CURR_MODEL = None
 TOPK = 1
 LOGS_PATH = "./logs"
@@ -86,35 +91,43 @@ def predict():
     return render_template('home.html')
 
 
-def load_model(model_keyword="elmosc-rnn"):
+def load_model(model_keyword="bert"):
     global PRELOADED_MODELS
     if model_keyword in PRELOADED_MODELS:
         return PRELOADED_MODELS[model_keyword]
 
-    if model_keyword == "aspell":
-        # return AspellChecker(tokenize=TOKENIZE)
-        raise Exception("Not enabled. Install required modules and uncomment this to enable")
-    elif model_keyword == "jamspell":
-        # return JamspellChecker(tokenize=TOKENIZE)
-        raise Exception("Not enabled. Install required modules and uncomment this to enable")
-    elif model_keyword == "cnn-rnn":
-        return CnnlstmChecker(tokenize=TOKENIZE, pretrained=True)
-    elif model_keyword == "sc-rnn":
-        return SclstmChecker(tokenize=TOKENIZE, pretrained=True)
-    elif model_keyword == "nested-rnn":
-        return NestedlstmChecker(tokenize=TOKENIZE, pretrained=True)
-    elif model_keyword == "bert":
-        return BertChecker(tokenize=TOKENIZE, pretrained=True)
-    elif model_keyword == "elmosc-rnn":
-        return ElmosclstmChecker(tokenize=TOKENIZE, pretrained=True)
-    elif model_keyword == "scrnn-elmo":
-        return SclstmelmoChecker(tokenize=TOKENIZE, pretrained=True)
-    elif model_keyword == "bertsc-rnn":
-        return BertsclstmChecker(tokenize=TOKENIZE, pretrained=True)
-    elif model_keyword == "scrnn-bert":
-        return SclstmbertChecker(tokenize=TOKENIZE, pretrained=True)
-    else:
-        raise NotImplementedError(f"unknown model_keyword: {model_keyword}")
+    try:
+        if model_keyword == "aspell":
+            # return AspellChecker(tokenize=TOKENIZE)
+            raise Exception("Not enabled. Install required modules and uncomment this to enable")
+        elif model_keyword == "jamspell":
+            # return JamspellChecker(tokenize=TOKENIZE)
+            raise Exception("Not enabled. Install required modules and uncomment this to enable")
+        elif model_keyword == "cnn-rnn":
+            return CnnlstmChecker(tokenize=TOKENIZE, pretrained=True)
+        elif model_keyword == "sc-rnn":
+            return SclstmChecker(tokenize=TOKENIZE, pretrained=True)
+        elif model_keyword == "nested-rnn":
+            return NestedlstmChecker(tokenize=TOKENIZE, pretrained=True)
+        elif model_keyword == "bert":
+            return BertChecker(tokenize=TOKENIZE, pretrained=True)
+        elif model_keyword == "bertsc-rnn":
+            return BertsclstmChecker(tokenize=TOKENIZE, pretrained=True)
+        elif model_keyword == "scrnn-bert":
+            return SclstmbertChecker(tokenize=TOKENIZE, pretrained=True)
+        elif "elmo" in model_keyword:
+            try:
+                if model_keyword == "elmosc-rnn":
+                    return ElmosclstmChecker(tokenize=TOKENIZE, pretrained=True)
+                elif model_keyword == "scrnn-elmo":
+                    return SclstmelmoChecker(tokenize=TOKENIZE, pretrained=True)
+            except ModuleNotFoundError as e:
+                msg = "Install `allennlp` by running `pip install -r extras-requirements.txt`. See `README.md` for more info. "
+                raise ModuleNotFoundError(msg) from e
+        else:
+            raise NotImplementedError(f"unknown model_keyword: {model_keyword}")
+    except ModuleNotFoundError as e:
+        print(e)
     return
 
 
@@ -125,10 +138,10 @@ def preload_models():
         # "aspell": AspellChecker(),
         # "jamspell": JamspellChecker(), 
         # "cnn-rnn": CnnlstmChecker(pretrained=True),
-        "sc-rnn": SclstmChecker(tokenize=TOKENIZE, pretrained=True),
+        # "sc-rnn": SclstmChecker(tokenize=TOKENIZE, pretrained=True),
         # "nested-rnn": NestedlstmChecker(pretrained=True),
         "bert": BertChecker(tokenize=TOKENIZE, pretrained=True),
-        "elmosc-rnn": ElmosclstmChecker(tokenize=TOKENIZE, pretrained=True),
+        # "elmosc-rnn": ElmosclstmChecker(tokenize=TOKENIZE, pretrained=True),
         # "scrnn-elmo": SclstmelmoChecker(pretrained=True),
         # "bertsc-rnn": BertsclstmChecker(pretrained=True),
         # "scrnn-bert": SclstmbertChecker(pretrained=True)
