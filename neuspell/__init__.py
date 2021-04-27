@@ -13,6 +13,7 @@ from .corrector_subwordbert import BertChecker
 from .off_the_shelf import *
 from .util import is_module_available
 
+__all__ = []
 __all__.extend(["seq_modeling"])
 
 if is_module_available("allennlp"):
@@ -41,14 +42,11 @@ else:
     ]
 
 __all__checkers.extend(off_the_shelf.__all__)
+__all__.extend(__all__checkers)
 
 
 def available_checkers():
     return __all__checkers
-
-
-__all__ = []
-__all__.extend(__all__checkers)
 
 
 class CheckersFactory:
