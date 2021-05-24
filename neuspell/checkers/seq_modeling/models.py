@@ -8,7 +8,7 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from torch.nn.utils.rnn import pad_sequence
 
 from .util import is_module_available, get_module_or_attr
-from ..commons import ALLENNLP_ELMO_PRETRAINED_FOLDER
+from ...paths import ALLENNLP_ELMO_PRETRAINED_FOLDER
 
 DEFAULT_BERT_PRETRAINED_NAME_OR_PATH = "bert-base-cased"
 
@@ -59,7 +59,8 @@ class CharCNNModel(nn.Module):
         for length, n in zip(filterlens, nfilters):
             self.convmodule.append(
                 nn.Sequential(
-                    nn.Conv2d(1, n, (length, embdim), padding=(length - 1, 0), dilation=1, bias=True,
+                    nn.Conv2d(1, n, (length, embdim), padding=(length - 1, 0), dilation=1,
+                              bias=True,
                               padding_mode='zeros'),
                     nn.ReLU()
                 )
@@ -137,7 +138,8 @@ class CharCNNWordLSTMModel(nn.Module):
         # dim: [BS,max_nwords,*]->[BS,max_nwords,self.lstmmodule_outdim]
         intermediate_encodings = pack_padded_sequence(intermediate_encodings, batch_lengths,
                                                       batch_first=True, enforce_sorted=False)
-        lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(intermediate_encodings)
+        lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(
+            intermediate_encodings)
         lstm_encodings, _ = pad_packed_sequence(lstm_encodings, batch_first=True, padding_value=0)
 
         # dense
@@ -173,7 +175,8 @@ class CharCNNWordLSTMModel(nn.Module):
 #################################################
 
 class CharLSTMModel(nn.Module):
-    def __init__(self, nembs, embdim, padding_idx, hidden_size, num_layers, bidirectional, output_combination):
+    def __init__(self, nembs, embdim, padding_idx, hidden_size, num_layers, bidirectional,
+                 output_combination):
         super(CharLSTMModel, self).__init__()
 
         # Embeddings
@@ -202,7 +205,8 @@ class CharLSTMModel(nn.Module):
 
         # lstm
         # dim: [BS,max_nwords,*]->[BS,max_nwords,self.lstmmodule_outdim]
-        embs_packed = pack_padded_sequence(embs, batch_lengths, batch_first=True, enforce_sorted=False)
+        embs_packed = pack_padded_sequence(embs, batch_lengths, batch_first=True,
+                                           enforce_sorted=False)
         lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(embs_packed)
         lstm_encodings, _ = pad_packed_sequence(lstm_encodings, batch_first=True, padding_value=0)
 
@@ -232,7 +236,8 @@ class CharLSTMWordLSTMModel(nn.Module):
         # runs a for loop to obtain list[tensor] with each tensor of dim: [BS][nwords,charlstm_outputdim]
         # then use rnn.pad_sequence(.) to obtain the dim: [BS, max_nwords, charlstm_outputdim]
         hidden_size, num_layers, bidirectional, output_combination = 256, 1, True, "end"
-        self.charlstmmodule = CharLSTMModel(nchars, char_emb_dim, char_padding_idx, hidden_size, num_layers,
+        self.charlstmmodule = CharLSTMModel(nchars, char_emb_dim, char_padding_idx, hidden_size,
+                                            num_layers,
                                             bidirectional, output_combination)
         self.charlstmmodule_outdim = self.charlstmmodule.lstmmodule_outdim
 
@@ -278,7 +283,8 @@ class CharLSTMWordLSTMModel(nn.Module):
         # dim: [BS,max_nwords,*]->[BS,max_nwords,self.lstmmodule_outdim]
         intermediate_encodings = pack_padded_sequence(intermediate_encodings, batch_lengths,
                                                       batch_first=True, enforce_sorted=False)
-        lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(intermediate_encodings)
+        lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(
+            intermediate_encodings)
         lstm_encodings, _ = pad_packed_sequence(lstm_encodings, batch_first=True, padding_value=0)
 
         # dense
@@ -320,7 +326,8 @@ class SCLSTM(nn.Module):
         # expected  input dim: [BS,max_nwords,*] and batch_lengths as [BS] for pack_padded_sequence
         bidirectional, hidden_size, nlayers = True, 512, 2
         self.lstmmodule = nn.LSTM(screp_dim, hidden_size, nlayers,
-                                  batch_first=True, dropout=0.4, bidirectional=bidirectional)  # 0.3 or 0.4
+                                  batch_first=True, dropout=0.4,
+                                  bidirectional=bidirectional)  # 0.3 or 0.4
         self.lstmmodule_outdim = hidden_size * 2 if bidirectional else hidden_size
 
         # output module
@@ -353,7 +360,8 @@ class SCLSTM(nn.Module):
         # dim: [BS,max_nwords,*]->[BS,max_nwords,self.lstmmodule_outdim]
         intermediate_encodings = pack_padded_sequence(intermediate_encodings, batch_lengths,
                                                       batch_first=True, enforce_sorted=False)
-        lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(intermediate_encodings)
+        lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(
+            intermediate_encodings)
         lstm_encodings, _ = pad_packed_sequence(lstm_encodings, batch_first=True, padding_value=0)
 
         # dense
@@ -453,8 +461,10 @@ class ElmoSCLSTM(nn.Module):
             # dim: [BS,max_nwords,*]->[BS,max_nwords,self.lstmmodule_outdim]
             intermediate_encodings = pack_padded_sequence(intermediate_encodings, batch_lengths,
                                                           batch_first=True, enforce_sorted=False)
-            lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(intermediate_encodings)
-            lstm_encodings, _ = pad_packed_sequence(lstm_encodings, batch_first=True, padding_value=0)
+            lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(
+                intermediate_encodings)
+            lstm_encodings, _ = pad_packed_sequence(lstm_encodings, batch_first=True,
+                                                    padding_value=0)
 
             # out
             final_encodings = lstm_encodings
@@ -471,8 +481,10 @@ class ElmoSCLSTM(nn.Module):
             # dim: [BS,max_nwords,*]->[BS,max_nwords,self.lstmmodule_outdim]
             intermediate_encodings = pack_padded_sequence(intermediate_encodings, batch_lengths,
                                                           batch_first=True, enforce_sorted=False)
-            lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(intermediate_encodings)
-            lstm_encodings, _ = pad_packed_sequence(lstm_encodings, batch_first=True, padding_value=0)
+            lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(
+                intermediate_encodings)
+            lstm_encodings, _ = pad_packed_sequence(lstm_encodings, batch_first=True,
+                                                    padding_value=0)
 
             # out
             final_encodings = torch.cat((lstm_encodings, elmo_encodings), dim=2)
@@ -547,7 +559,8 @@ class SubwordElmo(nn.Module):
         batch_size = len(batch_elmo_inp)
 
         # elmo
-        elmo_encodings = self.elmo(batch_elmo_inp)['elmo_representations'][0]  # BS X max_nwords x 1024
+        elmo_encodings = self.elmo(batch_elmo_inp)['elmo_representations'][
+            0]  # BS X max_nwords x 1024
 
         # concat aux_embs
         # if not None, the expected dim for aux_word_embs: [BS,max_nwords,*]
@@ -629,8 +642,10 @@ class ElmoSCTransformer(nn.Module):
         print(self.transmodule_indim)
         # self.transmodule = nn.LSTM(self.transmodule_indim, hidden_size, nlayers, 
         #                             batch_first=True, dropout=0.3, bidirectional=bidirectional)
-        encoder_layer = torch.nn.TransformerEncoderLayer(d_model=self.transmodule_indim, nhead=nhead,
-                                                         dim_feedforward=hidden_size, dropout=0.3, activation='relu')
+        encoder_layer = torch.nn.TransformerEncoderLayer(d_model=self.transmodule_indim,
+                                                         nhead=nhead,
+                                                         dim_feedforward=hidden_size, dropout=0.3,
+                                                         activation='relu')
         self.transmodule = nn.TransformerEncoder(encoder_layer, num_layers=nlayers)
         self.transmodule_outdim = self.transmodule_indim
 
@@ -668,7 +683,8 @@ class ElmoSCTransformer(nn.Module):
         # transformer
         # dim: [BS,max_nwords,*]->[BS,max_nwords,self.transmodule_outdim]
         intermediate_encodings = intermediate_encodings.permute(1, 0, 2)
-        transformer_encodings = self.transmodule(intermediate_encodings, src_key_padding_mask=src_key_padding_mask)
+        transformer_encodings = self.transmodule(intermediate_encodings,
+                                                 src_key_padding_mask=src_key_padding_mask)
         transformer_encodings = transformer_encodings.permute(1, 0, 2)
 
         # dense
@@ -807,8 +823,10 @@ class BertSCLSTM(nn.Module):
             # dim: [BS,max_nwords,*]->[BS,max_nwords,self.lstmmodule_outdim]
             intermediate_encodings = pack_padded_sequence(intermediate_encodings, batch_lengths,
                                                           batch_first=True, enforce_sorted=False)
-            lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(intermediate_encodings)
-            lstm_encodings, _ = pad_packed_sequence(lstm_encodings, batch_first=True, padding_value=0)
+            lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(
+                intermediate_encodings)
+            lstm_encodings, _ = pad_packed_sequence(lstm_encodings, batch_first=True,
+                                                    padding_value=0)
 
             # out
             final_encodings = lstm_encodings
@@ -825,8 +843,10 @@ class BertSCLSTM(nn.Module):
             # dim: [BS,max_nwords,*]->[BS,max_nwords,self.lstmmodule_outdim]
             intermediate_encodings = pack_padded_sequence(intermediate_encodings, batch_lengths,
                                                           batch_first=True, enforce_sorted=False)
-            lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(intermediate_encodings)
-            lstm_encodings, _ = pad_packed_sequence(lstm_encodings, batch_first=True, padding_value=0)
+            lstm_encodings, (last_hidden_states, last_cell_states) = self.lstmmodule(
+                intermediate_encodings)
+            lstm_encodings, _ = pad_packed_sequence(lstm_encodings, batch_first=True,
+                                                    padding_value=0)
 
             # out
             final_encodings = torch.cat((lstm_encodings, bert_merged_encodings), dim=2)
@@ -864,7 +884,8 @@ class BertSCLSTM(nn.Module):
 #################################################
 
 class SubwordBert(nn.Module):
-    def __init__(self, padding_idx, output_dim, bert_pretrained_name_or_path=None, freeze_bert=False):
+    def __init__(self, padding_idx, output_dim, bert_pretrained_name_or_path=None,
+                 freeze_bert=False):
         super(SubwordBert, self).__init__()
 
         self.bert_dropout = torch.nn.Dropout(0.2)

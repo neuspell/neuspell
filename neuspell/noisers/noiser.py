@@ -3,32 +3,28 @@ from abc import ABC, abstractmethod
 
 from tqdm.autonotebook import tqdm
 
-from ._util import is_module_available, get_module_or_attr
 from .crn_utils import get_line_representation
 from .downloads import download_file_from_google_drive
 from .pcrn_utils import load_stats, noisyfy_backoff_homophones
 from .wrn_utils import _load_assorted_mistakes, _load_assorted_mistakes_mappings
 from .wrn_utils import noisyfy_word_tokens
-from ..commons import DEFAULT_DATA_PATH, _load_spacy_tokenizer
-
-DEFAULT_NOISING_RESOURCES_PATH = os.path.join(DEFAULT_DATA_PATH, "noising_resources")
+from ..paths import DEFAULT_NOISING_RESOURCES_PATH
+from ..processor import default_tokenizer
+from ..util import is_module_available, get_module_or_attr
 
 
 class Noiser(ABC):
 
     @staticmethod
     def __spacy_retokenizer(texts):
-        _spacy_tokenizer = _load_spacy_tokenizer()
         texts = [_x.strip() for _x in texts]
         retokenized_texts = []
         pbar = tqdm(total=1)
         i, bsz = 0, 5000
         while i >= 0:
             lines = " UNIQUE_SPLITTER ".join([line.strip() for line in texts[i:i + bsz]])
-            tokens = _spacy_tokenizer(lines)
-            lines = " ".join(tokens).split("UNIQUE_SPLITTER")
-            lines = [line.strip() for line in lines]
-            retokenized_texts += lines
+            new_lines = default_tokenizer(lines)
+            retokenized_texts += [line.strip() for line in new_lines.split("UNIQUE_SPLITTER")]
             i += bsz
             pbar.update(bsz / len(texts))
             if i > len(texts): i = -1
@@ -45,7 +41,8 @@ class Noiser(ABC):
 
         # local methods
         _lower_case = lambda x: x.lower() if lower_case else x
-        _remove_accents = lambda x: get_module_or_attr("unidecode", "unidecode")(x) if remove_accents else x
+        _remove_accents = lambda x: get_module_or_attr("unidecode", "unidecode")(
+            x) if remove_accents else x
 
         # cummulative
         _preprocessor = lambda x: [_lower_case(_remove_accents(_x)) for _x in x]
@@ -75,7 +72,8 @@ class Noiser(ABC):
             retokenizer = self.create_retokenizer()
         texts = retokenizer(texts)
         print(f"total # of texts after retokenization: {len(texts)}")
-        print(f"total # of tokens after retokenization: {sum([len(line.strip().split()) for line in texts])}")
+        print(
+            f"total # of tokens after retokenization: {sum([len(line.strip().split()) for line in texts])}")
         return self._noise(texts, **kwargs)
 
 
@@ -83,7 +81,8 @@ class WordReplacementNoiser(Noiser):
 
     def __init__(self, language="english"):
         self.language = language.lower()
-        self.resource_folder = os.path.join(DEFAULT_NOISING_RESOURCES_PATH, "en-word-replacement-noise")
+        self.resource_folder = os.path.join(DEFAULT_NOISING_RESOURCES_PATH,
+                                            "en-word-replacement-noise")
 
         if not self.language == "english":
             raise ValueError("WordReplacementNoiser currently support only English language! "
@@ -95,18 +94,23 @@ class WordReplacementNoiser(Noiser):
         if not os.path.exists(self.resource_folder):
             os.makedirs(self.resource_folder)
 
-        mistakes_vocab_path = os.path.join(self.resource_folder, "combined_data_homophones_stats.tsv")
+        mistakes_vocab_path = os.path.join(self.resource_folder,
+                                           "combined_data_homophones_stats.tsv")
         if not os.path.exists(mistakes_vocab_path):
-            print(f"downloading resources in WordReplacementNoiser to folder {self.resource_folder}")
-            download_file_from_google_drive("1Nr4TucTveelIDGyc894EHE6oLFsqaJe-", mistakes_vocab_path)
+            print(
+                f"downloading resources in WordReplacementNoiser to folder {self.resource_folder}")
+            download_file_from_google_drive("1Nr4TucTveelIDGyc894EHE6oLFsqaJe-",
+                                            mistakes_vocab_path)
         else:
             print(f"Utilizing resources existing in folder {self.resource_folder}")
         self.mistakes_vocab = _load_assorted_mistakes(mistakes_vocab_path)
 
         mistakes_mappings_path = os.path.join(self.resource_folder, "combined_data_homophones.tsv")
         if not os.path.exists(mistakes_mappings_path):
-            print(f"downloading resources in WordReplacementNoiser to folder {self.resource_folder}")
-            download_file_from_google_drive("1ARfPoM6cwUicGV-qjlOMDXXAu6hY0Izl", mistakes_mappings_path)
+            print(
+                f"downloading resources in WordReplacementNoiser to folder {self.resource_folder}")
+            download_file_from_google_drive("1ARfPoM6cwUicGV-qjlOMDXXAu6hY0Izl",
+                                            mistakes_mappings_path)
         else:
             print(f"Utilizing resources existing in folder {self.resource_folder}")
         self.mistakes_mappings = _load_assorted_mistakes_mappings(mistakes_mappings_path)
@@ -133,7 +137,8 @@ class CharacterReplacementNoiser(Noiser):
 
     def __init__(self, language="english"):
         self.language = language.lower()
-        self.resource_folder = os.path.join(DEFAULT_NOISING_RESOURCES_PATH, "en-char-replacement-noise")
+        self.resource_folder = os.path.join(DEFAULT_NOISING_RESOURCES_PATH,
+                                            "en-char-replacement-noise")
 
         if not self.language == "english":
             raise ValueError("CharacterReplacementNoiser currently support only English language! "
@@ -160,11 +165,13 @@ class ProbabilisticCharacterReplacementNoiser(Noiser):
 
     def __init__(self, language="english"):
         self.language = language.lower()
-        self.resource_folder = os.path.join(DEFAULT_NOISING_RESOURCES_PATH, "en-probchar-replacement-noise")
+        self.resource_folder = os.path.join(DEFAULT_NOISING_RESOURCES_PATH,
+                                            "en-probchar-replacement-noise")
 
         if not self.language == "english":
-            raise ValueError("ProbabilisticCharacterReplacementNoiser currently support only English language! "
-                             "Set `language=english` in arguments")
+            raise ValueError(
+                "ProbabilisticCharacterReplacementNoiser currently support only English language! "
+                "Set `language=english` in arguments")
 
         self.ready = False
 
@@ -174,8 +181,10 @@ class ProbabilisticCharacterReplacementNoiser(Noiser):
 
         homophones_txt_path = os.path.join(self.resource_folder, "homophones.txt")
         if not os.path.exists(homophones_txt_path):
-            print(f"downloading resources in ProbabilisticCharacterReplacementNoiser to folder {self.resource_folder}")
-            download_file_from_google_drive("1Wy7sFMdFt0XSYbTdvFpXOiskTusNRJa2", homophones_txt_path)
+            print(
+                f"downloading resources in ProbabilisticCharacterReplacementNoiser to folder {self.resource_folder}")
+            download_file_from_google_drive("1Wy7sFMdFt0XSYbTdvFpXOiskTusNRJa2",
+                                            homophones_txt_path)
         else:
             print(f"Utilizing resources existing in folder {self.resource_folder}")
         homophones = {}
@@ -189,9 +198,11 @@ class ProbabilisticCharacterReplacementNoiser(Noiser):
         opfile.close()
         self.homophones = homophones
 
-        stats_path = os.path.join(self.resource_folder, "moe_misspellings_train_ascii_stats_left_context.json")
+        stats_path = os.path.join(self.resource_folder,
+                                  "moe_misspellings_train_ascii_stats_left_context.json")
         if not os.path.exists(stats_path):
-            print(f"downloading resources in ProbabilisticCharacterReplacementNoiser to folder {self.resource_folder}")
+            print(
+                f"downloading resources in ProbabilisticCharacterReplacementNoiser to folder {self.resource_folder}")
             download_file_from_google_drive("1FLcf_KrG5T5jgXzbjW4J_7RsoFh1_1hE", stats_path)
         else:
             print(f"Utilizing resources existing in folder {self.resource_folder}")
@@ -205,7 +216,8 @@ class ProbabilisticCharacterReplacementNoiser(Noiser):
         if not self.ready:
             raise Exception(f"Must call .load_resources() before using noising methods.")
 
-        new_texts = noisyfy_backoff_homophones(self.stats, texts, [0.025, 0.05, 0.2, 0.7], self.homophones, 0)
+        new_texts = noisyfy_backoff_homophones(self.stats, texts, [0.025, 0.05, 0.2, 0.7],
+                                               self.homophones, 0)
         assert len(new_texts) == len(texts)
 
         return new_texts

@@ -15,7 +15,7 @@ from neuspell import CnnlstmChecker
 from neuspell import NestedlstmChecker
 from neuspell import SclstmChecker
 from neuspell import SclstmbertChecker
-from neuspell.seq_modeling.util import is_module_available
+from neuspell.util import is_module_available
 
 # from neuspell import AspellChecker, JamspellChecker
 
@@ -77,7 +77,8 @@ def predict():
             print(message)
             print(message_modified)
             print(result)
-            save_query(CURR_MODEL_KEYWORD + "\t" + message + "\t" + message_modified + "\t" + result + "\n")
+            save_query(
+                CURR_MODEL_KEYWORD + "\t" + message + "\t" + message_modified + "\t" + result + "\n")
             paired = [(a, b) if a == b else ("+-+" + a + "-+-", "+-+" + b + "-+-") for a, b in
                       zip(message_modified.split(), result.split())]
             print(paired)

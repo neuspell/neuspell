@@ -1,6 +1,6 @@
-from neuspell.noising import CharacterReplacementNoiser
-from neuspell.noising import ProbabilisticCharacterReplacementNoiser
-from neuspell.noising import WordReplacementNoiser
+from neuspell.noisers import CharacterReplacementNoiser
+from neuspell.noisers import ProbabilisticCharacterReplacementNoiser
+from neuspell.noisers import WordReplacementNoiser
 
 example_texts = [
     "This is an example sentence to demonstrate noising in the neuspell repository.",
@@ -20,14 +20,18 @@ for noiser in noisers:
 
     my_noiser = noiser(language="english")
     my_noiser.load_resources()
+
+    # example use-case-1
     noise_texts = my_noiser.noise(example_texts)
     print(noise_texts)
 
+    # example use-case-2
     preprocessor = noiser.create_preprocessor(lower_case=True, remove_accents=True)
     retokenizer = noiser.create_retokenizer()
     noise_texts = my_noiser.noise(example_texts, preprocessor=preprocessor, retokenizer=retokenizer)
     print(noise_texts)
 
+    # example use-case-3
     preprocessor = noiser.create_preprocessor(lower_case=True, remove_accents=True)
     retokenizer = noiser.create_retokenizer(use_spacy_retokenization=True)
     noise_texts = my_noiser.noise(example_texts, preprocessor=preprocessor, retokenizer=retokenizer)

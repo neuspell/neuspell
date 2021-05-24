@@ -5,14 +5,24 @@ from typing import List
 import numpy as np
 import torch
 
-from .commons import spacy_tokenizer, DEFAULT_TRAINTEST_DATA_PATH
 from .corrector import Corrector
-from .seq_modeling.helpers import load_data, sclstm_tokenize, save_vocab_dict
-from .seq_modeling.helpers import train_validation_split, batch_iter, labelize, progressBar, batch_accuracy_func
-from .util import is_module_available, get_module_or_attr
+from .seq_modeling.helpers import (
+    load_data,
+    sclstm_tokenize,
+    save_vocab_dict,
+    train_validation_split,
+    batch_iter,
+    labelize,
+    progressBar,
+    batch_accuracy_func
+)
+from ..paths import DEFAULT_TRAINTEST_DATA_PATH
+from ..processor import default_tokenizer
+from ..util import is_module_available, get_module_or_attr
 
 if is_module_available("allennlp"):
-    from .seq_modeling.elmosclstm import load_model, load_pretrained, model_predictions, model_inference
+    from .seq_modeling.elmosclstm import load_model, load_pretrained, model_predictions, \
+        model_inference
 
 """ corrector module """
 
@@ -36,10 +46,11 @@ class ElmosclstmChecker(Corrector):
     def correct_strings(self, mystrings: List[str], return_all=False) -> List[str]:
         self.is_model_ready()
         if self.tokenize:
-            mystrings = [spacy_tokenizer(my_str) for my_str in mystrings]
+            mystrings = [default_tokenizer(my_str) for my_str in mystrings]
         data = [(line, line) for line in mystrings]
         batch_size = 4 if self.device == "cpu" else 16
-        return_strings = model_predictions(self.model, data, self.vocab, device=self.device, batch_size=batch_size)
+        return_strings = model_predictions(self.model, data, self.vocab, device=self.device,
+                                           batch_size=batch_size)
         if return_all:
             return mystrings, return_strings
         else:
@@ -65,7 +76,8 @@ class ElmosclstmChecker(Corrector):
                  new_vocab_list: List = None):
 
         if new_vocab_list:
-            raise NotImplementedError("Do not currently support modifying output vocabulary of the models")
+            raise NotImplementedError(
+                "Do not currently support modifying output vocabulary of the models")
 
         # load data and split in train-validation
         data_dir = DEFAULT_TRAINTEST_DATA_PATH if data_dir == "default" else data_dir
@@ -112,10 +124,13 @@ class ElmosclstmChecker(Corrector):
 
         # load parameters if not training from scratch
         if START_EPOCH > 1:
-            progress_write_file = open(os.path.join(CHECKPOINT_PATH, f"progress_retrain_from_epoch{START_EPOCH}.txt"),
-                                       'w')
-            model, optimizer, max_dev_acc, argmax_dev_acc = load_pretrained(model, CHECKPOINT_PATH, optimizer=optimizer)
-            progress_write_file.write(f"Training model params after loading from path: {CHECKPOINT_PATH}\n")
+            progress_write_file = open(
+                os.path.join(CHECKPOINT_PATH, f"progress_retrain_from_epoch{START_EPOCH}.txt"),
+                'w')
+            model, optimizer, max_dev_acc, argmax_dev_acc = load_pretrained(model, CHECKPOINT_PATH,
+                                                                            optimizer=optimizer)
+            progress_write_file.write(
+                f"Training model params after loading from path: {CHECKPOINT_PATH}\n")
         else:
             progress_write_file = open(os.path.join(CHECKPOINT_PATH, "progress.txt"), 'w')
             print(f"Training model params from scratch")
@@ -153,7 +168,8 @@ class ElmosclstmChecker(Corrector):
                 # batch_lengths = batch_lengths.to(device)
                 batch_labels = batch_labels.to(DEVICE)
                 elmo_batch_to_ids = get_module_or_attr("allennlp.modules.elmo", "batch_to_ids")
-                batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_sentences]).to(DEVICE)
+                batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_sentences]).to(
+                    DEVICE)
                 # forward
                 model.train()
                 loss = model(batch_idxs, batch_lengths, batch_elmo_inp, targets=batch_labels)
@@ -167,18 +183,22 @@ class ElmosclstmChecker(Corrector):
                     train_acc_count += 1
                     model.eval()
                     with torch.no_grad():
-                        _, batch_predictions = model(batch_idxs, batch_lengths, batch_elmo_inp, targets=batch_labels)
+                        _, batch_predictions = model(batch_idxs, batch_lengths, batch_elmo_inp,
+                                                     targets=batch_labels)
                     model.train()
                     batch_labels = batch_labels.cpu().detach().numpy()
                     batch_lengths = batch_lengths.cpu().detach().numpy()
-                    ncorr, ntotal = batch_accuracy_func(batch_predictions, batch_labels, batch_lengths)
+                    ncorr, ntotal = batch_accuracy_func(batch_predictions, batch_labels,
+                                                        batch_lengths)
                     batch_acc = ncorr / ntotal
                     train_acc += batch_acc
                     # update progress
                 progressBar(batch_id + 1,
                             int(np.ceil(len(train_data) / TRAIN_BATCH_SIZE)),
-                            ["batch_time", "batch_loss", "avg_batch_loss", "batch_acc", "avg_batch_acc"],
-                            [time.time() - st_time, batch_loss, train_loss / (batch_id + 1), batch_acc,
+                            ["batch_time", "batch_loss", "avg_batch_loss", "batch_acc",
+                             "avg_batch_acc"],
+                            [time.time() - st_time, batch_loss, train_loss / (batch_id + 1),
+                             batch_acc,
                              train_acc / train_acc_count])
                 if batch_id == 0 or (batch_id + 1) % 5000 == 0:
                     nb = int(np.ceil(len(train_data) / TRAIN_BATCH_SIZE))
@@ -206,25 +226,30 @@ class ElmosclstmChecker(Corrector):
                     # batch_lengths = batch_lengths.to(device)
                     batch_labels = batch_labels.to(DEVICE)
                     elmo_batch_to_ids = get_module_or_attr("allennlp.modules.elmo", "batch_to_ids")
-                    batch_elmo_inp = elmo_batch_to_ids([line.split() for line in batch_sentences]).to(DEVICE)
+                    batch_elmo_inp = elmo_batch_to_ids(
+                        [line.split() for line in batch_sentences]).to(DEVICE)
                     # forward
                     model.eval()
                     with torch.no_grad():
-                        batch_loss, batch_predictions = model(batch_idxs, batch_lengths, batch_elmo_inp,
+                        batch_loss, batch_predictions = model(batch_idxs, batch_lengths,
+                                                              batch_elmo_inp,
                                                               targets=batch_labels)
                     model.train()
                     valid_loss += batch_loss
                     # compute accuracy in numpy
                     batch_labels = batch_labels.cpu().detach().numpy()
                     batch_lengths = batch_lengths.cpu().detach().numpy()
-                    ncorr, ntotal = batch_accuracy_func(batch_predictions, batch_labels, batch_lengths)
+                    ncorr, ntotal = batch_accuracy_func(batch_predictions, batch_labels,
+                                                        batch_lengths)
                     batch_acc = ncorr / ntotal
                     valid_acc += batch_acc
                     # update progress
                     progressBar(batch_id + 1,
                                 int(np.ceil(len(valid_data) / VALID_BATCH_SIZE)),
-                                ["batch_time", "batch_loss", "avg_batch_loss", "batch_acc", "avg_batch_acc"],
-                                [time.time() - st_time, batch_loss, valid_loss / (batch_id + 1), batch_acc,
+                                ["batch_time", "batch_loss", "avg_batch_loss", "batch_acc",
+                                 "avg_batch_acc"],
+                                [time.time() - st_time, batch_loss, valid_loss / (batch_id + 1),
+                                 batch_acc,
                                  valid_acc / (batch_id + 1)])
                     if batch_id == 0 or (batch_id + 1) % 2000 == 0:
                         nb = int(np.ceil(len(valid_data) / VALID_BATCH_SIZE))
@@ -248,7 +273,9 @@ class ElmosclstmChecker(Corrector):
                         'model_state_dict': model.state_dict(),
                         'optimizer_state_dict': optimizer.state_dict()},
                         os.path.join(CHECKPOINT_PATH, name))
-                    print("Model saved at {} in epoch {}".format(os.path.join(CHECKPOINT_PATH, name), epoch_id))
+                    print(
+                        "Model saved at {} in epoch {}".format(os.path.join(CHECKPOINT_PATH, name),
+                                                               epoch_id))
                     save_vocab_dict(VOCAB_PATH, vocab)
 
                     # re-assign
@@ -268,7 +295,8 @@ class ElmosclstmChecker(Corrector):
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict()},
                     os.path.join(temp_folder, name))
-                print("Model saved at {} in epoch {}".format(os.path.join(temp_folder, name), epoch_id))
+                print("Model saved at {} in epoch {}".format(os.path.join(temp_folder, name),
+                                                             epoch_id))
                 save_vocab_dict(VOCAB_PATH, vocab)
                 raise Exception(e)
 
