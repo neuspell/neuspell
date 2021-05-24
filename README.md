@@ -112,7 +112,7 @@ Alternatively, once can also select and load a spell checker differently as foll
 from neuspell import SclstmChecker
 
 checker = SclstmChecker()
-checker = checker.add_("elmo", at="input")  # "elmo" or "bert", "input" or "output"
+checker = checker.add_("bert", at="input")  # "elmo" or "bert", "input" or "output"
 checker.from_pretrained()
 ```
 
@@ -306,7 +306,8 @@ from neuspell import BertChecker
 
 checker = BertChecker()
 checker.from_pretrained()
-checker.finetune(clean_file="sample_clean.txt", corrupt_file="sample_corrupt.txt", data_dir="default")
+checker.finetune(clean_file="sample_clean.txt", corrupt_file="sample_corrupt.txt",
+                 data_dir="default")
 ```
 
 This feature is only available for `BertChecker` and `ElmosclstmChecker`.
@@ -337,7 +338,8 @@ train_data, valid_data = train_validation_split(train_data, 0.8, seed=11690)
 
 # Step-1: Create vocab file. This serves as the target vocab file and we use the defined model's default huggingface
 # tokenizer to tokenize inputs appropriately.
-vocab = get_tokens([i[0] for i in train_data], keep_simple=True, min_max_freq=(1, float("inf")), topk=100000)
+vocab = get_tokens([i[0] for i in train_data], keep_simple=True, min_max_freq=(1, float("inf")),
+                   topk=100000)
 
 # # Step-2: Initialize a model
 checker = BertChecker(device="cuda")
@@ -415,5 +417,5 @@ tar xf ./en.tar.gz --directory ./
 }
 ```
 
-[Link](https://www.aclweb.org/anthology/2020.emnlp-demos.21/) for the publication. Any questions or
-suggestions, please contact the authors at jsaimurali001 [at] gmail [dot] com
+Here's the [link](https://www.aclweb.org/anthology/2020.emnlp-demos.21/) to publication. For any
+questions or suggestions, please contact the authors at jsaimurali001 [at] gmail [dot] com
