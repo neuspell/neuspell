@@ -125,12 +125,15 @@ def download_pretrained_model_large(ckpt_path: str):
     tag = os.path.split(ckpt_path)[-1]
     if tag not in URL_MAPPINGS_FOR_LARGE_FILES:
         raise Exception(
-            f"Tried to load an unknown model - {tag}. Available choices are {[*URL_MAPPINGS_FOR_LARGE_FILES.keys()]}")
+            f"Tried to load an unknown model - {tag}. "
+            f"Available choices are {[*URL_MAPPINGS_FOR_LARGE_FILES.keys()]}")
     details = URL_MAPPINGS_FOR_LARGE_FILES[tag]
     create_paths(ckpt_path)
     model_url = details["model.pth.tar"]
     vocab_url = details["vocab.pkl"]
-    print("Pretrained model downloading start (may take few seconds to couple of minutes based on download speed) ...")
+    print(
+        "Pretrained model downloading start "
+        "(may take few seconds to couple of minutes based on download speed) ...")
     download_file_from_google_drive(vocab_url, os.path.join(ckpt_path, "vocab.pkl"))
     download_file_from_google_drive(model_url, os.path.join(ckpt_path, "model.pth.tar"))
     print("Pretrained model download success")
@@ -141,7 +144,15 @@ def _download_pretrained_model(ckpt_path: str):
     tag = os.path.split(ckpt_path)[-1]
     if tag not in URL_MAPPINGS_FOR_REGULAR_FILES:
         raise Exception(
-            f"Tried to load an unknown model - {tag}. Available choices are {[*URL_MAPPINGS_FOR_REGULAR_FILES.keys()]}")
+            f"Tried to load an unknown pretrained model - {tag}. "
+            f"Available choices are {[*URL_MAPPINGS_FOR_REGULAR_FILES.keys()]}")
+
+    parent_dir = os.path.dirname(ckpt_path)
+    if parent_dir == "":
+        from ...paths import DEFAULT_CHECKPOINTS_PATH
+        parent_dir = DEFAULT_CHECKPOINTS_PATH
+        ckpt_path = os.path.join(parent_dir, tag)
+
     create_paths(ckpt_path)
     details = URL_MAPPINGS_FOR_REGULAR_FILES[tag]
 
@@ -154,7 +165,9 @@ def _download_pretrained_model(ckpt_path: str):
 
     pytorch_model_path = os.path.join(ckpt_path, "pytorch_model.bin")
     if os.path.exists(pytorch_model_path):
-        print(f"`pytorch_model.bin` already exists in {ckpt_path}. Continuing with other downloads ...")
+        print(
+            f"`pytorch_model.bin` already exists in {ckpt_path}. "
+            f"Continuing with other downloads ...")
     else:
         print("Pretrained model downloading start "
               "(may take few seconds to couple of minutes based on download speed) ...")
@@ -164,16 +177,10 @@ def _download_pretrained_model(ckpt_path: str):
     return
 
 
-def _download_all_pretrained_model():
-    from ..commons import ARXIV_CHECKPOINTS
-    for ckpt_path in ARXIV_CHECKPOINTS.values():
-        _download_pretrained_model(ckpt_path)
-    return
-
-
 def download_pretrained_model(ckpt_path: str):
     if ckpt_path == "_all_":
-        _download_all_pretrained_model()
+        for name in CHECKPOINTS_NAMES:
+            _download_pretrained_model(name)
     else:
         _download_pretrained_model(ckpt_path)
     return

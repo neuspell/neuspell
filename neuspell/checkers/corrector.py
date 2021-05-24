@@ -4,13 +4,13 @@ from typing import List
 
 import torch
 
-from .commons import DEFAULT_DATA_PATH
 from .seq_modeling.downloads import download_pretrained_model
 from .seq_modeling.helpers import load_vocab_dict, get_model_nparams
-from .util import is_module_available
+from ..paths import DEFAULT_CHECKPOINTS_PATH
+from ..util import is_module_available
 
 
-def get_size_of_model(model):
+def get_disk_size_of_model(model):
     torch.save(model.state_dict(), "temp.p")
     size = os.path.getsize("temp.p") / 1e6
     os.remove('temp.p')
@@ -19,20 +19,20 @@ def get_size_of_model(model):
 
 class Corrector(ABC):
     DEFAULT_CHECKPOINT_PATH = {
-        "bertscrnn-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/bertscrnn-probwordnoise",
-        "cnn-lstm-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/cnn-lstm-probwordnoise",
-        "lstm-lstm-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/lstm-lstm-probwordnoise",
-        "scrnn-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/scrnn-probwordnoise",
-        "scrnnbert-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/scrnnbert-probwordnoise",
-        "subwordbert-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/subwordbert-probwordnoise",
+        "bertscrnn-probwordnoise": f"{DEFAULT_CHECKPOINTS_PATH}/bertscrnn-probwordnoise",
+        "cnn-lstm-probwordnoise": f"{DEFAULT_CHECKPOINTS_PATH}/cnn-lstm-probwordnoise",
+        "lstm-lstm-probwordnoise": f"{DEFAULT_CHECKPOINTS_PATH}/lstm-lstm-probwordnoise",
+        "scrnn-probwordnoise": f"{DEFAULT_CHECKPOINTS_PATH}/scrnn-probwordnoise",
+        "scrnnbert-probwordnoise": f"{DEFAULT_CHECKPOINTS_PATH}/scrnnbert-probwordnoise",
+        "subwordbert-probwordnoise": f"{DEFAULT_CHECKPOINTS_PATH}/subwordbert-probwordnoise",
     }
     if is_module_available("allennlp"):
         DEFAULT_CHECKPOINT_PATH.update({
-            "elmoscrnn-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/elmoscrnn-probwordnoise",
-            "scrnnelmo-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/scrnnelmo-probwordnoise",
+            "elmoscrnn-probwordnoise": f"{DEFAULT_CHECKPOINTS_PATH}/elmoscrnn-probwordnoise",
+            "scrnnelmo-probwordnoise": f"{DEFAULT_CHECKPOINTS_PATH}/scrnnelmo-probwordnoise",
         })
 
-    # TODO: deprecated usage; should be reoved in next versions
+    # TODO: deprecated usage; should be removed in next versions
     DEFAULT_CHECKERNAME_TO_NAME_MAPPING = {
         "BertsclstmChecker": "bertscrnn-probwordnoise",
         "CnnlstmChecker": "cnn-lstm-probwordnoise",
@@ -48,6 +48,10 @@ class Corrector(ABC):
         })
 
     def __init__(self, **kwargs):
+        """
+        Args:
+            name (str, )
+        """
 
         self._default_name = kwargs.get("name", None)
         self.tokenize = kwargs.get("tokenize", True)
@@ -60,7 +64,8 @@ class Corrector(ABC):
         if not self._default_name:
 
             try:
-                self._default_name = Corrector.DEFAULT_CHECKERNAME_TO_NAME_MAPPING[self.__class__.__name__]
+                self._default_name = Corrector.DEFAULT_CHECKERNAME_TO_NAME_MAPPING[
+                    self.__class__.__name__]
             except KeyError as e:
                 msg = f"Unable to resolve checker name {self.__class__.__name__} " \
                       f"from list of known names {[*NAME_TO_CHECKER_MAPPINGS.keys()]}"
@@ -70,7 +75,8 @@ class Corrector(ABC):
             self.from_pretrained(ckpt_path=self.ckpt_path)
 
     def is_model_ready(self):
-        assert not (self.model is None or self.vocab is None), print("model & vocab must be loaded first")
+        assert not (self.model is None or self.vocab is None), print(
+            "model & vocab must be loaded first")
 
     @property
     def get_device(self):
@@ -78,7 +84,8 @@ class Corrector(ABC):
 
     def set_device(self, device='cpu'):
         prev_device = self.device
-        device = "cuda" if ((device == "gpu" or device == "cuda") and torch.cuda.is_available()) else "cpu"
+        device = "cuda" if (
+                (device == "gpu" or device == "cuda") and torch.cuda.is_available()) else "cpu"
         if not (prev_device == device):
             # use .to() if moving from cpu or gpu, and for reverse, use map_location
             # https://tinyurl.com/y57pcjvd
@@ -165,13 +172,11 @@ class Corrector(ABC):
         self.is_model_ready()
         return get_model_nparams(self.model)
 
-    def model_size(self, model=None):
-        if not model:
-            model = self.model
-            self.is_model_ready()
+    @staticmethod
+    def _model_size(model):
         sz = {
             "num_params": get_model_nparams(model),
-            "disk_size (in MB)": get_size_of_model(model),
+            "disk_size (in MB)": get_disk_size_of_model(model),
         }
         return sz
 
@@ -184,13 +189,12 @@ class Corrector(ABC):
                 self.model, {torch.nn.Linear}, dtype=torch.qint8
             )
         except RuntimeError as e:
-            msg = "Consider moving models to `cpu` by calling `.set_device(device='cpu')` before quantization. "
+            msg = "Consider moving models to `cpu` by calling " \
+                  "`.set_device(device='cpu')` before quantization. "
             raise Exception(msg) from e
 
         if print_stats:
-            print("Before quantization:")
-            print(self.model_size())
-            print("After quantization:")
-            print(self.model_size(quantized_model))
+            print(f"Before quantization: {self._model_size(self.model)}")
+            print(f"After quantization: {self._model_size(quantized_model)}")
 
         self.model = quantized_model
