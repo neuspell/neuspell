@@ -26,7 +26,7 @@ class BertChecker(Corrector):
     def load_model(self, ckpt_path):
         print(f"initializing model")
         initialized_model = load_model(self.vocab)
-        self.model = load_pretrained(initialized_model, self.ckpt_path, device=self.device)
+        self.model = load_pretrained(initialized_model, ckpt_path, device=self.device)
 
     def correct_strings(self, mystrings: List[str], return_all=False) -> List[str]:
         self.is_model_ready()
