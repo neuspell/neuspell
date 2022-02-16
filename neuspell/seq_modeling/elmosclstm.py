@@ -111,8 +111,8 @@ def load_pretrained_large(model, checkpoint_path, optimizer=None, device='cuda')
         map_location = lambda storage, loc: storage.cuda()
     else:
         map_location = 'cpu'
-    print(f"Loading model params from checkpoint dir: {CHECKPOINT_PATH}")
-    checkpoint_data = torch.load(os.path.join(CHECKPOINT_PATH, "model.pth.tar"), map_location=map_location)
+    print(f"Loading model params from checkpoint dir: {checkpoint_path}")
+    checkpoint_data = torch.load(os.path.join(checkpoint_path, "model.pth.tar"), map_location=map_location)
     # print(f"previously model saved at : {checkpoint_data['epoch_id']}")
 
     model.load_state_dict(checkpoint_data['model_state_dict'])
