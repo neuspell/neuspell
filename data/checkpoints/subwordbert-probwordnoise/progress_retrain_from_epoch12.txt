@@ -1,0 +1,5 @@
+Training model params after loading from path: /projects/ogma2/users/sjayanth/spell-correction/data/checkpoints/subwordbert-probwordnoise
+In epoch: 12
+train_data size: 2185072
+1/136567
+batch_time: 0.3815317153930664, avg_batch_loss: 0.007066708989441395, avg_batch_acc: 1.0
