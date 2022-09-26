@@ -25,6 +25,7 @@ class Corrector(ABC):
         "scrnn-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/scrnn-probwordnoise",
         "scrnnbert-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/scrnnbert-probwordnoise",
         "subwordbert-probwordnoise": f"{DEFAULT_DATA_PATH}/checkpoints/subwordbert-probwordnoise",
+        "sinbert-large": f"{DEFAULT_DATA_PATH}/checkpoints/sinbert-large",
     }
     if is_module_available("allennlp"):
         DEFAULT_CHECKPOINT_PATH.update({
@@ -40,6 +41,7 @@ class Corrector(ABC):
         "SclstmChecker": "scrnn-probwordnoise",
         "SclstmbertChecker": "scrnnbert-probwordnoise",
         "BertChecker": "subwordbert-probwordnoise",
+        "sinBERTChecker": "sinbert-large"
     }
     if is_module_available("allennlp"):
         DEFAULT_CHECKERNAME_TO_NAME_MAPPING.update({
