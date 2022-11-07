@@ -267,7 +267,12 @@ def batch_iter(data, batch_size, shuffle):
 
 
 def labelize(batch_labels, vocab):
+    
+    print("vocab",vocab)
     token2idx, pad_token, unk_token = vocab["token2idx"], vocab["pad_token"], vocab["unk_token"]
+    print("token2idx",token2idx)
+    print("pad_token",pad_token)
+    print("unk_token",unk_token)
     list_list = [[token2idx[token] if token in token2idx else token2idx[unk_token] for token in line.split()] for line
                  in batch_labels]
     list_tensors = [torch.tensor(x) for x in list_list]

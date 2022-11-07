@@ -7,9 +7,6 @@ from .models import SubwordBert
 
 
 def load_model(vocab, bert_pretrained_name_or_path=None, verbose=False):
-    print("vocab["token2idx"]", vocab["token2idx"])
-    print("vocab["pad_token"]", vocab["pad_token"])
-    print("len(vocab["token_freq"])", len(vocab["token_freq"]))
     model = SubwordBert(vocab["token2idx"][vocab["pad_token"]],
                         len(vocab["token_freq"]),
                         bert_pretrained_name_or_path=bert_pretrained_name_or_path)
