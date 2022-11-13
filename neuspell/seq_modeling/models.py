@@ -716,7 +716,8 @@ class BertSCLSTM(nn.Module):
         super(BertSCLSTM, self).__init__()
 
         self.bert_dropout = torch.nn.Dropout(0.2)
-        self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)        self.bertmodule_outdim = self.bert_model.config.hidden_size
+        self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)        
+        self.bertmodule_outdim = self.bert_model.config.hidden_size
         self.early_concat = early_concat  # if True, (bert+sc)->lstm->linear, else ((sc->lstm)+bert)->linear
         if freeze_bert:
             # Uncomment to freeze BERT layers
