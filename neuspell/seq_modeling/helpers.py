@@ -588,6 +588,7 @@ def batch_accuracy_func(batch_predictions: np.ndarray,
 
 
 def load_vocab_dict(path_: str):
+    print("path_",path_)
     """
     path_: path where the vocab pickle file is saved
     """

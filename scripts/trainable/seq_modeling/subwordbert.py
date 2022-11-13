@@ -56,7 +56,7 @@ from pytorch_pretrained_bert import BertAdam
 from evals import get_metrics
 
 def load_model(vocab):
-
+    print("load_model vocab", vocab)
     model = SubwordBert(3*len(vocab["chartoken2idx"]),vocab["token2idx"][ vocab["pad_token"] ],len(vocab["token_freq"]))
     print(model)
     print( get_model_nparams(model) )
