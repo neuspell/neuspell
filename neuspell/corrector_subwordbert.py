@@ -255,10 +255,10 @@ class BertChecker(Corrector):
                     batch_labels, batch_sentences = batch_labels_, batch_sentences_
                 batch_bert_inp = {k: v.to(DEVICE) for k, v in batch_bert_inp.items()}
                 # set batch data for others
-=               batch_labels, batch_lengths = labelize(batch_labels, vocab)
-=                # batch_lengths = batch_lengths.to(device)
+                batch_labels, batch_lengths = labelize(batch_labels, vocab)
+                # batch_lengths = batch_lengths.to(device)
                 batch_labels = batch_labels.to(DEVICE)
-=                # forward
+                # forward
                 model.eval()
                 with torch.no_grad():
                     batch_loss, batch_predictions = model(batch_bert_inp, batch_bert_splits, targets=batch_labels)
