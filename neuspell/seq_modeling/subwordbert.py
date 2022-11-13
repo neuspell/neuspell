@@ -7,14 +7,10 @@ from .models import SubwordBert
 
 
 def load_model(vocab, bert_pretrained_name_or_path=None, verbose=False):
-    print("load_model")
-    print("vocab",vocab)
-    print("bert_pretrained_name_or_path",bert_pretrained_name_or_path)
     model = SubwordBert(vocab["token2idx"][vocab["pad_token"]],
                         len(vocab["token_freq"]),
                         bert_pretrained_name_or_path=bert_pretrained_name_or_path)
 
-    print(model)
     if verbose:
         print(model)
     print(f"Number of parameters in the model: {get_model_nparams(model)}")

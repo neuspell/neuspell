@@ -9,6 +9,7 @@ import torch
 import transformers
 from torch.nn.utils.rnn import pad_sequence
 from tqdm import tqdm
+from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoModelForSequenceClassification
 
 BERT_MAX_SEQ_LEN = 512
 BERT_TOKENIZER = None
@@ -588,7 +589,6 @@ def batch_accuracy_func(batch_predictions: np.ndarray,
 
 
 def load_vocab_dict(path_: str):
-    print("path_",path_)
     """
     path_: path where the vocab pickle file is saved
     """
@@ -719,7 +719,8 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
 
     if BERT_TOKENIZER is None:  # gets initialized during the first call to this method
         if bert_pretrained_name_or_path:
-            BERT_TOKENIZER = transformers.BertTokenizer.from_pretrained(bert_pretrained_name_or_path)
+            # BERT_TOKENIZER = transformers.BertTokenizer.from_pretrained(bert_pretrained_name_or_path)
+            BERT_TOKENIZER = AutoTokenizer.from_pretrained("NLPC-UOM/SinBERT-small")
             print("BERT_TOKENIZER", BERT_TOKENIZER)
 
             BERT_TOKENIZER.do_basic_tokenize = True
