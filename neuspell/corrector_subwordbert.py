@@ -253,6 +253,7 @@ class BertChecker(Corrector):
                 print("batch_lengths",batch_lengths)
                 # batch_lengths = batch_lengths.to(device)
                 batch_labels = batch_labels.to(DEVICE)
+                print("batch_labels to(device)",batch_labels)
                 # forward
                 model.eval()
                 with torch.no_grad():

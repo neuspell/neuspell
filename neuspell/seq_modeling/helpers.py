@@ -277,6 +277,7 @@ def labelize(batch_labels, vocab):
     print("list_tensors",list_tensors)
     tensor_ = pad_sequence(list_tensors, batch_first=True, padding_value=token2idx[pad_token])
     print("tensor_",tensor_)
+    print("Error can be here",torch.tensor([len(x) for x in list_list]).long())
     return tensor_, torch.tensor([len(x) for x in list_list]).long()
 
 
