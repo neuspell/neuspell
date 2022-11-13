@@ -56,15 +56,20 @@ class BertChecker(Corrector):
         return
 
     def from_huggingface(self, bert_pretrained_name_or_path, vocab: Union[Dict, str]):
+        print("bert_pretrained_name_or_path", bert_pretrained_name_or_path)
+        print("vocab",vocab)
         self.bert_pretrained_name_or_path = bert_pretrained_name_or_path
         if isinstance(vocab, str) and os.path.exists(vocab):
+            print("calling if")
             self.vocab_path = vocab
             print(f"loading vocab from path:{self.vocab_path}")
             self.vocab = load_vocab_dict(self.vocab_path)
         elif isinstance(vocab, dict):
+            print("calling elif")
             self.vocab = vocab
         else:
             raise ValueError(f"unknown vocab type or unable to find path: {type(vocab)}")
+            print("calling else")
         self.model = load_model(self.vocab, bert_pretrained_name_or_path=self.bert_pretrained_name_or_path)
         self.model.to(self.device)
         return

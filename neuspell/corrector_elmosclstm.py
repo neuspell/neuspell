@@ -51,7 +51,6 @@ class ElmosclstmChecker(Corrector):
 
         batch_size = 4 if self.device == "cpu" else 16
         for x, y, z in zip([data_dir], [clean_file], [corrupt_file]):
-            print(x, y, z)
             test_data = load_data(x, y, z)
             _ = model_inference(self.model,
                                 test_data,
