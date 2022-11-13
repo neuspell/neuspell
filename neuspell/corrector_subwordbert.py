@@ -184,7 +184,6 @@ class BertChecker(Corrector):
                 batch_labels, batch_lengths = labelize(batch_labels, vocab)
                 # batch_lengths = batch_lengths.to(device)
                 batch_labels = batch_labels.to(DEVICE)
-                print("batch_labels", batch_labels)
 
                 # forward
                 model.train()

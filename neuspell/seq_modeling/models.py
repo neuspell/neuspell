@@ -787,9 +787,7 @@ class BertSCLSTM(nn.Module):
         # bert
         # BS X max_nsubwords x self.bertmodule_outdim
         bert_encodings = self.bert_model(**batch_bert_dict, return_dict=False)[0]
-        print("bert_encodings",bert_encodings)
         bert_encodings = self.bert_dropout(bert_encodings)
-        print("bert_encodings",bert_encodings)
         # BS X max_nwords x self.bertmodule_outdim
         bert_merged_encodings = pad_sequence(
             [self.get_merged_encodings(bert_seq_encodings, seq_splits, mode='avg') \
@@ -797,7 +795,6 @@ class BertSCLSTM(nn.Module):
             batch_first=True,
             padding_value=0
         )
-        print("bert_merged_encodings",bert_merged_encodings)
 
         if self.early_concat:
 
@@ -913,7 +910,8 @@ class SubwordBert(nn.Module):
         return out
 
     def forward(self,
-                batch_bert_dict: "{'input_ids':tensor, 'attention_mask':tensor, 'token_type_ids':tensor}",
+                batch_bert_dict: "{'input_ids':tensor, 'attention_mask':tensor}",
+                # batch_bert_dict: "{'input_ids':tensor, 'attention_mask':tensor, 'token_type_ids':tensor}",
                 batch_splits: "list[list[int]]",
                 aux_word_embs: "tensor" = None,
                 targets: "tensor" = None,
@@ -925,6 +923,7 @@ class SubwordBert(nn.Module):
         # bert
         # BS X max_nsubwords x self.bertmodule_outdim
         bert_encodings = self.bert_model(**batch_bert_dict, return_dict=False)[0]
+        print("bert_encodings",bert_encodings)
         bert_encodings = self.bert_dropout(bert_encodings)
         # BS X max_nwords x self.bertmodule_outdim
         bert_merged_encodings = pad_sequence(
