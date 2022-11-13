@@ -716,6 +716,7 @@ class BertSCLSTM(nn.Module):
 
         self.bert_dropout = torch.nn.Dropout(0.2)
         self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)
+        print("initally self.bert_model ",self.bert_model)
         self.bertmodule_outdim = self.bert_model.config.hidden_size
         self.early_concat = early_concat  # if True, (bert+sc)->lstm->linear, else ((sc->lstm)+bert)->linear
         if freeze_bert:
@@ -786,7 +787,9 @@ class BertSCLSTM(nn.Module):
         # bert
         # BS X max_nsubwords x self.bertmodule_outdim
         bert_encodings = self.bert_model(**batch_bert_dict, return_dict=False)[0]
+        print("bert_encodings",bert_encodings)
         bert_encodings = self.bert_dropout(bert_encodings)
+        print("bert_encodings",bert_encodings)
         # BS X max_nwords x self.bertmodule_outdim
         bert_merged_encodings = pad_sequence(
             [self.get_merged_encodings(bert_seq_encodings, seq_splits, mode='avg') \
@@ -794,6 +797,7 @@ class BertSCLSTM(nn.Module):
             batch_first=True,
             padding_value=0
         )
+        print("bert_merged_encodings",bert_merged_encodings)
 
         if self.early_concat:
 
@@ -913,7 +917,7 @@ class SubwordBert(nn.Module):
         print("calling forward")
         # cnn
         batch_size = len(batch_splits)
-
+        print("batch_size",batch_size)
         # bert
         # BS X max_nsubwords x self.bertmodule_outdim
         bert_encodings = self.bert_model(**batch_bert_dict, return_dict=False)[0]
