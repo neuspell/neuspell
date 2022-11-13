@@ -11,6 +11,7 @@ def load_model(vocab, bert_pretrained_name_or_path=None, verbose=False):
                         len(vocab["token_freq"]),
                         bert_pretrained_name_or_path=bert_pretrained_name_or_path)
 
+    print(model)
     if verbose:
         print(model)
     print(f"Number of parameters in the model: {get_model_nparams(model)}")
@@ -151,6 +152,8 @@ def model_inference(model, data, topk, device, batch_size=16, vocab_=None):
                 """
                 batch_loss, batch_predictions = model(batch_bert_inp, batch_bert_splits, targets=batch_labels_ids,
                                                       topk=topk)
+                print("batch_loss",batch_loss)
+                print("batch_predictions",batch_predictions)
         except RuntimeError:
             print(f"batch_bert_inp:{len(batch_bert_inp.keys())},batch_labels_ids:{batch_labels_ids.shape}")
             raise Exception("")

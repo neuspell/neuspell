@@ -869,6 +869,7 @@ class SubwordBert(nn.Module):
 
         self.bert_dropout = torch.nn.Dropout(0.2)
         self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)
+        print("calling SubwordBert model")
         self.bertmodule_outdim = self.bert_model.config.hidden_size
         if freeze_bert:
             # Uncomment to freeze BERT layers
@@ -909,7 +910,7 @@ class SubwordBert(nn.Module):
                 aux_word_embs: "tensor" = None,
                 targets: "tensor" = None,
                 topk=1):
-
+        print("calling forward")
         # cnn
         batch_size = len(batch_splits)
 
