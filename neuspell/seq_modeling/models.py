@@ -929,6 +929,7 @@ class SubwordBert(nn.Module):
             batch_first=True,
             padding_value=0
         )
+        print("bert_merged_encodings",bert_merged_encodings)
 
         # concat aux_embs
         # if not None, the expected dim for aux_word_embs: [BS,max_nwords,*]
@@ -940,6 +941,7 @@ class SubwordBert(nn.Module):
         # [BS,max_nwords,*] or [BS,max_nwords,self.bertmodule_outdim]->[BS,max_nwords,output_dim]
         # logits = self.dense(self.dropout(intermediate_encodings))
         logits = self.dense(intermediate_encodings)
+        print("logits",logits)
 
         # loss
         if targets is not None:
