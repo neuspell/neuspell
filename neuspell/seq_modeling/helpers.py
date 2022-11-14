@@ -753,12 +753,15 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
         #     [torch.tensor(encoded_dict["token_type_ids"]) for encoded_dict in batch_encoded_dicts], batch_first=True,
         #     padding_value=0)
         print("batch_attention_masks",batch_attention_masks)
+        print("batch_attention_masks size",batch_attention_masks.size())
         print("batch_input_ids",batch_input_ids)
+        print("batch_input_ids size",batch_input_ids.size())
         batch_bert_dict = {"attention_mask": batch_attention_masks,
                            "input_ids": batch_input_ids,
                            # "token_type_ids": batch_token_type_ids
                            }
         print("batch_bert_dict",batch_bert_dict)
+        print("batch_bert_dict size",batch_bert_dict.size())
     return batch_orginal_sentences, batch_noisy_sentences, batch_bert_dict, batch_splits
 
 ################################################
