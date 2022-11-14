@@ -754,28 +754,18 @@ class BertSCLSTM(nn.Module):
         return next(self.parameters()).device
 
     def get_merged_encodings(self, bert_seq_encodings, seq_splits, mode='avg'):
-        print("=========calling get_merged_encodings =========================== ")
-        print("bert_seq_encodings",bert_seq_encodings)
-        print("seq_splits",seq_splits)
         bert_seq_encodings = bert_seq_encodings[:sum(seq_splits) + 2, :]  # 2 for [CLS] and [SEP]
-        print("bert_seq_encodings 111111111111111111",bert_seq_encodings)
         bert_seq_encodings = bert_seq_encodings[1:-1, :]
-        print("bert_seq_encodings 222222222222222222222",bert_seq_encodings)
         # a tuple of tensors
         split_encoding = torch.split(bert_seq_encodings, seq_splits, dim=0)
-        print("split_encoding",split_encoding)
 
         batched_encodings = pad_sequence(split_encoding, batch_first=False, padding_value=0)
-        print("batched_encodings",batched_encodings)
         if mode == 'avg':
-            print("====if==========")
             seq_splits = torch.tensor(seq_splits).reshape(-1, 1).to(self.device)
             out = torch.div(torch.sum(batched_encodings, dim=1), seq_splits)
         elif mode == "add":
-            print("====elif==========")
             out = torch.sum(batched_encodings, dim=1)
         else:
-            print("====else==========")
             raise Exception("Not Implemented")
         return out
 
@@ -906,17 +896,27 @@ class SubwordBert(nn.Module):
         return next(self.parameters()).device
 
     def get_merged_encodings(self, bert_seq_encodings, seq_splits, mode='avg'):
+        print("=========calling get_merged_encodings =========================== ")
+        print("bert_seq_encodings",bert_seq_encodings)
+        print("seq_splits",seq_splits)
         bert_seq_encodings = bert_seq_encodings[:sum(seq_splits) + 2, :]  # 2 for [CLS] and [SEP]
+        print("bert_seq_encodings 1111111111111111",bert_seq_encodings)
         bert_seq_encodings = bert_seq_encodings[1:-1, :]
+        print("bert_seq_encodings 222222222222222222",bert_seq_encodings)
         # a tuple of tensors
         split_encoding = torch.split(bert_seq_encodings, seq_splits, dim=0)
+        print("split_encoding",split_encoding)
         batched_encodings = pad_sequence(split_encoding, batch_first=True, padding_value=0)
+        print("batched_encodings",batched_encodings)
         if mode == 'avg':
+            print("calling if")
             seq_splits = torch.tensor(seq_splits).reshape(-1, 1).to(self.device)
             out = torch.div(torch.sum(batched_encodings, dim=1), seq_splits)
         elif mode == "add":
+            print("calling elif")
             out = torch.sum(batched_encodings, dim=1)
         else:
+            print("calling else")
             raise Exception("Not Implemented")
         return out
 
