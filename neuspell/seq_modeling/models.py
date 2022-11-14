@@ -884,7 +884,9 @@ class SubwordBert(nn.Module):
 
         # output module
         assert output_dim > 0
-        self.dropout = nn.Dropout(p=0.4)
+        # self.dropout = nn.Dropout(p=0.4)
+        print("self.bertmodule_outdim",self.bertmodule_outdim)
+        print("output_dim",output_dim)
         self.dense = nn.Linear(self.bertmodule_outdim, output_dim)
 
         # loss
@@ -963,8 +965,8 @@ class SubwordBert(nn.Module):
 
         # dense
         # [BS,max_nwords,*] or [BS,max_nwords,self.bertmodule_outdim]->[BS,max_nwords,output_dim]
-        logits = self.dense(self.dropout(intermediate_encodings))
-        # logits = self.dense(intermediate_encodings)
+        # logits = self.dense(self.dropout(intermediate_encodings))
+        logits = self.dense(intermediate_encodings)
         print("logits",logits)
 
         # loss
