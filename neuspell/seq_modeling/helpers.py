@@ -761,7 +761,7 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
                            # "token_type_ids": batch_token_type_ids
                            }
         print("batch_bert_dict",batch_bert_dict)
-        print("batch_bert_dict size",batch_bert_dict.size())
+        print("batch_bert_dict size",len(batch_bert_dict))
     return batch_orginal_sentences, batch_noisy_sentences, batch_bert_dict, batch_splits
 
 ################################################
