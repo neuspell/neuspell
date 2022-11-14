@@ -884,7 +884,8 @@ class SubwordBert(nn.Module):
 
         # output module
         assert output_dim > 0
-        # self.dropout = nn.Dropout(p=0.4)
+        self.dropout = nn.Dropout(p=0.4)
+        print("self.dropout", self.dropout)
         print("self.bertmodule_outdim",self.bertmodule_outdim)
         print("output_dim",output_dim)
         self.dense = nn.Linear(self.bertmodule_outdim, output_dim)
@@ -900,17 +901,18 @@ class SubwordBert(nn.Module):
     def get_merged_encodings(self, bert_seq_encodings, seq_splits, mode='avg'):
         print("=========calling get_merged_encodings =========================== ")
         print("bert_seq_encodings",bert_seq_encodings)
+        print("bert_seq_encodings £££££££££££££111111111111111111 size",bert_seq_encodings())
         print("seq_splits",seq_splits)
         bert_seq_encodings = bert_seq_encodings[:sum(seq_splits) + 2, :]  # 2 for [CLS] and [SEP]
-        print("bert_seq_encodings 1111111111111111",bert_seq_encodings)
+        print("bert_seq_encodings £££££££££££££2222222222222222222222222 size",bert_seq_encodings())
         bert_seq_encodings = bert_seq_encodings[1:-1, :]
-        print("bert_seq_encodings 222222222222222222",bert_seq_encodings)
+        print("bert_seq_encodings £££££££££££££333333333333333333333333333 size",bert_seq_encodings())
         # a tuple of tensors
         print("split_encoding size",bert_seq_encodings.size())
         print("seq_splits size",len(seq_splits))
         split_encoding = torch.split(bert_seq_encodings, 3, dim=0)
         print("split_encoding",split_encoding)
-        batched_encodings = pad_sequence(split_encoding, batch_first=True, padding_value=0)
+        batched_encodings = pad_sequence(split_encoding, batch_first=False, padding_value=0)
         print("batched_encodings",batched_encodings)
         if mode == 'avg':
             print("calling if")
@@ -952,6 +954,7 @@ class SubwordBert(nn.Module):
             padding_value=0
         )
         print("bert_merged_encodings",bert_merged_encodings)
+        print("bert_merged_encodings size",bert_merged_encodings.size())
 
         # concat aux_embs
         # if not None, the expected dim for aux_word_embs: [BS,max_nwords,*]
@@ -965,6 +968,7 @@ class SubwordBert(nn.Module):
 
         # dense
         # [BS,max_nwords,*] or [BS,max_nwords,self.bertmodule_outdim]->[BS,max_nwords,output_dim]
+        logits = self.dense(self.dropout(intermediate_encodings))
         # logits = self.dense(self.dropout(intermediate_encodings))
         logits = self.dense(intermediate_encodings)
         print("logits",logits)
