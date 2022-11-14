@@ -901,12 +901,12 @@ class SubwordBert(nn.Module):
     def get_merged_encodings(self, bert_seq_encodings, seq_splits, mode='avg'):
         print("=========calling get_merged_encodings =========================== ")
         print("bert_seq_encodings",bert_seq_encodings)
-        print("bert_seq_encodings £££££££££££££111111111111111111 size",bert_seq_encodings())
+        print("bert_seq_encodings £££££££££££££111111111111111111 size",bert_seq_encodings.size())
         print("seq_splits",seq_splits)
         bert_seq_encodings = bert_seq_encodings[:sum(seq_splits) + 2, :]  # 2 for [CLS] and [SEP]
-        print("bert_seq_encodings £££££££££££££2222222222222222222222222 size",bert_seq_encodings())
+        print("bert_seq_encodings £££££££££££££2222222222222222222222222 size",bert_seq_encodings.size())
         bert_seq_encodings = bert_seq_encodings[1:-1, :]
-        print("bert_seq_encodings £££££££££££££333333333333333333333333333 size",bert_seq_encodings())
+        print("bert_seq_encodings £££££££££££££333333333333333333333333333 size",bert_seq_encodings.size())
         # a tuple of tensors
         print("split_encoding size",bert_seq_encodings.size())
         print("seq_splits size",len(seq_splits))
