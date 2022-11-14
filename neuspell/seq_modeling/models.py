@@ -759,7 +759,7 @@ class BertSCLSTM(nn.Module):
         # a tuple of tensors
         split_encoding = torch.split(bert_seq_encodings, seq_splits, dim=0)
 
-        batched_encodings = pad_sequence(split_encoding, batch_first=False, padding_value=0)
+        batched_encodings = pad_sequence(split_encoding, batch_first=True, padding_value=0)
         if mode == 'avg':
             seq_splits = torch.tensor(seq_splits).reshape(-1, 1).to(self.device)
             out = torch.div(torch.sum(batched_encodings, dim=1), seq_splits)
@@ -912,7 +912,7 @@ class SubwordBert(nn.Module):
         print("seq_splits size",len(seq_splits))
         split_encoding = torch.split(bert_seq_encodings, 3, dim=0)
         print("split_encoding",split_encoding)
-        batched_encodings = pad_sequence(split_encoding, batch_first=False, padding_value=0)
+        batched_encodings = pad_sequence(split_encoding, batch_first=True, padding_value=0)
         print("batched_encodings",batched_encodings)
         if mode == 'avg':
             print("calling if")
@@ -950,7 +950,7 @@ class SubwordBert(nn.Module):
         bert_merged_encodings = pad_sequence(
             [self.get_merged_encodings(bert_seq_encodings, seq_splits, mode='avg') \
              for bert_seq_encodings, seq_splits in zip(bert_encodings, batch_splits)],
-            batch_first=False,
+            batch_first=True,
             padding_value=0
         )
         print("bert_merged_encodings",bert_merged_encodings)
