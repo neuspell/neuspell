@@ -942,7 +942,6 @@ class SubwordBert(nn.Module):
         bert_encodings = self.bert_dropout(bert_encodings)
         print("bert_encodings bert_dropout",bert_encodings)
         print("bert_encodings size",bert_encodings.size())
-        print("zip(bert_encodings, batch_splits)",zip(bert_encodings, batch_splits))
         # BS X max_nwords x self.bertmodule_outdim
         bert_merged_encodings = pad_sequence(
             [self.get_merged_encodings(bert_seq_encodings, seq_splits, mode='avg') \
@@ -955,8 +954,13 @@ class SubwordBert(nn.Module):
         # concat aux_embs
         # if not None, the expected dim for aux_word_embs: [BS,max_nwords,*]
         intermediate_encodings = bert_merged_encodings
+        print("intermediate_encodings",intermediate_encodings)
+        print("intermediate_encodings size",intermediate_encodings.size())
+        print("aux_word_embs",aux_word_embs)
+        print("aux_word_embs size",aux_word_embs.size())
         if aux_word_embs is not None:
             intermediate_encodings = torch.cat((intermediate_encodings, aux_word_embs), dim=2)
+            print("intermediate_encodings", intermediate_encodings)
 
         # dense
         # [BS,max_nwords,*] or [BS,max_nwords,self.bertmodule_outdim]->[BS,max_nwords,output_dim]
