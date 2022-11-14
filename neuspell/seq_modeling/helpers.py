@@ -741,21 +741,27 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
         # "token_type_ids": []
     }
     if len(valid_idxs) > 0:
-        batch_encoded_dicts = [BERT_TOKENIZER.encode_plus(tokens,max_length=520, add_special_tokens=True,  padding="max_length",truncation = True, is_split_into_words=True, return_attention_mask = True) for tokens in batch_tokens]
-        print("batch_encoded_dicts",[batch_encoded_dicts[0]])
+        batch_encoded_dicts = [BERT_TOKENIZER.encode_plus(tokens,max_length=514, add_special_tokens=True,  padding="max_length",truncation = True, is_split_into_words=True, return_attention_mask = True) for tokens in batch_tokens]
+        print("batch_encoded_dicts",batch_encoded_dicts)
+        print("batch_encoded_dicts len",len(batch_encoded_dicts))
         batch_attention_masks = pad_sequence(
             [torch.tensor(encoded_dict["attention_mask"]) for encoded_dict in batch_encoded_dicts], batch_first=True,
             padding_value=0)
+        print("batch_attention_masks",batch_attention_masks)
+        print("batch_attention_masks size",len(batch_attention_masks))
+        with_false = pad_sequence(
+            [torch.tensor(encoded_dict["attention_mask"]) for encoded_dict in batch_encoded_dicts], batch_first=False,
+            padding_value=0)
+        print("with_false",with_false)
+        print("with_false size",len(with_false))
         batch_input_ids = pad_sequence(
             [torch.tensor(encoded_dict["input_ids"]) for encoded_dict in batch_encoded_dicts], batch_first=True,
             padding_value=0)
         # batch_token_type_ids = pad_sequence(
         #     [torch.tensor(encoded_dict["token_type_ids"]) for encoded_dict in batch_encoded_dicts], batch_first=True,
         #     padding_value=0)
-        print("batch_attention_masks",batch_attention_masks)
-        print("batch_attention_masks size",batch_attention_masks.size())
-        print("batch_input_ids",batch_input_ids)
-        print("batch_input_ids size",batch_input_ids.size())
+     
+   
         batch_bert_dict = {"attention_mask": batch_attention_masks,
                            "input_ids": batch_input_ids,
                            # "token_type_ids": batch_token_type_ids
