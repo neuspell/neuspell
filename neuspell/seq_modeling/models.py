@@ -884,7 +884,7 @@ class SubwordBert(nn.Module):
 
         # output module
         assert output_dim > 0
-        # self.dropout = nn.Dropout(p=0.4)
+        self.dropout = nn.Dropout(p=0.4)
         self.dense = nn.Linear(self.bertmodule_outdim, output_dim)
 
         # loss
@@ -957,15 +957,14 @@ class SubwordBert(nn.Module):
         print("intermediate_encodings",intermediate_encodings)
         print("intermediate_encodings size",intermediate_encodings.size())
         print("aux_word_embs",aux_word_embs)
-        print("aux_word_embs size",aux_word_embs.size())
         if aux_word_embs is not None:
             intermediate_encodings = torch.cat((intermediate_encodings, aux_word_embs), dim=2)
             print("intermediate_encodings", intermediate_encodings)
 
         # dense
         # [BS,max_nwords,*] or [BS,max_nwords,self.bertmodule_outdim]->[BS,max_nwords,output_dim]
-        # logits = self.dense(self.dropout(intermediate_encodings))
-        logits = self.dense(intermediate_encodings)
+        logits = self.dense(self.dropout(intermediate_encodings))
+        # logits = self.dense(intermediate_encodings)
         print("logits",logits)
 
         # loss
