@@ -928,11 +928,13 @@ class SubwordBert(nn.Module):
         # print("bert_encodings size",bert_encodings.ze.size())
         bert_encodings = self.bert_dropout(bert_encodings)
         print("bert_encodings bert_dropout",bert_encodings)
+        print("bert_encodings size",bert_encodings.size())
+        print("zip(bert_encodings, batch_splits)",zip(bert_encodings, batch_splits))
         # BS X max_nwords x self.bertmodule_outdim
         bert_merged_encodings = pad_sequence(
             [self.get_merged_encodings(bert_seq_encodings, seq_splits, mode='avg') \
              for bert_seq_encodings, seq_splits in zip(bert_encodings, batch_splits)],
-            batch_first=True,
+            batch_first=False,
             padding_value=0
         )
         print("bert_merged_encodings",bert_merged_encodings)
