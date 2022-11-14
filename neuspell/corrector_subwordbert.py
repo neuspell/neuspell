@@ -187,7 +187,6 @@ class BertChecker(Corrector):
 
                 # forward
                 model.train()
-                print("after calling train")
                 loss = model(batch_bert_inp, batch_bert_splits, targets=batch_labels)
                 print("loss", loss)
                 batch_loss = loss.cpu().detach().numpy()
