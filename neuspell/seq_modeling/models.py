@@ -940,6 +940,8 @@ class SubwordBert(nn.Module):
         print("bert_encodings bert_dropout",bert_encodings)
         print("bert_encodings size",bert_encodings.size())
         # BS X max_nwords x self.bertmodule_outdim
+        print ("sequences", self.get_merged_encodings(bert_seq_encodings, seq_splits, mode='avg') \
+             for bert_seq_encodings, seq_splits in zip(bert_encodings, batch_splits))
         bert_merged_encodings = pad_sequence(
             [self.get_merged_encodings(bert_seq_encodings, seq_splits, mode='avg') \
              for bert_seq_encodings, seq_splits in zip(bert_encodings, batch_splits)],
