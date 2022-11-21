@@ -905,7 +905,7 @@ class SubwordBert(nn.Module):
         bert_seq_encodings = bert_seq_encodings[1:-1, :]
         # a tuple of tensors
         print("bert_seq_encodings",bert_seq_encodings)
-        print("split_encoding size",bert_seq_encodings.size())
+        print("bert_seq_encodings",bert_seq_encodings.size())
         print("seq_splits size",len(seq_splits))
         split_encoding = torch.split(bert_seq_encodings, seq_splits, dim=0)
         print("split_encoding",split_encoding)
