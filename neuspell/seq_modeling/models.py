@@ -907,7 +907,7 @@ class SubwordBert(nn.Module):
         print("bert_seq_encodings",bert_seq_encodings)
         print("split_encoding size",bert_seq_encodings.size())
         print("seq_splits size",len(seq_splits))
-        split_encoding = torch.split(bert_seq_encodings, seq_splits, dim=0)
+        split_encoding = torch.split(bert_seq_encodings, seq_splits, dim=1)
         print("split_encoding",split_encoding)
         batched_encodings = pad_sequence(split_encoding, batch_first=True, padding_value=0)
         print("batched_encodings",batched_encodings)
