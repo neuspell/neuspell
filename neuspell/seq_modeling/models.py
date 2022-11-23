@@ -905,7 +905,7 @@ class SubwordBert(nn.Module):
         bert_seq_encodings = bert_seq_encodings[1:-1, :]
         # a tuple of tensors
         print("bert_seq_encodings",bert_seq_encodings)
-        print("bert_seq_encodings",bert_seq_encodings.size())
+        print("bert_seq_encodings size",bert_seq_encodings.size())
         print("seq_splits size",len(seq_splits))
         split_encoding = torch.split(bert_seq_encodings, len(seq_splits), dim=0)
         print("split_encoding",split_encoding)
@@ -913,11 +913,15 @@ class SubwordBert(nn.Module):
         print("batched_encodings",batched_encodings)
         if mode == 'avg':
             seq_splits = torch.tensor(seq_splits).reshape(-1, 1).to(self.device)
+            print("if avg seq_splits",seq_splits)
+            print("if avg seq_splits size",seq_splits.size())
             out = torch.div(torch.sum(batched_encodings, dim=1), seq_splits)
+            print("if out",out)
         elif mode == "add":
             out = torch.sum(batched_encodings, dim=1)
         else:
             raise Exception("Not Implemented")
+        print("return  out",out)
         return out
 
     def forward(self,
@@ -953,7 +957,10 @@ class SubwordBert(nn.Module):
         # concat aux_embs
         # if not None, the expected dim for aux_word_embs: [BS,max_nwords,*]
         intermediate_encodings = bert_merged_encodings
+        print("intermediate_encodings",intermediate_encodings)
+        print("=============================before calling  if aux_word_embs is not None ")
         if aux_word_embs is not None:
+            print("calling if aux_word_embs is not None")
             intermediate_encodings = torch.cat((intermediate_encodings, aux_word_embs), dim=2)
             print("intermediate_encodings", intermediate_encodings)
 
