@@ -30,6 +30,8 @@ class BertChecker(Corrector):
 
     def correct_strings(self, mystrings: List[str], return_all=False) -> List[str]:
         self.is_model_ready()
+        print("mystrings",mystrings)
+        print("self.bert_pretrained_name_or_path",self.bert_pretrained_name_or_path)
         mystrings = bert_tokenize_for_valid_examples(mystrings, mystrings, self.bert_pretrained_name_or_path)[0]
         print("mystrings",mystrings)
         data = [(line, line) for line in mystrings]
@@ -76,7 +78,7 @@ class BertChecker(Corrector):
                  corrupt_file,
                  data_dir="",
                  validation_split=0.2,
-                 n_epochs=2,
+                 n_epochs=1,
                  new_vocab_list: List = None):
         if new_vocab_list:
             raise NotImplementedError("Do not currently support modifying output vocabulary of the models "
