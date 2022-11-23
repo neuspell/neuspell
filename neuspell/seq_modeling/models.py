@@ -716,7 +716,9 @@ class BertSCLSTM(nn.Module):
         super(BertSCLSTM, self).__init__()
 
         self.bert_dropout = torch.nn.Dropout(0.2)
-        self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)        
+        self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path) 
+        print("bert_pretrained_name_or_path",bert_pretrained_name_or_path)
+        print("self.bert_model",self.bert_model)       
         self.bertmodule_outdim = self.bert_model.config.hidden_size
         self.early_concat = early_concat  # if True, (bert+sc)->lstm->linear, else ((sc->lstm)+bert)->linear
         if freeze_bert:
@@ -871,8 +873,8 @@ class SubwordBert(nn.Module):
 
         self.bert_dropout = torch.nn.Dropout(0.2)
         print("self.bert_dropout",self.bert_dropout)
-        self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)
-        # self.bert_model = AutoModelForMaskedLM.from_pretrained("NLPC-UOM/SinBERT-small")
+        # self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)
+        self.bert_model = AutoModelForMaskedLM.from_pretrained("NLPC-UOM/SinBERT-small")
         print("self.bert_model",self.bert_model)
 
         print("calling SubwordBert model")
