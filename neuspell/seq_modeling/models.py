@@ -871,8 +871,8 @@ class SubwordBert(nn.Module):
 
         self.bert_dropout = torch.nn.Dropout(0.2)
         print("self.bert_dropout",self.bert_dropout)
-        # self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)
-        self.bert_model = AutoModelForMaskedLM.from_pretrained("NLPC-UOM/SinBERT-small")
+        self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)
+        # self.bert_model = AutoModelForMaskedLM.from_pretrained("NLPC-UOM/SinBERT-small")
         print("self.bert_model",self.bert_model)
 
         print("calling SubwordBert model")
@@ -958,6 +958,7 @@ class SubwordBert(nn.Module):
         # if not None, the expected dim for aux_word_embs: [BS,max_nwords,*]
         intermediate_encodings = bert_merged_encodings
         print("intermediate_encodings",intermediate_encodings)
+        print("intermediate_encodings size",intermediate_encodings.size())
         print("=============================before calling  if aux_word_embs is not None ")
         if aux_word_embs is not None:
             print("calling if aux_word_embs is not None")
