@@ -961,6 +961,9 @@ class SubwordBert(nn.Module):
         print("=============================before calling  if aux_word_embs is not None ")
         if aux_word_embs is not None:
             print("calling if aux_word_embs is not None")
+            print("calling if aux_word_embs is not None")
+            print("intermediate_encodings size",intermediate_encodings.size())
+            print("aux_word_embs size",aux_word_embs.size())
             intermediate_encodings = torch.cat((intermediate_encodings, aux_word_embs), dim=2)
             print("intermediate_encodings", intermediate_encodings)
 
