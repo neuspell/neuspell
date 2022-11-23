@@ -31,9 +31,11 @@ class BertChecker(Corrector):
     def correct_strings(self, mystrings: List[str], return_all=False) -> List[str]:
         self.is_model_ready()
         mystrings = bert_tokenize_for_valid_examples(mystrings, mystrings, self.bert_pretrained_name_or_path)[0]
+        print("mystrings",mystrings)
         data = [(line, line) for line in mystrings]
         batch_size = 4 if self.device == "cpu" else 16
         return_strings = model_predictions(self.model, data, self.vocab, device=self.device, batch_size=batch_size)
+        print("return_strings",return_strings)
         if return_all:
             return mystrings, return_strings
         else:
