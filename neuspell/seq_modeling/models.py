@@ -872,19 +872,13 @@ class SubwordBert(nn.Module):
         super(SubwordBert, self).__init__()
 
         self.bert_dropout = torch.nn.Dropout(0.2)
-        print("self.bert_dropout",self.bert_dropout)
         # self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)
         self.bert_model = AutoModelForMaskedLM.from_pretrained("NLPC-UOM/SinBERT-small")
-        print("=================This is model params======================")
-        print("self.bert_model",self.bert_model)
 
-        print("calling SubwordBert model")
-        print("self.bert_model.config",self.bert_model.config)
-        print("self.bert_model.config.hidden_size",self.bert_model.config.hidden_size)
+        print("self.bert_model",self.bert_model)
 
         self.bertmodule_outdim = self.bert_model.config.vocab_size #changed the outdim from hidden-size to vocab_size
         # self.bertmodule_outdim = self.bert_model.config.hidden_size
-        print("self.bertmodule_outdim",self.bertmodule_outdim)
         if freeze_bert:
             # Uncomment to freeze BERT layers
             for param in self.bert_model.parameters():
@@ -893,9 +887,6 @@ class SubwordBert(nn.Module):
         # output module
         assert output_dim > 0
         self.dropout = nn.Dropout(p=0.4)
-        print("self.dropout", self.dropout)
-        print("self.bertmodule_outdim",self.bertmodule_outdim)
-        print("output_dim",output_dim)
         self.dense = nn.Linear(self.bertmodule_outdim, output_dim)
 
         # loss
@@ -907,29 +898,18 @@ class SubwordBert(nn.Module):
         return next(self.parameters()).device
 
     def get_merged_encodings(self, bert_seq_encodings, seq_splits, mode='avg'):
-        print("=========calling get_merged_encodings =========================== ")
-        print("seq_splits",seq_splits)
         bert_seq_encodings = bert_seq_encodings[:sum(seq_splits) + 2, :]  # 2 for [CLS] and [SEP]
         bert_seq_encodings = bert_seq_encodings[1:-1, :]
         # a tuple of tensors
-        print("bert_seq_encodings",bert_seq_encodings)
-        print("bert_seq_encodings size",bert_seq_encodings.size())
-        print("seq_splits size",len(seq_splits))
         split_encoding = torch.split(bert_seq_encodings, len(seq_splits), dim=0)
-        print("split_encoding",split_encoding)
         batched_encodings = pad_sequence(split_encoding, batch_first=True, padding_value=0)
-        print("batched_encodings",batched_encodings)
         if mode == 'avg':
             seq_splits = torch.tensor(seq_splits).reshape(-1, 1).to(self.device)
-            print("if avg seq_splits",seq_splits)
-            print("if avg seq_splits size",seq_splits.size())
             out = torch.div(torch.sum(batched_encodings, dim=1), seq_splits)
-            print("if out",out)
         elif mode == "add":
             out = torch.sum(batched_encodings, dim=1)
         else:
             raise Exception("Not Implemented")
-        print("return  out",out)
         return out
 
     def forward(self,
@@ -939,19 +919,13 @@ class SubwordBert(nn.Module):
                 aux_word_embs: "tensor" = None,
                 targets: "tensor" = None,
                 topk=1):
-        print("calling forward")
         # cnn
-        print("batch_splits",batch_splits)
         batch_size = len(batch_splits)
-        print("batch_size",batch_size)
         # bert
         # BS X max_nsubwords x self.bertmodule_outdim
         bert_encodings = self.bert_model(**batch_bert_dict, return_dict=False)[0]
-        print("bert_encodings",bert_encodings)
         # print("bert_encodings size",bert_encodings.ze.size())
         bert_encodings = self.bert_dropout(bert_encodings)
-        print("bert_encodings bert_dropout",bert_encodings)
-        print("bert_encodings size",bert_encodings.size())
         # BS X max_nwords x self.bertmodule_outdim
         bert_merged_encodings = pad_sequence(
             [self.get_merged_encodings(bert_seq_encodings, seq_splits, mode='avg') \
@@ -959,29 +933,18 @@ class SubwordBert(nn.Module):
             batch_first=True,
             padding_value=0
         )
-        print("bert_merged_encodings",bert_merged_encodings)
-        print("bert_merged_encodings size",bert_merged_encodings.size())
 
         # concat aux_embs
         # if not None, the expected dim for aux_word_embs: [BS,max_nwords,*]
         intermediate_encodings = bert_merged_encodings
-        print("intermediate_encodings",intermediate_encodings)
-        print("intermediate_encodings size",intermediate_encodings.size())
-        print("=============================before calling  if aux_word_embs is not None ")
         if aux_word_embs is not None:
-            print("calling if aux_word_embs is not None")
-            print("calling if aux_word_embs is not None")
-            print("intermediate_encodings size",intermediate_encodings.size())
-            print("aux_word_embs size",aux_word_embs.size())
             intermediate_encodings = torch.cat((intermediate_encodings, aux_word_embs), dim=2)
-            print("intermediate_encodings", intermediate_encodings)
 
         # dense
         # [BS,max_nwords,*] or [BS,max_nwords,self.bertmodule_outdim]->[BS,max_nwords,output_dim]
         logits = self.dense(self.dropout(intermediate_encodings))
         # logits = self.dense(self.dropout(intermediate_encodings))
         logits = self.dense(intermediate_encodings)
-        print("logits",logits)
 
         # loss
         if targets is not None:
