@@ -172,26 +172,20 @@ class BertChecker(Corrector):
                 batch_labels_, batch_sentences_, batch_bert_inp, batch_bert_splits = \
                     bert_tokenize_for_valid_examples(batch_labels, batch_sentences, self.bert_pretrained_name_or_path)
                 if len(batch_labels_) == 0:
-                    print("################")
                     print("Not training the following lines due to pre-processing mismatch: \n")
                     print([(a, b) for a, b in zip(batch_labels, batch_sentences)])
-                    print("################")
                     continue
                 else:
                     batch_labels, batch_sentences = batch_labels_, batch_sentences_
                 batch_bert_inp = {k: v.to(DEVICE) for k, v in batch_bert_inp.items()}
                 # set batch data for others
                 batch_labels, batch_lengths = labelize(batch_labels, vocab)
-                print ("===========after calling labelize=============")
-                print("batch_labels",batch_labels)
-                print("batch_lengths",batch_lengths)
                 # batch_lengths = batch_lengths.to(device)
                 batch_labels = batch_labels.to(DEVICE)
 
                 # forward
                 model.train()
                 loss = model(batch_bert_inp, batch_bert_splits, targets=batch_labels)
-                print("loss", loss)
                 batch_loss = loss.cpu().detach().numpy()
                 train_loss += batch_loss
                 # backward
