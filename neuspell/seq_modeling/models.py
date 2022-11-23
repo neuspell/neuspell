@@ -875,10 +875,15 @@ class SubwordBert(nn.Module):
         print("self.bert_dropout",self.bert_dropout)
         # self.bert_model = get_pretrained_bert(bert_pretrained_name_or_path)
         self.bert_model = AutoModelForMaskedLM.from_pretrained("NLPC-UOM/SinBERT-small")
+        print("=================This is model params======================")
         print("self.bert_model",self.bert_model)
 
         print("calling SubwordBert model")
+        print("self.bert_model.config",self.bert_model.config)
+        print("self.bert_model.config.hidden_size",self.bert_model.config.hidden_size)
+
         self.bertmodule_outdim = self.bert_model.config.hidden_size
+        print("self.bertmodule_outdim",self.bertmodule_outdim)
         if freeze_bert:
             # Uncomment to freeze BERT layers
             for param in self.bert_model.parameters():
