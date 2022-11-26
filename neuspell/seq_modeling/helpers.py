@@ -746,10 +746,15 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
 
     print("BERT_TOKENIZER", BERT_TOKENIZER)
 
+    print("================before tokenizing======================")
+    print("batch_orginal_sentences", batch_orginal_sentences)
+    print("batch_noisy_sentences", batch_noisy_sentences)
     _batch_orginal_sentences = _simple_bert_tokenize_sentences(batch_orginal_sentences)
+    print("================after tokenizing======================")
     print("_batch_orginal_sentences", _batch_orginal_sentences)
 
     _batch_noisy_sentences, _batch_tokens, _batch_splits = _custom_bert_tokenize_sentences(batch_noisy_sentences)
+    print("================after tokenizing======================")
     print("_batch_noisy_sentences", _batch_noisy_sentences)
 
     valid_idxs = [idx for idx, (a, b) in enumerate(zip(_batch_orginal_sentences, _batch_noisy_sentences)) if
