@@ -618,7 +618,7 @@ def merge_subtokens(tokens: List):
     text = " ".join(merged_tokens)
     return text
     
-def _tokenize_untokenize(input_text: str, bert_tokenizer):
+def _tokenize_untokenize(input_text: str):
     subtokens = BERT_TOKENIZER.tokenize(input_text)
     output = []
     for subt in subtokens:
