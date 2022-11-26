@@ -632,13 +632,13 @@ def _custom_bert_tokenize_sentence(text):
                                                         text)
     return text, tokens, split_sizes
 
-
+# Tokenizing noisy dataset
 def _custom_bert_tokenize_sentences(list_of_texts):
     out = [_custom_bert_tokenize_sentence(text) for text in list_of_texts]
     texts, tokens, split_sizes = list(zip(*out))
     return [*texts], [*tokens], [*split_sizes]
 
-
+# Tokenizing clean dataset
 def _simple_bert_tokenize_sentences(list_of_texts):
     return [merge_subtokens(BERT_TOKENIZER.tokenize(text)[:BERT_MAX_SEQ_LEN - 2]) for text in list_of_texts]
 
@@ -717,7 +717,7 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
             BERT_TOKENIZER.do_basic_tokenize = True
             BERT_TOKENIZER.tokenize_chinese_chars = False
         else:
-            BERT_TOKENIZER = AutoTokenizer.from_pretrained("NLPC-UOM/SinBERT-large", add_prefix_space=True)
+            BERT_TOKENIZER = transformers.BertTokenizer.from_pretrained("/content/neuspell-sinbert-huggingface/data/checkpoints/Fine_tuned_SinBERT_large")
             BERT_TOKENIZER.do_basic_tokenize = True
             BERT_TOKENIZER.tokenize_chinese_chars = False
 
@@ -738,7 +738,9 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
         # "token_type_ids": []
     }
     if len(valid_idxs) > 0:
-        batch_encoded_dicts = [BERT_TOKENIZER.encode_plus(tokens,max_length=514, add_special_tokens=True,  padding="max_length",truncation = True, is_split_into_words=True, return_attention_mask = True) for tokens in batch_tokens]
+        # batch_encoded_dicts = [BERT_TOKENIZER.encode_plus(tokens,max_length=514, add_special_tokens=True,  padding="max_length",truncation = True, is_split_into_words=True, return_attention_mask = True) for tokens in batch_tokens]
+        batch_encoded_dicts = [BERT_TOKENIZER.encode_plus(tokens) for tokens in batch_tokens]
+
         batch_attention_masks = pad_sequence(
             [torch.tensor(encoded_dict["attention_mask"]) for encoded_dict in batch_encoded_dicts], batch_first=False,
             padding_value=0)
