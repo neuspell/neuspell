@@ -182,18 +182,24 @@ class BertChecker(Corrector):
                 
                 print("=================== Aftr tokenizing=================")
                 print("batch_labels_",batch_labels_)
+                print(" len of batch_labels_",len(batch_labels_))
                 print("batch_sentences_",batch_sentences_)
                 print("batch_bert_inp",batch_bert_inp)
                 print("batch_bert_splits",batch_bert_splits)
                 if len(batch_labels_) == 0:
+                    print("===============calling here if=============")
                     print("Not training the following lines due to pre-processing mismatch: \n")
                     print([(a, b) for a, b in zip(batch_labels, batch_sentences)])
                     continue
                 else:
+                    print("===============calling here else=============")
                     batch_labels, batch_sentences = batch_labels_, batch_sentences_
                 batch_bert_inp = {k: v.to(DEVICE) for k, v in batch_bert_inp.items()}
                 # set batch data for others
                 batch_labels, batch_lengths = labelize(batch_labels, vocab)
+                print("after labelize ==============")
+                print("batch_labels",batch_labels)
+                print("batch_lengths",batch_lengths)
                 # batch_lengths = batch_lengths.to(device)
                 batch_labels = batch_labels.to(DEVICE)
 
