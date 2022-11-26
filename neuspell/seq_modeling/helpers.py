@@ -711,7 +711,7 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
     if BERT_TOKENIZER is None:  # gets initialized during the first call to this method
         if bert_pretrained_name_or_path:
             # BERT_TOKENIZER = transformers.BertTokenizer.from_pretrained("bert-base-cased")
-            BERT_TOKENIZER = AutoTokenizer.from_pretrained("NLPC-UOM/SinBERT-small", add_prefix_space=True)
+            BERT_TOKENIZER = AutoTokenizer.from_pretrained("NLPC-UOM/SinBERT-large", add_prefix_space=True)
             print("BERT_TOKENIZER", BERT_TOKENIZER)
             BERT_TOKENIZER.do_basic_tokenize = True
             BERT_TOKENIZER.tokenize_chinese_chars = False
