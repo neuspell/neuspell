@@ -707,7 +707,8 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
             specifies #sub-tokens for each word in each textual string after sub-word tokenization
     """
     global BERT_TOKENIZER
-
+    print("Before if BERT_TOKENIZER is None:  #")
+    print("bert_pretrained_name_or_path",bert_pretrained_name_or_path)
     if BERT_TOKENIZER is None:  # gets initialized during the first call to this method
         if bert_pretrained_name_or_path:
             # BERT_TOKENIZER = transformers.BertTokenizer.from_pretrained("bert-base-cased")
