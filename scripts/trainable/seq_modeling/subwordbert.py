@@ -84,6 +84,7 @@ def load_pretrained(model, CHECKPOINT_PATH, optimizer=None, device='cuda'):
     return model
 
 def model_predictions(model, data, vocab, DEVICE, BATCH_SIZE=16):
+    print("====================calling model_predictions==================")
     """
     model: an instance of SubwordBert
     data: list of tuples, with each tuple consisting of correct and incorrect 
@@ -129,6 +130,7 @@ def model_predictions(model, data, vocab, DEVICE, BATCH_SIZE=16):
     return final_sentences
 
 def model_inference(model, data, topk, DEVICE, BATCH_SIZE=16, vocab_=None):
+    print("======================calling model_inference===================")
     """
     model: an instance of SubwordBert
     data: list of tuples, with each tuple consisting of correct and incorrect 

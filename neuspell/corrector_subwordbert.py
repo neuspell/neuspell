@@ -44,6 +44,7 @@ class BertChecker(Corrector):
             return return_strings
 
     def evaluate(self, clean_file, corrupt_file, data_dir=""):
+        print("==================calling evaluate==================")
         self.is_model_ready()
         data_dir = DEFAULT_TRAINTEST_DATA_PATH if data_dir == "default" else data_dir
 
@@ -51,6 +52,7 @@ class BertChecker(Corrector):
         for x, y, z in zip([data_dir], [clean_file], [corrupt_file]):
             print(x, y, z)
             test_data = load_data(x, y, z)
+            print("test_data",test_data)
             _ = model_inference(self.model,
                                 test_data,
                                 topk=1,

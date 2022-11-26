@@ -30,6 +30,7 @@ def progressBar(value, endvalue, names, values, bar_length=30):
 
 
 def load_data(base_path, corr_file, incorr_file):
+    print("===================calling load_data===================")
     # load files
     if base_path:
         assert os.path.exists(base_path) == True
@@ -730,19 +731,18 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
             specifies #sub-tokens for each word in each textual string after sub-word tokenization
     """
     global BERT_TOKENIZER
-    print("Before if BERT_TOKENIZER is None:  #")
-    print("bert_pretrained_name_or_path",bert_pretrained_name_or_path)
     if BERT_TOKENIZER is None:  # gets initialized during the first call to this method
         if bert_pretrained_name_or_path:
             # BERT_TOKENIZER = transformers.BertTokenizer.from_pretrained("bert-base-cased")
             BERT_TOKENIZER = AutoTokenizer.from_pretrained("NLPC-UOM/SinBERT-large", add_prefix_space=True)
-            print("BERT_TOKENIZER", BERT_TOKENIZER)
             BERT_TOKENIZER.do_basic_tokenize = True
             BERT_TOKENIZER.tokenize_chinese_chars = False
         else:
             BERT_TOKENIZER = transformers.BertTokenizer.from_pretrained("/content/neuspell-sinbert-huggingface/data/checkpoints/Fine_tuned_SinBERT_large")
             BERT_TOKENIZER.do_basic_tokenize = True
             BERT_TOKENIZER.tokenize_chinese_chars = False
+
+    print("BERT_TOKENIZER", BERT_TOKENIZER)
 
     _batch_orginal_sentences = _simple_bert_tokenize_sentences(batch_orginal_sentences)
 
