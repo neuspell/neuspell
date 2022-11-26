@@ -619,13 +619,20 @@ def merge_subtokens(tokens: List):
     return text
     
 def _tokenize_untokenize(input_text: str):
+    print("====================calling _tokenize_untokenize")
+    print("input_text",input_text)
     subtokens = BERT_TOKENIZER.tokenize(input_text)
+    print("subtokens",subtokens)
     output = []
     for subt in subtokens:
         if subt.startswith("##"):
+            print("==========calling if")
             output[-1] += subt[2:]
+            print("output", output)
         else:
             output.append(subt)
+            print("=========else  =================output", output)
+    print("output", output)
     return " ".join(output)
 
 def _custom_bert_tokenize_sentence(text):
@@ -634,6 +641,8 @@ def _custom_bert_tokenize_sentence(text):
     split_sizes = []
     text = []
     for token in _tokenize_untokenize(text).split(" "):
+        print("============after calling _tokenize_untokenize")
+        print("token",token)
         word_tokens = BERT_TOKENIZER.tokenize(token)
         print("word_tokens",word_tokens)
         if len(tokens) + len(word_tokens) > max_len - 2:  # 512-2 = 510
