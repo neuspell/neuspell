@@ -619,7 +619,6 @@ def merge_subtokens(tokens: List):
     return text
     
 def _tokenize_untokenize(input_text: str):
-    print("====================calling _tokenize_untokenize")
     subtokens = BERT_TOKENIZER.tokenize(input_text)
     output = []
     for subt in subtokens:
@@ -630,15 +629,11 @@ def _tokenize_untokenize(input_text: str):
     return " ".join(output)
 
 def _custom_bert_tokenize_sentence(input_text):
-    print("===================calling _custom_bert_tokenize_sentence")
     tokens = []
     split_sizes = []
     text = []
     for token in _tokenize_untokenize(input_text).split(" "):
-        print("============after calling _tokenize_untokenize")
-        print("token",token)
         word_tokens = BERT_TOKENIZER.tokenize(token)
-        print("word_tokens",word_tokens)
         if len(tokens) + len(word_tokens) > BERT_MAX_SEQ_LEN - 2:  # 512-2 = 510
             break
         if len(word_tokens) == 0:
@@ -663,7 +658,6 @@ def _custom_bert_tokenize_sentence(input_text):
 # Tokenizing noisy dataset
 def _custom_bert_tokenize_sentences(list_of_texts):
     out = [_custom_bert_tokenize_sentence(text) for text in list_of_texts]
-    print("out",out)
     texts, tokens, split_sizes = list(zip(*out))
     return [*texts], [*tokens], [*split_sizes]
 
@@ -763,20 +757,27 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
     print("_batch_noisy_sentences",_batch_noisy_sentences)
     valid_idxs = [idx for idx, (a, b) in enumerate(zip(_batch_orginal_sentences, _batch_noisy_sentences)) if
                   len(a.split()) == len(b.split())]
+    print("valid_idxs",valid_idxs)
     batch_orginal_sentences = [line for idx, line in enumerate(_batch_orginal_sentences) if idx in valid_idxs]
+    print("2222222222222222222222222batch_orginal_sentences",batch_orginal_sentences)
     batch_noisy_sentences = [line for idx, line in enumerate(_batch_noisy_sentences) if idx in valid_idxs]
+    print("222222222222222222222222batch_noisy_sentences",batch_noisy_sentences)
     
     batch_tokens = [line for idx, line in enumerate(_batch_tokens) if idx in valid_idxs]
+    print("batch_tokens",batch_tokens)
     batch_splits = [line for idx, line in enumerate(_batch_splits) if idx in valid_idxs]
+    print("batch_splits",batch_splits)
 
     batch_bert_dict = {
         "attention_mask": [],
         "input_ids": [],
         # "token_type_ids": []
     }
+    print("len valid_idxs ",len(valid_idxs))
     if len(valid_idxs) > 0:
         # batch_encoded_dicts = [BERT_TOKENIZER.encode_plus(tokens,max_length=514, add_special_tokens=True,  padding="max_length",truncation = True, is_split_into_words=True, return_attention_mask = True) for tokens in batch_tokens]
         batch_encoded_dicts = [BERT_TOKENIZER.encode_plus(tokens) for tokens in batch_tokens]
+        print("batch_encoded_dicts",batch_encoded_dicts)
 
         batch_attention_masks = pad_sequence(
             [torch.tensor(encoded_dict["attention_mask"]) for encoded_dict in batch_encoded_dicts], batch_first=True,
