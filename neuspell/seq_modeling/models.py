@@ -898,10 +898,6 @@ class SubwordBert(nn.Module):
         return next(self.parameters()).device
 
     def get_merged_encodings(self, bert_seq_encodings, seq_splits, mode='avg'):
-        print("=============calling get_merged_encodings")
-        print("bert_seq_encodings",bert_seq_encodings)
-        print("seq_splits",seq_splits)
-        print("sum seq_splits",sum(seq_splits))
         bert_seq_encodings = bert_seq_encodings[:sum(seq_splits) + 2, :]  # 2 for [CLS] and [SEP]
         bert_seq_encodings = bert_seq_encodings[1:-1, :]
         # a tuple of tensors
