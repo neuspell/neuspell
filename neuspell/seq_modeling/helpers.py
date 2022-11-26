@@ -780,7 +780,7 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
                            "input_ids": batch_input_ids,
                            # "token_type_ids": batch_token_type_ids
                            }
-    return batch_orginal_sentences, batch_noisy_sentences, batch_bert_dict, batch_splits[0]
+    return batch_orginal_sentences, batch_noisy_sentences, batch_bert_dict, batch_splits
 
 ################################################
 # <-----
