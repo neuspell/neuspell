@@ -635,12 +635,12 @@ def _tokenize_untokenize(input_text: str):
     print("output", output)
     return " ".join(output)
 
-def _custom_bert_tokenize_sentence(text):
+def _custom_bert_tokenize_sentence(input_text):
     print("===================calling _custom_bert_tokenize_sentence")
     tokens = []
     split_sizes = []
     text = []
-    for token in _tokenize_untokenize(text).split(" "):
+    for token in _tokenize_untokenize(input_text).split(" "):
         print("============after calling _tokenize_untokenize")
         print("token",token)
         word_tokens = BERT_TOKENIZER.tokenize(token)
