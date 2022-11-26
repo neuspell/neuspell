@@ -60,6 +60,7 @@ def load_pretrained_large(model, checkpoint_path, optimizer=None, device='cuda')
 
 
 def model_predictions(model, data, vocab, device, batch_size=16):
+    print("===================calling model_predictions")
     """
     model: an instance of SubwordBert
     data: list of tuples, with each tuple consisting of correct and incorrect 
@@ -79,6 +80,7 @@ def model_predictions(model, data, vocab, device, batch_size=16):
         # set batch data for bert
         batch_labels_, batch_sentences_, batch_bert_inp, batch_bert_splits = bert_tokenize_for_valid_examples(
             batch_labels, batch_sentences)
+        print("len batch_labels_", len(batch_labels_))
         if len(batch_labels_) == 0:
             print("################")
             print("Not predicting the following lines due to pre-processing mismatch: \n")
@@ -105,6 +107,7 @@ def model_predictions(model, data, vocab, device, batch_size=16):
 
 
 def model_inference(model, data, topk, device, batch_size=16, vocab_=None):
+    print("=================calling model_inference")
     """
     model: an instance of SubwordBert
     data: list of tuples, with each tuple consisting of correct and incorrect 
@@ -130,6 +133,7 @@ def model_inference(model, data, topk, device, batch_size=16, vocab_=None):
         # set batch data for bert
         batch_labels_, batch_sentences_, batch_bert_inp, batch_bert_splits = bert_tokenize_for_valid_examples(
             batch_labels, batch_sentences)
+        print("len(batch_labels_)",len(batch_labels_))
         if len(batch_labels_) == 0:
             print("################")
             print("Not predicting the following lines due to pre-processing mismatch: \n")

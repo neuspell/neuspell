@@ -102,7 +102,9 @@ def model_predictions(model, data, vocab, DEVICE, BATCH_SIZE=16):
     model.to(DEVICE)
     for batch_id, (batch_labels,batch_sentences) in enumerate(data_iter):
         # set batch data for bert
+
         batch_labels_, batch_sentences_, batch_bert_inp, batch_bert_splits = bert_tokenize_for_valid_examples(batch_labels,batch_sentences)
+        print("In model_predictions len batch_labels_", len(batch_labels_))
         if len(batch_labels_)==0:
             print("################")
             print("Not predicting the following lines due to pre-processing mismatch: \n")
@@ -130,7 +132,6 @@ def model_predictions(model, data, vocab, DEVICE, BATCH_SIZE=16):
     return final_sentences
 
 def model_inference(model, data, topk, DEVICE, BATCH_SIZE=16, vocab_=None):
-    print("======================calling model_inference===================")
     """
     model: an instance of SubwordBert
     data: list of tuples, with each tuple consisting of correct and incorrect 
@@ -154,13 +155,7 @@ def model_inference(model, data, topk, DEVICE, BATCH_SIZE=16, vocab_=None):
         torch.cuda.empty_cache()
         st_time = time.time()
         # set batch data for bert
-        print("===============before calling bert_tokenize_for_valid_examples")
-        print("batch_labels",batch_labels)
-        print("batch_sentences",batch_sentences)
         batch_labels_, batch_sentences_, batch_bert_inp, batch_bert_splits = bert_tokenize_for_valid_examples(batch_labels,batch_sentences)
-        print("===============after calling bert_tokenize_for_valid_examples")
-        print("batch_labels_",batch_labels_)
-        print("len batch_labels_",len(batch_labels_))
         if len(batch_labels_)==0:
             print("################")
             print("Not predicting the following lines due to pre-processing mismatch: \n")
