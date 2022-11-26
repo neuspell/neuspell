@@ -21,7 +21,7 @@ class BertChecker(Corrector):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.bert_pretrained_name_or_path = "bert-base-cased"
+        self.bert_pretrained_name_or_path = "/content/neuspell-sinbert-huggingface/data/checkpoints/Fine_tuned_SinBERT_large"
 
     def load_model(self, ckpt_path):
         print(f"initializing model")
