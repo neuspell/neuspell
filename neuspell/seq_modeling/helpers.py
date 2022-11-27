@@ -745,25 +745,25 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
             BERT_TOKENIZER.tokenize_chinese_chars = False
 
 
-    print("================before tokenizing======================")
-    print("batch_orginal_sentences", batch_orginal_sentences)
-    print("batch_noisy_sentences", batch_noisy_sentences)
+    # print("================before tokenizing======================")
+    # print("batch_orginal_sentences", batch_orginal_sentences)
+    # print("batch_noisy_sentences", batch_noisy_sentences)
     _batch_orginal_sentences = _simple_bert_tokenize_sentences(batch_orginal_sentences)
-    print("================after tokenizing======================")
-    print("_batch_orginal_sentences", _batch_orginal_sentences)
+    # print("================after tokenizing======================")
+    # print("_batch_orginal_sentences", _batch_orginal_sentences)
 
     _batch_noisy_sentences, _batch_tokens, _batch_splits = _custom_bert_tokenize_sentences(batch_noisy_sentences)
-    print("================after tokenizing======================")
-    print("_batch_noisy_sentences", _batch_noisy_sentences)
+    # print("================after tokenizing======================")
+    # print("_batch_noisy_sentences", _batch_noisy_sentences)
 
     valid_idxs = [idx for idx, (a, b) in enumerate(zip(_batch_orginal_sentences, _batch_noisy_sentences)) if
                   len(a.split()) == len(b.split())]
-    print("valid_idxs",valid_idxs)
+    # print("valid_idxs",valid_idxs)
     batch_orginal_sentences = [line for idx, line in enumerate(_batch_orginal_sentences) if idx in valid_idxs]
     batch_noisy_sentences = [line for idx, line in enumerate(_batch_noisy_sentences) if idx in valid_idxs]
     
     batch_tokens = [line for idx, line in enumerate(_batch_tokens) if idx in valid_idxs]
-    print("batch_tokens",batch_tokens)
+    # print("batch_tokens",batch_tokens)
     batch_splits = [line for idx, line in enumerate(_batch_splits) if idx in valid_idxs]
 
     batch_bert_dict = {
@@ -790,8 +790,8 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
                            "input_ids": batch_input_ids,
                            # "token_type_ids": batch_token_type_ids
                            }
-        print("batch_bert_dict",batch_bert_dict)
-        print("batch_splits",batch_splits)
+        # print("batch_bert_dict",batch_bert_dict)
+        # print("batch_splits",batch_splits)
     return batch_orginal_sentences, batch_noisy_sentences, batch_bert_dict, batch_splits
 
 ################################################
