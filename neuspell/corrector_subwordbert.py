@@ -48,7 +48,7 @@ class BertChecker(Corrector):
         self.is_model_ready()
         data_dir = DEFAULT_TRAINTEST_DATA_PATH if data_dir == "default" else data_dir
 
-        batch_size = 4 if self.device == "cpu" else 16
+        batch_size = 8 if self.device == "cpu" else 16 #changed batch size to 8 in eval
         for x, y, z in zip([data_dir], [clean_file], [corrupt_file]):
             print(x, y, z)
             test_data = load_data(x, y, z)
