@@ -744,7 +744,6 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
             BERT_TOKENIZER.do_basic_tokenize = True
             BERT_TOKENIZER.tokenize_chinese_chars = False
 
-    print("BERT_TOKENIZER", BERT_TOKENIZER)
 
     print("================before tokenizing======================")
     print("batch_orginal_sentences", batch_orginal_sentences)
@@ -764,6 +763,7 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
     batch_noisy_sentences = [line for idx, line in enumerate(_batch_noisy_sentences) if idx in valid_idxs]
     
     batch_tokens = [line for idx, line in enumerate(_batch_tokens) if idx in valid_idxs]
+    print("batch_tokens",batch_tokens)
     batch_splits = [line for idx, line in enumerate(_batch_splits) if idx in valid_idxs]
 
     batch_bert_dict = {
