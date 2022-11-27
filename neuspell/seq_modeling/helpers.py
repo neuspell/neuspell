@@ -619,42 +619,42 @@ def merge_subtokens(tokens: List):
     text = " ".join(merged_tokens)
     return text
     
-def _tokenize_untokenize(input_text: str):
-    subtokens = BERT_TOKENIZER.tokenize(input_text)
-    output = []
-    for subt in subtokens:
-        if subt.startswith("##"):
-            output[-1] += subt[2:]
-        else:
-            output.append(subt)
-    return " ".join(output)
+# def _tokenize_untokenize(input_text: str):
+#     subtokens = BERT_TOKENIZER.tokenize(input_text)
+#     output = []
+#     for subt in subtokens:
+#         if subt.startswith("##"):
+#             output[-1] += subt[2:]
+#         else:
+#             output.append(subt)
+#     return " ".join(output)
 
 def _custom_bert_tokenize_sentence(input_text):
-    tokens = []
-    split_sizes = []
-    text = []
-    for token in _tokenize_untokenize(input_text).split(" "):
-        word_tokens = BERT_TOKENIZER.tokenize(token)
-        if len(tokens) + len(word_tokens) > BERT_MAX_SEQ_LEN - 2:  # 512-2 = 510
-            break
-        if len(word_tokens) == 0:
-            continue
-        tokens.extend(word_tokens)
-        split_sizes.append(len(word_tokens))
-        text.append(token)
+    # tokens = []
+    # split_sizes = []
+    # text = []
+    # for token in _tokenize_untokenize(input_text).split(" "):
+    #     word_tokens = BERT_TOKENIZER.tokenize(token)
+    #     if len(tokens) + len(word_tokens) > BERT_MAX_SEQ_LEN - 2:  # 512-2 = 510
+    #         break
+    #     if len(word_tokens) == 0:
+    #         continue
+    #     tokens.extend(word_tokens)
+    #     split_sizes.append(len(word_tokens))
+    #     text.append(token)
 
-    return " ".join(text), tokens, split_sizes
-    # tokens = BERT_TOKENIZER.tokenize(text)
-    # tokens = tokens[:BERT_MAX_SEQ_LEN - 2]  # 2 allowed for [CLS] and [SEP]
-    # idxs = np.array([idx for idx, token in enumerate(tokens) if not token.startswith("##")] + [len(tokens)])
-    # split_sizes = (idxs[1:] - idxs[0:-1]).tolist()
-    # # NOTE: BERT tokenizer does more than just splitting at whitespace and tokenizing. So be careful.
-    # # -----> assert len(split_sizes)==len(text.split()), print(len(tokens), len(split_sizes), len(text.split()), split_sizes, text)
-    # # -----> hence do the following:
-    # text = merge_subtokens(tokens)
-    # assert len(split_sizes) == len(text.split()), print(len(tokens), len(split_sizes), len(text.split()), split_sizes,
-    #                                                     text)
-    # return text, tokens, split_sizes
+    # return " ".join(text), tokens, split_sizes
+    tokens = BERT_TOKENIZER.tokenize(input_text)
+    tokens = tokens[:BERT_MAX_SEQ_LEN - 2]  # 2 allowed for [CLS] and [SEP]
+    idxs = np.array([idx for idx, token in enumerate(tokens) if not token.startswith("##")] + [len(tokens)])
+    split_sizes = (idxs[1:] - idxs[0:-1]).tolist()
+    # NOTE: BERT tokenizer does more than just splitting at whitespace and tokenizing. So be careful.
+    # -----> assert len(split_sizes)==len(text.split()), print(len(tokens), len(split_sizes), len(text.split()), split_sizes, text)
+    # -----> hence do the following:
+    text = merge_subtokens(tokens)
+    assert len(split_sizes) == len(text.split()), print(len(tokens), len(split_sizes), len(text.split()), split_sizes,
+                                                        text)
+    return text, tokens, split_sizes
 
 # Tokenizing noisy dataset
 def _custom_bert_tokenize_sentences(list_of_texts):
