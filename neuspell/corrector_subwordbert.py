@@ -48,7 +48,7 @@ class BertChecker(Corrector):
         self.is_model_ready()
         data_dir = DEFAULT_TRAINTEST_DATA_PATH if data_dir == "default" else data_dir
 
-        batch_size = 8 if self.device == "cpu" else 16 #changed batch size to 8 in eval
+        batch_size = 4 if self.device == "cpu" else 16 
         for x, y, z in zip([data_dir], [clean_file], [corrupt_file]):
             print(x, y, z)
             test_data = load_data(x, y, z)
@@ -100,7 +100,8 @@ class BertChecker(Corrector):
         # training and validation
         #############################################
         model, vocab = self.model, self.vocab
-        TRAIN_BATCH_SIZE, VALID_BATCH_SIZE = 16, 32
+        TRAIN_BATCH_SIZE, VALID_BATCH_SIZE = 4, 8
+        # TRAIN_BATCH_SIZE, VALID_BATCH_SIZE = 16, 32
         GRADIENT_ACC = 4
         DEVICE = self.device
         START_EPOCH, N_EPOCHS = 0, n_epochs
