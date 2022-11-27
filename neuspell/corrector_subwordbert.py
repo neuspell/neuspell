@@ -75,7 +75,7 @@ class BertChecker(Corrector):
                  corrupt_file,
                  data_dir="",
                  validation_split=0.2,
-                 n_epochs=2,
+                 n_epochs=5,
                  new_vocab_list: List = None):
         if new_vocab_list:
             raise NotImplementedError("Do not currently support modifying output vocabulary of the models "
