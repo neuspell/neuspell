@@ -878,6 +878,8 @@ class SubwordBert(nn.Module):
         # self.bert_model = AutoModelForMaskedLM.from_pretrained("NLPC-UOM/SinBERT-large")
 
         print("self.bert_model",self.bert_model)
+        print("self.bert_model.config.vocab_size",self.bert_model.config.vocab_size)
+        print("self.bert_modelself.bert_model.config.hidden_size",self.bert_model.config.hidden_size)
 
         self.bertmodule_outdim = self.bert_model.config.vocab_size #changed the outdim from hidden-size to vocab_size
         # self.bertmodule_outdim = self.bert_model.config.hidden_size
