@@ -881,8 +881,8 @@ class SubwordBert(nn.Module):
         print("self.bert_model.config.vocab_size",self.bert_model.config.vocab_size)
         print("self.bert_modelself.bert_model.config.hidden_size",self.bert_model.config.hidden_size)
 
-        self.bertmodule_outdim = self.bert_model.config.vocab_size #changed the outdim from hidden-size to vocab_size
-        # self.bertmodule_outdim = self.bert_model.config.hidden_size
+        # self.bertmodule_outdim = self.bert_model.config.vocab_size #changed the outdim from hidden-size to vocab_size
+        self.bertmodule_outdim = self.bert_model.config.hidden_size
         if freeze_bert:
             # Uncomment to freeze BERT layers
             for param in self.bert_model.parameters():
