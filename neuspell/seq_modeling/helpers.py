@@ -9,7 +9,8 @@ import torch
 import transformers
 from torch.nn.utils.rnn import pad_sequence
 from tqdm import tqdm
-from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoModelForSequenceClassification
+# from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoModelForSequenceClassification
+from transformers import XLMRobertaTokenizer, XLMRobertaModel
 
 BERT_MAX_SEQ_LEN = 512
 BERT_TOKENIZER = None
@@ -734,13 +735,15 @@ def bert_tokenize_for_valid_examples(batch_orginal_sentences, batch_noisy_senten
     if BERT_TOKENIZER is None:  # gets initialized during the first call to this method
         if bert_pretrained_name_or_path:
             # BERT_TOKENIZER = transformers.BertTokenizer.from_pretrained("bert-base-cased")
-            BERT_TOKENIZER = AutoTokenizer.from_pretrained("NLPC-UOM/SinBERT-large", add_prefix_space=True)
+            BERT_TOKENIZER = XLMRobertaTokenizer.from_pretrained("xlm-roberta-base", add_prefix_space=True)
+            # BERT_TOKENIZER = AutoTokenizer.from_pretrained("NLPC-UOM/SinBERT-large", add_prefix_space=True)
             # BERT_TOKENIZER = transformers.BertTokenizer.from_pretrained("/content/neuspell-sinbert-huggingface/data/checkpoints/Fine_tuned_SinBERT_large")
 
             BERT_TOKENIZER.do_basic_tokenize = True
             BERT_TOKENIZER.tokenize_chinese_chars = False
         else:
-            BERT_TOKENIZER = AutoTokenizer.from_pretrained("NLPC-UOM/SinBERT-large", add_prefix_space=True)
+            BERT_TOKENIZER = XLMRobertaTokenizer.from_pretrained("xlm-roberta-base", add_prefix_space=True)
+            # BERT_TOKENIZER = AutoTokenizer.from_pretrained("NLPC-UOM/SinBERT-large", add_prefix_space=True)
             BERT_TOKENIZER.do_basic_tokenize = True
             BERT_TOKENIZER.tokenize_chinese_chars = False
 
