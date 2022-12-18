@@ -201,6 +201,8 @@ class BertChecker(Corrector):
                     # scheduler.step()
                     optimizer.zero_grad()
                 # compute accuracy in numpy
+                print("batch_id",batch_id)
+                print("train_acc_count111111111111111111",train_acc_count)
                 if batch_id % 10000 == 0:
                     train_acc_count += 1
                     model.eval()
@@ -212,6 +214,7 @@ class BertChecker(Corrector):
                     ncorr, ntotal = batch_accuracy_func(batch_predictions, batch_labels, batch_lengths)
                     batch_acc = ncorr / ntotal
                     train_acc += batch_acc
+                    print("train_acc_count 22222222222222",train_acc_count)
                     # update progress
                 progressBar(batch_id + 1,
                             int(np.ceil(len(train_data) / TRAIN_BATCH_SIZE)),
