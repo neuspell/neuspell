@@ -17,6 +17,7 @@ def __get_data(inp):
 
 def get_metrics(clean, corrupt, predictions, check_until_topk=1, return_mistakes=False, window=7,
                 return_selected_lines=False, selected_lines=None):
+    print("===============calling get_metrics========================== ")
     """
     clean: 
         a list of clean sentences, same number of sentences as batch size
@@ -80,6 +81,11 @@ def get_metrics(clean, corrupt, predictions, check_until_topk=1, return_mistakes
         for i, (clean_token, corrupt_token, prediction_tokens) in enumerate(
                 zip(clean_line_tokens, corrupt_line_tokens, predictions_)):
             if clean_token == corrupt_token and is_correct_prediction(clean_token, prediction_tokens):
+                print("==========corr2corr=====================")
+                print("clean_token",clean_token)
+                print("corrupt_token",corrupt_token)
+                print("prediction_tokens",prediction_tokens)
+                print(is_correct_prediction(clean_token, prediction_tokens))
                 corr2corr += 1
             elif clean_token == corrupt_token and not is_correct_prediction(clean_token, prediction_tokens):
                 corr2incorr += 1
