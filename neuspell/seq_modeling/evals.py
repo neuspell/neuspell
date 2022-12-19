@@ -86,12 +86,31 @@ def get_metrics(clean, corrupt, predictions, check_until_topk=1, return_mistakes
                 print("corrupt_token",corrupt_token)
                 print("prediction_tokens",prediction_tokens)
                 print(is_correct_prediction(clean_token, prediction_tokens))
+                print("corr2corr",corr2corr)
                 corr2corr += 1
             elif clean_token == corrupt_token and not is_correct_prediction(clean_token, prediction_tokens):
+                print("==========corr2incorr=====================")
+                print("clean_token",clean_token)
+                print("corrupt_token",corrupt_token)
+                print("prediction_tokens",prediction_tokens)
+                print(is_correct_prediction(clean_token, prediction_tokens))
+                print("corr2incorr",corr2incorr)
                 corr2incorr += 1
             elif clean_token != corrupt_token and is_correct_prediction(clean_token, prediction_tokens):
+                print("==========incorr2corr=====================")
+                print("clean_token",clean_token)
+                print("corrupt_token",corrupt_token)
+                print("prediction_tokens",prediction_tokens)
+                print(is_correct_prediction(clean_token, prediction_tokens))
+                print("incorr2corr",incorr2corr)
                 incorr2corr += 1
             elif clean_token != corrupt_token and not is_correct_prediction(clean_token, prediction_tokens):
+                print("==========incorr2corr=====================")
+                print("clean_token",clean_token)
+                print("corrupt_token",corrupt_token)
+                print("prediction_tokens",prediction_tokens)
+                print(is_correct_prediction(clean_token, prediction_tokens))
+                print("incorr2incorr",incorr2incorr)
                 incorr2incorr += 1
                 if return_mistakes: \
                         mistakes.append((clean_token,
