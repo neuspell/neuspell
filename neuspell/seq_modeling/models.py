@@ -953,12 +953,14 @@ class SubwordBert(nn.Module):
 
         # loss
         if targets is not None:
+            print("=====================calling # loss")
             assert len(targets) == batch_size  # targets:[[BS,max_nwords]
             logits_permuted = logits.permute(0, 2, 1)  # logits: [BS,output_dim,max_nwords]
             loss = self.criterion(logits_permuted, targets)
 
         # eval preds
         if not self.training:
+            print("============calling eval preds=================")
             probs = F.softmax(logits, dim=-1)  # [BS,max_nwords,output_dim]
             if topk > 1:
                 topk_values, topk_inds = \

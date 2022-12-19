@@ -105,7 +105,7 @@ def get_metrics(clean, corrupt, predictions, check_until_topk=1, return_mistakes
                 print("incorr2corr",incorr2corr)
                 incorr2corr += 1
             elif clean_token != corrupt_token and not is_correct_prediction(clean_token, prediction_tokens):
-                print("==========incorr2corr=====================")
+                print("==========incorr2incorr=====================")
                 print("clean_token",clean_token)
                 print("corrupt_token",corrupt_token)
                 print("prediction_tokens",prediction_tokens)
