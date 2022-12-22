@@ -961,7 +961,9 @@ class SubwordBert(nn.Module):
         # eval preds
         if not self.training:
             print("============calling eval preds=================")
+            print("logits size", len(logits))
             probs = F.softmax(logits, dim=-1)  # [BS,max_nwords,output_dim]
+            print("topk",topk)
             if topk > 1:
                 topk_values, topk_inds = \
                     torch.topk(probs, topk, dim=-1, largest=True,
