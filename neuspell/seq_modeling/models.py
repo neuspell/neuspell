@@ -962,6 +962,7 @@ class SubwordBert(nn.Module):
         if not self.training:
             print("============calling eval preds=================")
             print("logits size", len(logits))
+            print("logits",logits)
             probs = F.softmax(logits, dim=-1)  # [BS,max_nwords,output_dim]
             print("probs size", len(probs))
             print("topk",topk)
