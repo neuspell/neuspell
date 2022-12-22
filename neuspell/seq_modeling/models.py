@@ -963,6 +963,7 @@ class SubwordBert(nn.Module):
             print("============calling eval preds=================")
             print("logits size", len(logits))
             probs = F.softmax(logits, dim=-1)  # [BS,max_nwords,output_dim]
+            print("probs size", len(probs))
             print("topk",topk)
             if topk > 1:
                 topk_values, topk_inds = \
