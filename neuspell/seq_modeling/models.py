@@ -961,11 +961,11 @@ class SubwordBert(nn.Module):
         # eval preds
         if not self.training:
             print("============calling eval preds=================")
-            print("logits size", len(logits))
+            print("logits size", len(logits[0]))
             print("logits",logits)
             probs = F.softmax(logits[0], dim=-1)  # [BS,max_nwords,output_dim]
             print("probs",probs)
-            print("probs size", len(probs))
+            print("probs size", len(probs[0]))
             print("topk",topk)
             if topk > 1:
                 topk_values, topk_inds = \
