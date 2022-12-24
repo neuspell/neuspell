@@ -963,7 +963,7 @@ class SubwordBert(nn.Module):
             print("============calling eval preds=================")
             print("logits size", len(logits))
             print("logits",logits)
-            probs = F.softmax(logits, dim=1)  # [BS,max_nwords,output_dim]
+            probs = F.softmax(logits, dim=-1)  # [BS,max_nwords,output_dim]
             print("probs",probs)
             print("probs size", len(probs))
             print("topk",topk)
@@ -972,7 +972,7 @@ class SubwordBert(nn.Module):
                     torch.topk(probs, topk, dim=-1, largest=True,
                                sorted=True)  # -> (Tensor, LongTensor) of [BS,max_nwords,topk]
             elif topk == 1:
-                topk_inds = torch.argmax(probs, dim=1)  # [BS,max_nwords]
+                topk_inds = torch.argmax(probs, dim=-1)  # [BS,max_nwords]
 
             # Note that for those positions with padded_idx,
             #   the arg_max_prob above computes a index because 
