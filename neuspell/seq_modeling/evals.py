@@ -174,7 +174,7 @@ def __get_data(inp):
 #     return corr2corr, corr2incorr, incorr2corr, incorr2incorr
 
 
-def get_metrics(clean,corrupt,predictions,return_mistakes=False,window=7):
+def get_metrics(clean,corrupt,predictions,check_until_topk=1,return_mistakes=False,window=7):
     """
     predictions: is a list of list of lists; the first dimesnion being batch size, 
         the second being for ntokens in that sentence and 
