@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 def __load_data(path):
     opfile = open(path, "r")
     data = opfile.readlines()
