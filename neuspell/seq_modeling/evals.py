@@ -168,6 +168,7 @@ def get_metrics(clean,corrupt,prediction,check_until_topk=1, return_mistakes=Fal
     print("total token count: {}".format(corr2corr+corr2incorr+incorr2corr+incorr2incorr))
     print(f"corr2corr:{corr2corr}, corr2incorr:{corr2incorr}, incorr2corr:{incorr2corr}, incorr2incorr:{incorr2incorr}")
     print(f"accuracy is {(corr2corr+incorr2corr)/(corr2corr+corr2incorr+incorr2corr+incorr2incorr)}")
-    print(f"word correction rate is {(incorr2corr)/(incorr2corr+incorr2incorr)}")
+    if (incorr2corr>0 or incorr2incorr>0):
+        print(f"word correction rate is {(incorr2corr)/(incorr2corr+incorr2incorr)}")
     if return_mistakes: return corr2corr, corr2incorr, incorr2corr, incorr2incorr, mistakes
     return corr2corr, corr2incorr, incorr2corr, incorr2incorr
