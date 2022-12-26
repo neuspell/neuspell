@@ -133,7 +133,7 @@ def __get_data(inp):
     #         return corr2corr, corr2incorr, incorr2corr, incorr2incorr
 
 
-def get_metrics(clean,corrupt,prediction,return_mistakes=False):
+def get_metrics(clean,corrupt,prediction,check_until_topk=1, return_mistakes=False):
     clean_data = __get_data(clean)
     corrupt_data = __get_data(corrupt)
     prediction_data = __get_data(prediction)
