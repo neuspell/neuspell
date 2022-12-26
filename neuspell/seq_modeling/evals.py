@@ -15,7 +15,7 @@ def __get_data(inp):
     return data
 
 
-def get_metrics(clean, corrupt, predictions, check_until_topk=1, return_mistakes=False, window=7,
+# def get_metrics(clean, corrupt, predictions, check_until_topk=1, return_mistakes=False, window=7,
                 return_selected_lines=False, selected_lines=None):
     print("===============calling get_metrics========================== ")
     """
@@ -131,3 +131,41 @@ def get_metrics(clean, corrupt, predictions, check_until_topk=1, return_mistakes
             return corr2corr, corr2incorr, incorr2corr, incorr2incorr, mistakes
         else:
             return corr2corr, corr2incorr, incorr2corr, incorr2incorr
+
+
+def get_metrics(clean,corrupt,prediction,return_mistakes=False):
+    clean_data = __get_data(clean)
+    corrupt_data = __get_data(corrupt)
+    prediction_data = __get_data(prediction)
+    assert len(clean_data)==len(corrupt_data)==len(prediction_data)
+    if return_mistakes: mistakes = []
+    window = 5
+    corr2corr, corr2incorr, incorr2corr, incorr2incorr = 0, 0, 0, 0
+    for clean_line,corrupt_line,prediction_line in tqdm(zip(clean_data,corrupt_data,prediction_data)):
+        clean_line_tokens, corrupt_line_tokens, prediction_line_tokens = clean_line.split(),corrupt_line.split(),prediction_line.split()
+        for i, (clean_token,corrupt_token,prediction_token) in enumerate( zip(clean_line_tokens, corrupt_line_tokens, prediction_line_tokens) ):
+            print("clean_token",clean_token)
+            print("corrupt_token",corrupt_token)
+            print("prediction_token",prediction_token)
+            if clean_token==corrupt_token and prediction_token==clean_token:
+                corr2corr+=1
+                print("corr2corr",corr2corr)
+            elif clean_token==corrupt_token and prediction_token!=clean_token:
+                corr2incorr+=1
+                print("corr2incorr",corr2incorr)
+            elif clean_token!=corrupt_token and prediction_token==clean_token:
+                incorr2corr+=1
+                print("incorr2corr",incorr2corr)
+            elif clean_token!=corrupt_token and prediction_token!=clean_token:
+                incorr2incorr+=1
+                print("incorr2incorr",incorr2incorr)
+                if return_mistakes: mistakes.append( (" ".join(clean_line_tokens[max(i-window,0):min(i+window+1,len(clean_line_tokens))]),
+                                                      corrupt_token,
+                                                      prediction_token) )
+    print("")
+    print("total token count: {}".format(corr2corr+corr2incorr+incorr2corr+incorr2incorr))
+    print(f"corr2corr:{corr2corr}, corr2incorr:{corr2incorr}, incorr2corr:{incorr2corr}, incorr2incorr:{incorr2incorr}")
+    print(f"accuracy is {(corr2corr+incorr2corr)/(corr2corr+corr2incorr+incorr2corr+incorr2incorr)}")
+    print(f"word correction rate is {(incorr2corr)/(incorr2corr+incorr2incorr)}")
+    if return_mistakes: return corr2corr, corr2incorr, incorr2corr, incorr2incorr, mistakes
+    return corr2corr, corr2incorr, incorr2corr, incorr2incorr
