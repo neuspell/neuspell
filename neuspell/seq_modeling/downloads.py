@@ -22,6 +22,9 @@ def download_file_from_google_drive(id, destination):
 
 
 def get_confirm_token(response):
+    match = re.search(r'DOCTYPE html.*Google Drive - Virus scan warning.*\<form id="download-form" action=".*confirm=(.*)" method="post"\>', str(response.text))
+    if match:
+        return match.group(1)
     for key, value in response.cookies.items():
         if key.startswith('download_warning'):
             return value
