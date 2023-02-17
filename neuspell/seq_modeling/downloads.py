@@ -2,7 +2,7 @@
 # taken from this StackOverflow answer: https://stackoverflow.com/a/39225039
 
 import os
-
+import re
 import requests
 
 
@@ -25,6 +25,10 @@ def get_confirm_token(response):
     for key, value in response.cookies.items():
         if key.startswith('download_warning'):
             return value
+
+    match = re.search(r'DOCTYPE html.*Google Drive - Virus scan warning.*\<form id="download-form" action=".*confirm=(.*)" method="post"\>', str(response.text))
+    if match:
+        return match.group(1)
 
     return None
 
