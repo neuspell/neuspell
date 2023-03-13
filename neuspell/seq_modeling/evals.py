@@ -97,6 +97,7 @@ def get_metrics(clean, corrupt, predictions, check_until_topk=1, return_mistakes
 
     if return_selected_lines:
         print(f"#lines evaluated: {len(nlines)}/{len(clean_data)}")
+        print("hii")
         if return_mistakes:
             return corr2corr, corr2incorr, incorr2corr, incorr2incorr, mistakes, nlines
         else:
