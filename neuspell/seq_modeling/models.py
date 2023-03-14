@@ -878,9 +878,11 @@ class SubwordBert(nn.Module):
         # self.bert_model = AutoModelForMaskedLM.from_pretrained("NLPC-UOM/SinBERT-large")
 
         print("self.bert_model",self.bert_model)
+        print("self.bert_model.config.vocab_size",self.bert_model.config.vocab_size)
+        print("self.bert_modelself.bert_model.config.hidden_size",self.bert_model.config.hidden_size)
 
-        self.bertmodule_outdim = self.bert_model.config.vocab_size #changed the outdim from hidden-size to vocab_size
-        # self.bertmodule_outdim = self.bert_model.config.hidden_size
+        # self.bertmodule_outdim = self.bert_model.config.vocab_size #changed the outdim from hidden-size to vocab_size
+        self.bertmodule_outdim = self.bert_model.config.hidden_size
         if freeze_bert:
             # Uncomment to freeze BERT layers
             for param in self.bert_model.parameters():
@@ -951,13 +953,20 @@ class SubwordBert(nn.Module):
 
         # loss
         if targets is not None:
+            print("=====================calling # loss")
             assert len(targets) == batch_size  # targets:[[BS,max_nwords]
             logits_permuted = logits.permute(0, 2, 1)  # logits: [BS,output_dim,max_nwords]
             loss = self.criterion(logits_permuted, targets)
 
         # eval preds
         if not self.training:
+            print("============calling eval preds=================")
+            print("logits size", len(logits))
+            print("logits",logits)
             probs = F.softmax(logits, dim=-1)  # [BS,max_nwords,output_dim]
+            print("probs",probs)
+            print("probs size", len(probs))
+            print("topk",topk)
             if topk > 1:
                 topk_values, topk_inds = \
                     torch.topk(probs, topk, dim=-1, largest=True,
