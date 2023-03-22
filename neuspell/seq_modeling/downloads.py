@@ -19,6 +19,13 @@ def download_file_from_google_drive(id, destination):
         response = session.get(URL, params=params, stream=True)
 
     save_response_content(response, destination)
+    saved_size = os.path.getsize(destination)
+    """If the size is small, 
+    it clearly indicates that the model download has not been successful
+    """
+    if saved_size < 10000:
+        response = session.get(URL, params={'id': id, 'confirm': 't'}, stream = True)
+        save_response_content(response, destination)
 
 
 def get_confirm_token(response):
