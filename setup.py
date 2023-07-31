@@ -4,13 +4,13 @@ with open("README.md", mode="r", encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    'transformers',
-    'tqdm',
-    'torch>=1.6.0',
-    'numpy',
-    'jsonlines',
-    'sentencepiece',
-    'pytorch_pretrained_bert'
+    'transformers==4.30.2',
+    'tqdm==4.65.0',
+    'torch==1.13.1',
+    'numpy==1.24.2',
+    'jsonlines==3.1.0',
+    'sentencepiece==0.1.99',
+    'pytorch_pretrained_bert==0.6.2'
 ]
 
 setup(
