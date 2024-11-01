@@ -33,6 +33,10 @@ def load_pretrained(model, checkpoint_path, optimizer=None, device='cuda'):
     except FileNotFoundError:
         download_pretrained_model(checkpoint_path)
         checkpoint_data = torch.load(os.path.join(checkpoint_path, "pytorch_model.bin"), map_location=map_location)
+    
+    # From transformers v4.31.0, position_ids are part of state dict for bert_model
+    if "bert_model.embeddings.position_ids" in checkpoint_data:
+        del checkpoint_data["bert_model.embeddings.position_ids"]
 
     model.load_state_dict(checkpoint_data)
 
